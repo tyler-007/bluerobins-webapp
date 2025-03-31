@@ -4,6 +4,5 @@ export const useGetChannelId = async (id, name, student_id, mentor_id) => {
     body: JSON.stringify({ id }),
   });
   const data = await res.json();
-  console.log("DATA:", data);
   return data.channel_id;
 };

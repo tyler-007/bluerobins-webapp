@@ -58,13 +58,12 @@ export default function ChatScreen({
       })
       .select()
       .then((res) => {});
-    console.log("NEW MESSAGE");
     setMessages([...messages, message]);
     setNewMessage("");
   };
 
   const handleMessage = async (payload: any) => {
-    console.log("payload", payload.new.from_user, userId);
+    // console.log("payload", payload.new.from_user, userId);
     if (payload.new.from_user === userId) {
       return;
     }
@@ -75,7 +74,6 @@ export default function ChatScreen({
   };
 
   useEffect(() => {
-    console.log("channel_ssid", channel_id);
     try {
       channelMessages
         .on(
