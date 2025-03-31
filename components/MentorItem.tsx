@@ -11,6 +11,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import Avatar from "@/components/shared/Avatar";
+import { ChatView } from "@/app/views/ChatView";
 import { cn, getTagStyle } from "@/lib/utils";
 
 export default function MentorItem({
@@ -77,14 +78,15 @@ export default function MentorItem({
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Button
+        {/* <Button
           variant="outline"
           className="text-sm py-2 bg-cyan-500 border-cyan-400 text-white hover:bg-cyan-600 hover:text-white"
           onClick={() => console.log("Open Chat")}
         >
           <MessageCircle className="h-4 w-4 mr-2" />
           Chat
-        </Button>
+        </Button> */}
+        <ChatView />
         <Button
           className="text-sm py-2 bg-[#B78727] hover:bg-[#9b7421] text-white"
           onClick={() => console.log("Open Schedule")}
