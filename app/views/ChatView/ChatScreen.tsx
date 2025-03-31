@@ -120,7 +120,7 @@ export default function ChatScreen({
       >
         {messagesToShow.map((message, index) => {
           return (
-            <div key={message.id}>
+            <div key={`${message.id}-${index}`}>
               {shouldShowDateDivider(messagesToShow, index) && (
                 <div className="flex justify-center my-4">
                   <div className="bg-[#e1f3fb] text-gray-600 text-xs px-3 py-1 rounded-lg shadow-sm">
