@@ -6,7 +6,6 @@ export const useGetMessages = (id: string) => {
     queryFn: async () => {
       const res = await fetch(`/api/get_messages?id=${id}`);
       const { data } = await res.json();
-      console.log("DATA:", data);
       return data;
     },
   });
