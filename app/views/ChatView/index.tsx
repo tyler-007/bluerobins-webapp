@@ -11,6 +11,7 @@ import { useGetChannelId } from "./useGetChannelId";
 import { Chat } from "./Chat";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import ChatScreen from "./ChatScreen";
 
 export const ChatView = () => {
   const [channel_id, setChannelId] = useState("");
@@ -47,11 +48,20 @@ export const ChatView = () => {
   return (
     <Sheet onOpenChange={onOpenChange}>
       <SheetTrigger>Open</SheetTrigger>
-      <SheetContent side="bottom" className="outline-none h-[80vh]">
-        <SheetTitle>Personal Chat</SheetTitle>
+      <SheetContent side="bottom" className="outline-none h-[95vh] px-0">
+        <SheetTitle className="px-4 flex items-center -mt-3 pb-3">
+          Personal Chat
+        </SheetTitle>
         {channel_id && userId && (
-          <Chat channel_id={channel_id} userId={userId} />
+          <ChatScreen
+            channel_id={channel_id}
+            userId={userId}
+            onBack={() => {}}
+          />
         )}
+        <div className="h-[16px]">
+          <Button>Open</Button>
+        </div>
       </SheetContent>
     </Sheet>
   );
