@@ -13,7 +13,7 @@ import {
 import Avatar from "@/components/shared/Avatar";
 import { ChatView } from "@/app/views/ChatView";
 import { cn, getTagStyle } from "@/lib/utils";
-
+import { useUser } from "@/app/hooks/useUser";
 export default function MentorItem({
   mentor,
   className,
@@ -21,6 +21,8 @@ export default function MentorItem({
   className?: string;
   mentor: any;
 }) {
+  const { data: user } = useUser();
+
   const expertise =
     mentor?.expertise_areas?.split?.(",") ?? mentor?.expertise_areas ?? [];
   return (
@@ -86,7 +88,9 @@ export default function MentorItem({
           <MessageCircle className="h-4 w-4 mr-2" />
           Chat
         </Button> */}
-        <ChatView />
+        {user?.id && mentor.user_id && (
+          <ChatView name={`s_${user?.id}:m_${mentor.user_id}`} />
+        )}
         <Button
           className="text-sm py-2 bg-[#B78727] hover:bg-[#9b7421] text-white"
           onClick={() => console.log("Open Schedule")}

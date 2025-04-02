@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import ChatScreen from "./ChatScreen";
 
-export const ChatView = () => {
+export const ChatView = ({ id, name }: { id?: string; name?: string }) => {
   const [channel_id, setChannelId] = useState("");
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const supabase = createClient();
@@ -25,14 +25,8 @@ export const ChatView = () => {
 
   const onOpenChange = async (open: boolean) => {
     if (open) {
-      const channel_id = await useGetChannelId(
-        "WDdRBT_9EiA",
-        "test",
-        "test",
-        "test"
-      );
+      const channel_id = await useGetChannelId(id, name);
       setChannelId(channel_id);
-      console.log(channel_id);
     }
   };
 

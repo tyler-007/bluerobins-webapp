@@ -7,6 +7,7 @@ export async function GET(request) {
   const supabase = createClient();
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
+  console.log("ID", id);
   const { data, error } = await supabase
     .from("channel_messages")
     .select("*")
