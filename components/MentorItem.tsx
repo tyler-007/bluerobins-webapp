@@ -11,7 +11,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import Avatar from "@/components/shared/Avatar";
-import { ChatView } from "@/app/views/ChatView";
+import { ChatView } from "@/views/ChatView";
 import { cn, getTagStyle } from "@/lib/utils";
 import { useUser } from "@/app/hooks/useUser";
 export default function MentorItem({
