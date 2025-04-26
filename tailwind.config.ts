@@ -18,6 +18,10 @@ const config = {
       },
     },
     extend: {
+      backgroundImage: {
+        "gradient-primary":
+          "linear-gradient(180deg, #bce9ff 0%, #eef2fb 30.08%)",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -29,8 +33,15 @@ const config = {
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
+          DEFAULT: "var(--secondary)",
           foreground: "hsl(var(--secondary-foreground))",
+        },
+        secondaryColor: {
+          DEFAULT: "var(--secondary-color)",
+          foreground: "white",
+        },
+        light: {
+          DEFAULT: "var(--light)",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
