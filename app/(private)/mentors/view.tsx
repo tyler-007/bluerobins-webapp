@@ -7,7 +7,8 @@ import logo from "../home/mascot.png";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Chip from "@/components/chip";
 import { Button } from "@/components/ui/button";
-
+import { ChatView } from "@/views/ChatView/index";
+import { BookingFlow } from "@/views/BookingFlow/index";
 const MentorCard = ({ mentor }: { mentor: any }) => {
   return (
     <div className="flex flex-1 bg-white rounded-2xl border  border-gray-200 ">
@@ -37,8 +38,8 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
       <div className="flex flex-col border-l border-l-gray-200 w-1/4 min-h-[256px] p-4 pt-6 gap-3">
         <span className="text-xl font-bold">$200/hour</span>
         <div className="flex-1"></div>
-        <Button>Book a session</Button>
-        <Button variant="outline">Start a chat</Button>
+        <BookingFlow mentor={mentor} />
+        <ChatView name={`test`} />
         <Button variant="mutedOutline">View profile</Button>
       </div>
     </div>
@@ -56,28 +57,33 @@ export default async function SearchPage(props: { mentors: any[] }) {
   );
 
   return (
-    <div className="flex flex-col gap-4 w-full p-6">
-      <div className="flex flex-row gap-4 items-center">
-        <Image src={logo} alt="logo" width={48} height={48} />
-        <h1 className="text-2xl font-bold ">Find your perfect mentor</h1>
-      </div>
-      <Input
-        placeholder="Search by expertise, interest or mentor name"
-        className="w-full py-6 text-xl"
-      />
-      <div className="flex flex-row gap-4 mt-2 items-center">
-        <span>All</span>
-        <span>Popular</span>
-        <span>Recent</span>
-      </div>
-      <div className="flex flex-1 flex-row gap-4 relative">
-        <div className="flex flex-col fixed bottom-0 top-[200px] w-[320px] gap-1 bg-white rounded-2xl border border-gray-200 p-6 pt-4" />
-        <div className="flex flex-col ml-[336px] flex-1 gap-4 -mb-6 overflow-y-auto border-gray-200 ">
-          {filteredGraduates.map((mentor) => (
-            <MentorCard key={mentor.id} mentor={mentor} />
-          ))}
+    <>
+      <div className="flex flex-col gap-4 w-full p-6">
+        <div className="flex flex-row gap-4 items-center">
+          <Image src={logo} alt="logo" width={48} height={48} />
+          <h1 className="text-2xl font-bold ">Find your perfect mentor</h1>
+        </div>
+        <Input
+          placeholder="Search by expertise, interest or mentor name"
+          className="w-full py-6 text-xl"
+        />
+        <div className="flex flex-row gap-4 mt-2 items-center">
+          <span>All</span>
+          <span>Popular</span>
+          <span>Recent</span>
+        </div>
+        <div className="flex flex-1 flex-row gap-4 relative">
+          {/* <div className="flex flex-col fixed bottom-0 top-[200px] w-[320px] gap-1 bg-white rounded-2xl border border-gray-200 p-6 pt-4" /> */}
+          <div className="flex flex-col flex-1 gap-4 -mb-6 overflow-y-auto border-gray-200 ">
+            {filteredGraduates.map((mentor) => (
+              <MentorCard key={mentor.id} mentor={mentor} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+      <div className="flex min-w-80 relative flex-col  p-5 gap-5  ">
+        <div className="bg-white fixed top-4 right-6 w-72 bottom-4  rounded-2xl p-6 border border-gray-200"></div>
+      </div>
+    </>
   );
 }

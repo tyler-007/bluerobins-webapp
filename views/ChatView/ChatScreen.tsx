@@ -14,7 +14,7 @@ import { useGetMessages } from "./useGetMessages";
 interface ChatScreenProps {
   channel_id: string;
   userId: string;
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 const formatMessageDate = (date: Date) => {
@@ -123,18 +123,26 @@ export default function ChatScreen({
             <div key={`${message.id}-${index}`}>
               {shouldShowDateDivider(messagesToShow, index) && (
                 <div className="flex justify-center my-4">
-                  <div className="bg-[#e1f3fb] text-gray-600 text-xs px-3 py-1 rounded-lg shadow-sm">
+                  <div className="bg-white text-gray-600 text-xs px-3 py-1 rounded-lg shadow-sm">
                     {formatMessageDate(new Date(message.created_at))}
                   </div>
                 </div>
               )}
               <div
-                className={`mb-2 flex ${message.from_user === userId ? "justify-end" : "justify-start"}`}
+                style={{
+                  justifyContent:
+                    message.from_user === userId ? "flex-end" : "flex-start",
+                }}
+                className={`mb-2 flex`}
               >
                 <div
-                  className={`min-w-[40%] max-w-[70%] p-2 rounded-lg ${
+                  style={{
+                    backgroundColor:
+                      message.from_user === userId ? "#D9FDD3" : "#fff",
+                  }}
+                  className={`min-w-[40%] max-w-[70%] px-3 py-2 rounded-lg ${
                     message.from_user === userId
-                      ? "bg-emerald-100 rounded-tr-none"
+                      ? "bg-chatGreen rounded-tr-none"
                       : "bg-white rounded-tl-none"
                   }`}
                 >
@@ -150,7 +158,7 @@ export default function ChatScreen({
       </div>
 
       {/* Input */}
-      <div className="p-2 bg-gray-100 flex items-center">
+      <div className="p-3 bg-gray-100 flex items-center">
         {/* <Button variant="ghost" size="icon" className="text-gray-500">
           <Paperclip className="h-5 w-5" />
         </Button> */}
