@@ -34,9 +34,12 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const from = searchParams.get("from");
   const to = searchParams.get("to");
+  const interval = searchParams.get("interval");
   const adminBase = createAdminClient();
-  const start_time = "01:00";
-  const end_time = "17:00";
+  const start_time = "10:00";
+  const end_time = "23:00";
+
+  console.log("INTERVAL:", interval, from, to);
   //   const booked_slots = [];
   const for_user = "f9f39868-8211-4118-8284-4d1b1cc1a322";
 
@@ -48,9 +51,8 @@ export async function GET(request) {
     .lte("end_time", to);
   // Add date filter laters
 
-  console.log("BOOKINGS:", booked_slots);
   // get array of slots of 15 minutes each between start_time and end_time. Start time is 10:00 and end time is 17:00
-  const slots = getTimeSlots(start_time, end_time, 60);
+  const slots = getTimeSlots(start_time, end_time, +interval ?? 15);
 
   // loop through all dates between from and to
   const allSlots = {};
@@ -81,6 +83,6 @@ export async function GET(request) {
     };
   }
   // You may want to pass the date as a parameter
-  //   console.log("ALL SLOTS:", allSlots);
+  console.log("ALL SLOTS:", allSlots);
   return NextResponse.json(allSlots);
 }

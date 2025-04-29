@@ -4,33 +4,24 @@ import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 
-interface DaySlot {
-  date: number;
-  day: string;
-  slots?: number | "Booked";
-  isToday?: boolean;
-}
-
-const timeSlots = ["10:30 AM", "12:00 PM", "3:00 PM", "5:00 PM", "6:00 PM"];
-
-const weekDays: DaySlot[] = [
-  { date: 25, day: "Sun", slots: 15, isToday: true },
-  { date: 26, day: "Mon", slots: 30 },
-  { date: 27, day: "Tue", slots: 15 },
-  { date: 28, day: "Wed", slots: 15 },
-  { date: 29, day: "Thurs", slots: "Booked" },
-  { date: 30, day: "Fri", slots: 3 },
-  { date: 1, day: "Sat", slots: 9 },
-];
-
-export default function ScheduleCalendar(props: { slots: any }) {
+export default function ScheduleCalendar(props: {
+  slots: any;
+  onChange: (slot: { date: string; time: string | null }) => void;
+}) {
   const [selectedDay, setSelectedDay] = useState(Object.keys(props.slots)[0]);
-
-  console.log("SLOTS", selectedDay, props.slots[selectedDay]);
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
   useEffect(() => {
     setSelectedDay(Object.keys(props.slots)[0]);
   }, [Object.keys(props.slots)[0]]);
+
+  useEffect(() => {
+    setSelectedSlot(null);
+  }, [selectedDay]);
+
+  useEffect(() => {
+    props.onChange({ date: selectedDay, time: selectedSlot });
+  }, [selectedSlot]);
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
@@ -66,8 +57,10 @@ export default function ScheduleCalendar(props: { slots: any }) {
             <button
               key={`${index}`}
               className={cn(
-                "py-3 px-6 rounded-full text-center transition-colors bg-white border border-gray-200 hover:bg-gray-50"
+                "py-3 px-6 rounded-full text-center transition-colors bg-white border border-gray-200 hover:bg-gray-50",
+                selectedSlot === slot.start && "bg-blue-600 text-white"
               )}
+              onClick={() => setSelectedSlot(slot.start)}
             >
               {dayjs(`${selectedDay}T${slot.start}:00`).format("h:mm A")}
             </button>
