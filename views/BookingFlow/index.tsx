@@ -33,7 +33,7 @@ const fetchSlotsAPI = async ({
   enabled?: boolean;
 }) => {
   const res = await fetch(
-    `/api/get_slots?from=${from}&to=${to}&interval=${interval}&for=${forUser}`
+    `/api/get_slots?from=${from}&to=${to}&interval=${interval}&mentor=${forUser}`
   );
 
   return res.json();
@@ -99,11 +99,7 @@ export const BookingFlow = ({ mentor }: { mentor: any }) => {
     if (isOpen) {
       fetchSlots();
     }
-  }, [isOpen]);
-
-  useEffect(() => {
-    fetchSlots();
-  }, [slotInterval]);
+  }, [isOpen, slotInterval]);
 
   // generate next 7 days in the format { date: 25, day: "Sun", slots: 15, isToday: true },
   const days = Array.from({ length: 7 }, (_, i) => {
@@ -126,8 +122,7 @@ export const BookingFlow = ({ mentor }: { mentor: any }) => {
     const res = await fetch("/api/book_slot", {
       method: "POST",
       body: JSON.stringify({
-        forUser: mentor.id,
-        byUser: 1,
+        for_user: mentor.id,
         start_time,
         end_time,
       }),

@@ -14,7 +14,7 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
     <div className="flex flex-1 bg-white rounded-2xl border  border-gray-200 ">
       <div className="flex-1 grid grid-cols-[auto_auto_1fr] gap-x-4 gap-y-1 p-6 auto-rows-max">
         <div className="h-16 w-16 bg-red-400 rounded-full row-span-2"></div>
-        <span className="text-xl font-bold self-end">John Doe</span>
+        <span className="text-xl font-bold self-end">{mentor.name}</span>
         <span className="text-sm text-white bg-[#4A824C] justify-self-start px-2 py-1 rounded-lg self-end">
           95% Match
         </span>
@@ -47,15 +47,7 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
 };
 
 export default async function SearchPage(props: { mentors: any[] }) {
-  const filteredGraduates = props.mentors.filter(
-    (mentor) => mentor.type === "graduate"
-  );
-
-  // console.log("GF", props.mentors, filteredGraduates);
-  const filteredProfessors = props.mentors.filter(
-    (mentor) => mentor.type === "professor"
-  );
-
+  console.log("MENTORS", props.mentors);
   return (
     <>
       <div className="flex flex-col gap-4 w-full p-6">
@@ -75,7 +67,7 @@ export default async function SearchPage(props: { mentors: any[] }) {
         <div className="flex flex-1 flex-row gap-4 relative">
           {/* <div className="flex flex-col fixed bottom-0 top-[200px] w-[320px] gap-1 bg-white rounded-2xl border border-gray-200 p-6 pt-4" /> */}
           <div className="flex flex-col flex-1 gap-4 -mb-6 overflow-y-auto border-gray-200 ">
-            {filteredGraduates.map((mentor) => (
+            {props.mentors.map((mentor) => (
               <MentorCard key={mentor.id} mentor={mentor} />
             ))}
           </div>
