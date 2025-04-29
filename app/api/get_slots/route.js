@@ -87,6 +87,7 @@ export async function GET(request) {
         const bookedEnd = dayjs(booked.end_time);
 
         return (
+          slotStart.isBefore(dayjs()) ||
           slotStart.isBetween(bookedStart, bookedEnd, "minute", "[]") ||
           slotEnd.isBetween(bookedStart, bookedEnd, "minute", "[]")
         );
