@@ -16,6 +16,8 @@ import ScheduleCalendar from "@/app/components/ScheduleCalendar";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import dayjs from "dayjs";
+import { PayPalPayment } from "@/components/PayPalPayment";
+import { PaymentDialog } from "@/components/PaymentDialog";
 //10:00 + slot duration
 // filter out new slot if start time of booked slot  is between start time  and end time of new slot
 // filter out new slot if end time of booked slot  is between start time  and end time of new slot
@@ -70,6 +72,8 @@ export const BookingFlow = ({ mentor }: { mentor: any }) => {
   const [slots, setSlots] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const selectedDate = useRef<string | null>(null);
   const selectedTime = useRef<string | null>(null);
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
@@ -113,25 +117,72 @@ export const BookingFlow = ({ mentor }: { mentor: any }) => {
   });
 
   const handleBookSlot = async () => {
+    if (!selectedDate.current || !selectedTime.current) {
+      toast({
+        description: "Please select a date and time",
+        variant: "destructive",
+      });
+      return;
+    }
+    setShowPaymentDialog(true);
+  };
+
+  const handlePaymentSuccess = async (order: any) => {
     const date = selectedDate.current;
     const time = selectedTime.current;
     const start_time = dayjs(`${date}T${time}:00`);
     const end_time = dayjs(`${date}T${time}:00`).add(slotInterval, "minutes");
 
     setIsBooking(true);
-    const res = await fetch("/api/book_slot", {
-      method: "POST",
-      body: JSON.stringify({
-        for_user: mentor.id,
-        start_time,
-        end_time,
-      }),
-    });
-    toast({
-      description: "Slot booked successfully",
-    });
-    setIsBooking(false);
-    setIsOpen(false);
+    try {
+      const res = await fetch("/api/book_slot", {
+        method: "POST",
+        body: JSON.stringify({
+          for_user: mentor.id,
+          start_time,
+          end_time,
+          payment_id: order.id,
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to book slot");
+      }
+
+      toast({
+        description: "Slot booked successfully",
+      });
+      setIsOpen(false);
+      setShowPaymentDialog(false);
+    } catch (error) {
+      console.error("Booking error:", error);
+      toast({
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to book slot. Please contact support.",
+        variant: "destructive",
+      });
+      // If booking fails after payment, we should handle refund here
+      // This would require additional PayPal API integration
+    } finally {
+      setIsBooking(false);
+      setShowPayment(false);
+    }
+  };
+
+  const handlePaymentError = () => {
+    setShowPayment(false);
+  };
+
+  const handlePaymentCancel = () => {
+    setShowPayment(false);
+  };
+
+  const calculateAmount = () => {
+    const hourlyRate = mentor.hourly_rate || 0;
+    return (hourlyRate * slotInterval) / 60;
   };
 
   const handleSlotChange = (slot: { date: string; time: string | null }) => {
@@ -139,55 +190,89 @@ export const BookingFlow = ({ mentor }: { mentor: any }) => {
     selectedTime.current = slot.time;
   };
 
+  // Booking summary for payment dialog
+  const bookingSummary = (
+    <div className="text-sm">
+      <div>
+        <strong>Mentor:</strong> {mentor.name}
+      </div>
+      <div>
+        <strong>Date:</strong> {selectedDate.current}
+      </div>
+      <div>
+        <strong>Time:</strong> {selectedTime.current}
+      </div>
+      <div>
+        <strong>Duration:</strong> {slotInterval} mins
+      </div>
+      <div>
+        <strong>Amount:</strong> ${calculateAmount()}
+      </div>
+    </div>
+  );
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button onClick={() => setIsOpen(true)} className="w-full">
-          Book a session
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="flex flex-col w-3/4 max-w-screen min-h-[80vh] max-h-[80vh] overflow-hidden">
-        <div className="flex flex-1 overflow-y-auto gap-4">
-          {/* Interval selector */}
-          <div className="grid gap-3 w-1/4 z-10 auto-rows-max">
-            <DialogTitle>Select duration</DialogTitle>
-
-            {intervals.map((interval) => (
-              <Chip
-                selected={slotInterval === interval.length}
-                key={interval.length}
-                onClick={() => setSlotInterval(interval.length)}
-                leftText={`${interval.length} mins`}
-                rightText={
-                  interval.canBeFree ? "" : `$${(100 * interval.length) / 15}`
-                }
-              >
-                {interval.canBeFree && (
-                  <span className="text-xs my-1 text-white bg-green-500 self-center px-3 py-1">
-                    FREE TRIAL
-                  </span>
-                )}
-              </Chip>
-            ))}
-          </div>
-
-          <div className=" w-[1px] bg-input"></div>
-          {/* Schedules */}
-          <div className="flex-1 flex flex-col overflow-y-auto">
-            <DialogTitle>Select Slot</DialogTitle>
-            {isSlotsLoading ? (
-              <div>Loading...</div>
-            ) : (
-              <ScheduleCalendar slots={slots} onChange={handleSlotChange} />
-            )}
-          </div>
-        </div>
-        <DialogFooter>
-          <Button loading={isBooking} onClick={handleBookSlot}>
-            Book
+    <>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button onClick={() => setIsOpen(true)} className="w-full">
+            Book a session
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </DialogTrigger>
+        <DialogContent className="flex flex-col w-3/4 max-w-screen min-h-[80vh] max-h-[80vh] overflow-hidden">
+          <div className="flex flex-1 overflow-y-auto gap-4">
+            {/* Interval selector */}
+            <div className="grid gap-3 w-1/4 z-10 auto-rows-max">
+              <DialogTitle>Select duration</DialogTitle>
+
+              {intervals.map((interval) => (
+                <Chip
+                  selected={slotInterval === interval.length}
+                  key={interval.length}
+                  onClick={() => setSlotInterval(interval.length)}
+                  leftText={`${interval.length} mins`}
+                  rightText={
+                    interval.canBeFree
+                      ? ""
+                      : `$${(mentor.hourly_rate * interval.length) / 60}`
+                  }
+                >
+                  {interval.canBeFree && (
+                    <span className="text-xs my-1 text-white bg-green-500 self-center px-3 py-1">
+                      FREE TRIAL
+                    </span>
+                  )}
+                </Chip>
+              ))}
+            </div>
+
+            <div className="w-[1px] bg-input"></div>
+            {/* Schedules */}
+            <div className="flex-1 flex flex-col overflow-y-auto">
+              <DialogTitle>Select Slot</DialogTitle>
+              {isSlotsLoading ? (
+                <div>Loading...</div>
+              ) : (
+                <ScheduleCalendar slots={slots} onChange={handleSlotChange} />
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button loading={isBooking} onClick={handleBookSlot}>
+              Book
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <PaymentDialog
+        open={showPaymentDialog}
+        onOpenChange={setShowPaymentDialog}
+        amount={calculateAmount()}
+        onSuccess={handlePaymentSuccess}
+        onError={handlePaymentError}
+        onCancel={handlePaymentCancel}
+        summary={bookingSummary}
+      />
+    </>
   );
 };
