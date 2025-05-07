@@ -14,6 +14,7 @@ import Avatar from "@/components/shared/Avatar";
 import { ChatView } from "@/views/ChatView";
 import { cn, getTagStyle } from "@/lib/utils";
 import { useUser } from "@/app/hooks/useUser";
+import { GoogleMeetButton } from "@/components/GoogleMeetButton";
 export default function MentorItem({
   mentor,
   className,

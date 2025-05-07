@@ -9,6 +9,7 @@ import Chip from "@/components/chip";
 import { Button } from "@/components/ui/button";
 import { ChatView } from "@/views/ChatView/index";
 import { BookingFlow } from "@/views/BookingFlow/index";
+import { GoogleMeetButton } from "@/components/GoogleMeetButton";
 const MentorCard = ({ mentor }: { mentor: any }) => {
   return (
     <div className="flex flex-1 bg-white rounded-2xl border  border-gray-200 ">
@@ -41,6 +42,7 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
         <BookingFlow mentor={mentor} />
         <ChatView name={`test`} />
         <Button variant="mutedOutline">View profile</Button>
+        <GoogleMeetButton />
       </div>
     </div>
   );
