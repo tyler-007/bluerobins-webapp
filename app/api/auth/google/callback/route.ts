@@ -4,22 +4,32 @@ import { createGoogleMeetLink } from "@/utils/googleMeet";
 
 export async function POST(request: Request) {
   try {
-    const { code } = await request.json();
+    const body = await request.json();
+    const { code, accessToken: existingToken } = body;
 
-    if (!code) {
+    let accessToken = existingToken;
+
+    // If no existing token is provided, get a new one using the auth code
+    if (!accessToken && code) {
+      accessToken = await getGoogleAccessToken(code);
+    }
+
+    if (!accessToken) {
       return NextResponse.json(
-        { error: "Authorization code is required" },
+        { error: "No valid access token available" },
         { status: 400 }
       );
     }
 
-    // Get access token
-    const accessToken = await getGoogleAccessToken(code);
-
     // Create Meet link
     const meetLink = await createGoogleMeetLink(accessToken);
 
-    return NextResponse.json({ meetLink });
+    // Return both the meet link and the token info
+    return NextResponse.json({
+      meetLink,
+      accessToken,
+      expiresIn: 3600, // Google OAuth tokens typically expire in 1 hour
+    });
   } catch (error) {
     console.error("Error in callback:", error);
     return NextResponse.json(

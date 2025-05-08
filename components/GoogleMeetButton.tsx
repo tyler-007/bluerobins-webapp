@@ -1,15 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+
+const TOKEN_KEY = "google_meet_token";
+const TOKEN_EXPIRY_KEY = "google_meet_token_expiry";
 
 export function GoogleMeetButton() {
   const [isLoading, setIsLoading] = useState(false);
   const [meetLink, setMeetLink] = useState<string | null>(null);
 
+  const createMeetWithToken = async (accessToken: string) => {
+    try {
+      const response = await fetch("/api/auth/google/callback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ accessToken }),
+      });
+
+      const { meetLink } = await response.json();
+      setMeetLink(meetLink);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error creating Meet link:", error);
+      setIsLoading(false);
+      // If token is invalid, clear it and trigger new auth
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(TOKEN_EXPIRY_KEY);
+      handleCreateMeet();
+    }
+  };
+
   const handleCreateMeet = async () => {
     try {
       setIsLoading(true);
+
+      // Check for existing valid token
+      const storedToken = localStorage.getItem(TOKEN_KEY);
+      const tokenExpiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+
+      if (storedToken && tokenExpiry && new Date(tokenExpiry) > new Date()) {
+        await createMeetWithToken(storedToken);
+        return;
+      }
 
       // Step 1: Get the auth URL
       const authResponse = await fetch("/api/auth/google");
@@ -41,7 +76,16 @@ export function GoogleMeetButton() {
             body: JSON.stringify({ code }),
           });
 
-          const { meetLink } = await response.json();
+          const { meetLink, accessToken, expiresIn } = await response.json();
+
+          // Store the token and its expiry
+          if (accessToken && expiresIn) {
+            const expiryDate = new Date();
+            expiryDate.setSeconds(expiryDate.getSeconds() + expiresIn);
+            localStorage.setItem(TOKEN_KEY, accessToken);
+            localStorage.setItem(TOKEN_EXPIRY_KEY, expiryDate.toISOString());
+          }
+
           setMeetLink(meetLink);
           setIsLoading(false);
           popup?.close();

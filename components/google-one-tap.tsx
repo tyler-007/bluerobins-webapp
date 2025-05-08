@@ -6,6 +6,9 @@ import { CredentialResponse } from "google-one-tap";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+const TOKEN_KEY = "google_meet_token";
+const TOKEN_EXPIRY_KEY = "google_meet_token_expiry";
+
 const OneTapComponent = () => {
   const supabase = createClient();
   const router = useRouter();
@@ -62,6 +65,14 @@ const OneTapComponent = () => {
           if (error) throw error;
           console.log("Session data: ", data);
           console.log("Successfully logged in with Google One Tap");
+
+          // Store the token and its expiry
+          if (data.session?.provider_token) {
+            const expiryDate = new Date();
+            expiryDate.setSeconds(expiryDate.getSeconds() + 3600); // 1 hour expiry
+            localStorage.setItem(TOKEN_KEY, data.session.provider_token);
+            localStorage.setItem(TOKEN_EXPIRY_KEY, expiryDate.toISOString());
+          }
 
           // redirect to protected page
           router.push("/");
