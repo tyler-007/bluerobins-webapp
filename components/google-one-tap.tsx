@@ -9,7 +9,9 @@ import { useEffect } from "react";
 const TOKEN_KEY = "google_meet_token";
 const TOKEN_EXPIRY_KEY = "google_meet_token_expiry";
 
-const OneTapComponent = () => {
+const OneTapComponent = (props: {
+  userType: "student" | "parent" | "mentor";
+}) => {
   const supabase = createClient();
   const router = useRouter();
 
@@ -49,6 +51,8 @@ const OneTapComponent = () => {
       return;
     }
 
+    console.log("Initializing 3", data, error);
+
     /* global google */
     google.accounts.id.initialize({
       client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string,
@@ -84,6 +88,7 @@ const OneTapComponent = () => {
       // with chrome's removal of third-party cookiesm, we need to use FedCM instead (https://developers.google.com/identity/gsi/web/guides/fedcm-migration)
       use_fedcm_for_prompt: true,
     });
+    console.log("Initializing 4");
     google.accounts.id.prompt(); // Display the One Tap UI
   };
 

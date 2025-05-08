@@ -6,9 +6,5 @@ import OneTapComponent from "@/components/google-one-tap";
 import ScheduleCalendar from "./components/ScheduleCalendar";
 
 export default function Home() {
-  return (
-    <main className="min-h-screen p-8">
-      <ScheduleCalendar />
-    </main>
-  );
+  return <main className="min-h-screen p-8">Home</main>;
 }

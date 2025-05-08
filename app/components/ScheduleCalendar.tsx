@@ -8,12 +8,14 @@ export default function ScheduleCalendar(props: {
   slots: any;
   onChange: (slot: { date: string; time: string | null }) => void;
 }) {
-  const [selectedDay, setSelectedDay] = useState(Object.keys(props.slots)[0]);
+  const [selectedDay, setSelectedDay] = useState(
+    Object.keys(props.slots ?? {})?.[0] ?? {}
+  );
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
   useEffect(() => {
-    setSelectedDay(Object.keys(props.slots)[0]);
-  }, [Object.keys(props.slots)[0]]);
+    setSelectedDay(Object.keys(props.slots ?? {})?.[0] ?? {});
+  }, [Object.keys(props.slots ?? {})?.[0]]);
 
   useEffect(() => {
     setSelectedSlot(null);
