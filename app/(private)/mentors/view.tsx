@@ -11,7 +11,6 @@ import { ChatView } from "@/views/ChatView/index";
 import { BookingFlow } from "@/views/BookingFlow/index";
 import { GoogleMeetButton } from "@/components/GoogleMeetButton";
 const MentorCard = ({ mentor }: { mentor: any }) => {
-  console.log("MENTOR:", mentor);
   return (
     <div className="flex flex-1 bg-white rounded-2xl border  border-gray-200 ">
       <div className="flex-1 grid grid-cols-[auto_auto_1fr] gap-x-4 gap-y-1 p-6 auto-rows-max">
@@ -41,7 +40,7 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
         <span className="text-xl font-bold">$200/hour</span>
         <div className="flex-1"></div>
         <BookingFlow mentor={mentor} />
-        <ChatView name={`test`} />
+        <ChatView mentorId={mentor.id} />
         <Button variant="mutedOutline">View profile</Button>
         {/* <GoogleMeetButton /> */}
       </div>

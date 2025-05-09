@@ -53,8 +53,6 @@ export const ChatView = ({
           <ChatScreen
             channel_id={channel_id}
             userId={userId}
-            // channel_id={"ey7ZtLSlKCs"}
-            // userId={"f9f39868-8211-4118-8284-4d1b1cc1a322"}
             onBack={() => {}}
           />
         )}
