@@ -11,16 +11,25 @@ import { useGetChannelId } from "./useGetChannelId";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import ChatScreen from "./ChatScreen";
+import { useUser } from "@/app/hooks/useUser";
 
-export const ChatView = ({ id, name }: { id?: string; name?: string }) => {
+export const ChatView = ({
+  id,
+  name,
+  mentorId,
+}: {
+  id?: string;
+  name?: string;
+  mentorId?: string;
+}) => {
+  const { data: user } = useUser();
+  console.log("USER:", user);
+  if (!id || !name) {
+    // id = `s_${user?.id}:m_${mentorId}`;
+    name = `s_${user?.id}:m_${mentorId}`;
+  }
+  const userId = user?.id;
   const [channel_id, setChannelId] = useState("");
-  const [userId, setUserId] = useState<string | undefined>(undefined);
-  const supabase = createClient();
-  //   const channel_id = useGetChannelId("test", "test", "test");
-  //   console.log(channel_id);
-  // id
-  // Get chat details
-  // If chat not present create
 
   const onOpenChange = async (open: boolean) => {
     if (open) {
@@ -28,15 +37,6 @@ export const ChatView = ({ id, name }: { id?: string; name?: string }) => {
       setChannelId(channel_id);
     }
   };
-
-  const setUser = async () => {
-    const { data } = await supabase.auth.getUser();
-    setUserId(data.user?.id);
-  };
-
-  useEffect(() => {
-    setUser();
-  }, []);
 
   return (
     <Sheet onOpenChange={onOpenChange}>

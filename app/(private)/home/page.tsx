@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import dayjs from "dayjs";
 import { ChatView } from "@/views/ChatView";
+import { useUser } from "@/app/hooks/useUser";
 const ScheduleItem = ({
   title,
   description,
@@ -18,8 +19,10 @@ const ScheduleItem = ({
   date: string;
   mentorId: string;
 }) => {
+  // const { data: user } = useUser();
+
   return (
-    <div className="flex flex-col flex-1 gap-1 bg-white rounded-2xl border border-gray-200 p-6 pt-4">
+    <div className="flex flex-col flex-1 gap-1 bg-white max-w-max rounded-2xl border border-gray-200 p-6 pt-4">
       <div className="flex flex-row gap-4 items-center justify-between">
         <span className="text-sm text-black">{date}</span>
         <span className="bg-[#f0f0f0] rounded-full px-4 py-1 text-sm">
@@ -29,7 +32,8 @@ const ScheduleItem = ({
       <span className="text-lg font-bold mt-2">{title}</span>
       <span className="text-sm text-gray-500">{description}</span>
       <div className="flex flex-row flex-1 gap-4 items-center mt-4">
-        <ChatView name={`test`} />
+        <ChatView mentorId={mentorId} />
+        {/* <ChatView <ChatView name={`s_${user?.id}:m_${mentor.user_id}`} /> /> */}
         {/* <button className="border-[#2953BE] border-[1.5px] text-[#2953BE] rounded-xl px-4 py-1 text-base flex flex-row gap-2 items-center">
           <MessageCircle className="w-5 h-5" />
           <span>Chat</span>
@@ -96,7 +100,7 @@ export default async function HomePage() {
     .select("*")
     .eq("by", user.id);
 
-  console.log("My Bookings:", myBookings);
+  console.log("My Bookings:", myBookings, user);
 
   return (
     <div className="flex flex-row flex-1">
@@ -104,7 +108,10 @@ export default async function HomePage() {
         <div className="flex flex-row gap-4 items-center">
           <Image src={logo} alt="logo" width={48} height={48} />
           <h1 className="text-2xl font-bold ">
-            Welcome back, <span className="text-primary">John Doe</span>
+            Welcome back,{" "}
+            <span className="text-primary">
+              {user?.user_metadata?.full_name}
+            </span>
           </h1>
         </div>
         <div className="flex flex-row gap-4 mt-7 items-center justify-between">
@@ -115,7 +122,7 @@ export default async function HomePage() {
           {myBookings.data?.map((booking) => (
             <ScheduleItem
               key={booking.id}
-              meetingId={booking.for}
+              mentorId={booking.for}
               title="Meeting with mentor"
               description="Research product discussion"
               time={dayjs(booking.start_time).format("h:mm A")}
@@ -123,7 +130,7 @@ export default async function HomePage() {
             />
           ))}
         </div>
-        <div className="flex flex-row gap-4 mt-6 items-center justify-between">
+        {/* <div className="flex flex-row gap-4 mt-6 items-center justify-between">
           <span>Explore</span>
           <span>See All</span>
         </div>
@@ -148,7 +155,7 @@ export default async function HomePage() {
               { label: "Material Science Reasearch Center" },
             ]}
           />
-        </div>
+        </div> */}
         {/* <h1>Home</h1> */}
       </div>
       <div className="flex w-96 flex-col bg-light border-l-2 border-gray-200 p-5 gap-5  ">
@@ -158,8 +165,10 @@ export default async function HomePage() {
               <User className="w-8 h-8 text-primary" />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-lg font-bold">John Doe</span>
-              <span className="text-[#2953BE]">View Profile</span>
+              <span className="text-lg font-bold">
+                {user?.user_metadata?.full_name}
+              </span>
+              <span className="text-[#2953BE]">{user?.email}</span>
             </div>
           </div>
         </div>

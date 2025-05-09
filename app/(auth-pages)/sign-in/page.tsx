@@ -4,10 +4,10 @@ import { useState } from "react";
 import OneTapComponent from "@/components/google-one-tap";
 import Image from "next/image";
 import GoogleAuthPopupButton from "@/components/GoogleAuthPopupButton";
-
+import GoogleLogo from "@/app/Google.png";
 const carouselSlides = [
   {
-    image: "/feature-img.png",
+    image: "/sign-in-img.png",
     title: "Wild Card Activities",
     subtitle: "Get mentored by college undergrads, grads, and professors on:",
     description:
@@ -15,12 +15,20 @@ const carouselSlides = [
     dots: [0],
   },
   {
-    image: "/feature-img-2.png",
+    image: "/sign-in-img-2.png",
     title: "Research & Passion Projects",
     subtitle: "Get mentored by college undergrads, grads, and professors on:",
     description:
       "Fuel your research and passion projects with expert insights from students, grads and mentors",
     dots: [1],
+  },
+  {
+    image: "/sign-in-img-3.png",
+    title: "Research & Passion Projects",
+    subtitle: "Get mentored by college undergrads, grads, and professors on:",
+    description:
+      "Fuel your research and passion projects with expert insights from students, grads and mentors",
+    dots: [2],
   },
   // Add more slides as needed
 ];
@@ -29,7 +37,7 @@ export default function Login() {
   const [current, setCurrent] = useState(1); // Start on the second slide
   const [userType, setUserType] = useState<
     "student" | "parent" | "mentor" | undefined
-  >(undefined);
+  >("student");
   const total = carouselSlides.length;
   const slide = carouselSlides[current];
 
@@ -112,6 +120,7 @@ export default function Login() {
               Student
             </button>
             <button
+              disabled
               onClick={() => setUserType("mentor")}
               className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "mentor" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
             >
@@ -128,11 +137,11 @@ export default function Login() {
             disabled={!userType}
           >
             <Image
-              src="/google-logo.svg"
+              src={GoogleLogo}
               alt="Google"
               width={24}
               height={24}
-              className="mr-2"
+              className="mr-4"
             />
             Continue with gmail
           </button>
