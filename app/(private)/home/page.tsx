@@ -100,8 +100,6 @@ export default async function HomePage() {
     .select("*")
     .eq("by", user.id);
 
-  console.log("My Bookings:", myBookings, user);
-
   return (
     <div className="flex flex-row flex-1">
       <div className="flex flex-1 flex-col gap-2 p-5">
