@@ -1,17 +1,22 @@
 import Image from "next/image";
 import logo from "./mascot.png";
 import { MessageCircle, Video, BookOpen, Compass, User } from "lucide-react";
-
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
+import dayjs from "dayjs";
+import { ChatView } from "@/views/ChatView";
 const ScheduleItem = ({
   title,
   description,
   time,
   date,
+  mentorId,
 }: {
   title: string;
   description: string;
   time: string;
   date: string;
+  mentorId: string;
 }) => {
   return (
     <div className="flex flex-col flex-1 gap-1 bg-white rounded-2xl border border-gray-200 p-6 pt-4">
@@ -24,10 +29,11 @@ const ScheduleItem = ({
       <span className="text-lg font-bold mt-2">{title}</span>
       <span className="text-sm text-gray-500">{description}</span>
       <div className="flex flex-row flex-1 gap-4 items-center mt-4">
-        <button className="border-[#2953BE] border-[1.5px] text-[#2953BE] rounded-xl px-4 py-1 text-base flex flex-row gap-2 items-center">
+        <ChatView name={`test`} />
+        {/* <button className="border-[#2953BE] border-[1.5px] text-[#2953BE] rounded-xl px-4 py-1 text-base flex flex-row gap-2 items-center">
           <MessageCircle className="w-5 h-5" />
           <span>Chat</span>
-        </button>
+        </button> */}
         <button className="bg-[#2953BE] border-[#2953BE] border-[1.5px] gap-2  text-white rounded-xl px-4 py-1 text-base flex flex-row flex-1 items-center justify-center">
           <Video className="w-5 h-5" />
           <span>Join Meeting</span>
@@ -74,7 +80,24 @@ const ExploreItem = ({
   );
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return redirect("/sign-in");
+  }
+
+  const myBookings = await supabase
+    .from("bookings")
+    .select("*")
+    .eq("by", user.id);
+
+  console.log("My Bookings:", myBookings);
+
   return (
     <div className="flex flex-row flex-1">
       <div className="flex flex-1 flex-col gap-2 p-5">
@@ -88,19 +111,17 @@ export default function HomePage() {
           <span>Upcoming Schedules</span>
           <span>See All</span>
         </div>
-        <div className="flex flex-row gap-4">
-          <ScheduleItem
-            title="Meeting with mentor"
-            description="Research product discussion"
-            time="3:30 PM"
-            date="TODAY"
-          />
-          <ScheduleItem
-            title="Color essay workshop"
-            description="Research product discussion"
-            time="3:30 PM"
-            date="TOMORROW"
-          />
+        <div className="flex flex-row flex-wrap gap-4">
+          {myBookings.data?.map((booking) => (
+            <ScheduleItem
+              key={booking.id}
+              meetingId={booking.for}
+              title="Meeting with mentor"
+              description="Research product discussion"
+              time={dayjs(booking.start_time).format("h:mm A")}
+              date={dayjs(booking.start_time).format("DD MMM YYYY")}
+            />
+          ))}
         </div>
         <div className="flex flex-row gap-4 mt-6 items-center justify-between">
           <span>Explore</span>

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { House, Users, LogOut } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import { useState } from "react";
 
 const options = [
   {
@@ -22,22 +23,26 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-
+  const [selected, setSelected] = useState<string>(pathname);
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/sign-in");
   };
 
   return (
-    <div className="w-[332px] grid auto-rows-min bg-secondary h-screen">
+    <div className="w-[332px] flex flex-col bg-secondary h-screen">
       <div className="h-20"></div>
       {options.map((option) => {
-        const isActive = option.href.startsWith(pathname);
+        const isActive = option.href.startsWith(selected);
         return (
           <div
+            onClick={() => {
+              setSelected(option.href);
+              router.push(option.href);
+            }}
             key={option.href}
             className={cn(
-              "flex flex-row gap-4 pl-7 items-center h-14 text-[#fff3]",
+              "cursor-pointer flex flex-row gap-4 pl-7 items-center h-14 text-[#fff3]",
               isActive && "bg-[#2953BE]",
               isActive && "text-white"
             )}

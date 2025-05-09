@@ -49,7 +49,6 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
 };
 
 export default async function SearchPage(props: { mentors: any[] }) {
-  console.log("MENTORS", props.mentors);
   return (
     <>
       <div className="flex flex-col gap-4 w-full p-6">
