@@ -7,32 +7,30 @@ import { createAdminClient } from "@/utils/supabase/admin";
 export async function POST(request) {
   const supabase = await createClient();
   const req = await request.json();
-  const { name } = req;
-  if (!name)
+  const { identifier } = req;
+  if (!identifier)
     return NextResponse.json({ status: false, message: "Channel not found" });
 
   const { data: user } = await supabase.auth.getUser();
-  console.log("user", user);
 
   const { data, error } = await supabase
     .from("channels")
-    .select("id, name")
-    .eq("name", name)
+    .select("id, identifier")
+    .eq("identifier", identifier)
     .single();
 
   if (data) {
     return NextResponse.json({
       status: true,
       channel_id: data.id,
-      name: data.name,
+      identifier: data.identifier,
     });
   }
 
   // Check if user can create this channel
-  const student = name?.split(":")[0]?.split("_")[1];
-  const mentor = name?.split(":")[1]?.split("_")[1];
+  const student = identifier?.split(":")[0]?.split("_")[1];
+  const mentor = identifier?.split(":")[1]?.split("_")[1];
 
-  console.log("STUDENT", student, mentor, user.user.id);
   if (!student || !mentor || student !== user.user.id) {
     return NextResponse.json({
       status: false,
@@ -44,8 +42,8 @@ export async function POST(request) {
 
   const { data: newData, error: newError } = await adminBase
     .from("channels")
-    .insert({ name, type: "private" })
-    .select("id, name")
+    .insert({ identifier, type: "private" })
+    .select("id, identifier")
     .single();
 
   const { error: memberError } = await adminBase
@@ -55,12 +53,10 @@ export async function POST(request) {
       { channel_id: newData.id, user_id: mentor },
     ]);
 
-  console.log("NEW DATA", newData, newError);
-  console.log("MEMBER ERROR", memberError);
-
   return NextResponse.json({
     status: true,
     channel_id: newData.id,
+    identifier: newData.identifier,
     name: newData.name,
   });
 }

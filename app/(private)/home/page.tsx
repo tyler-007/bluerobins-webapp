@@ -6,18 +6,21 @@ import { redirect } from "next/navigation";
 import dayjs from "dayjs";
 import { ChatView } from "@/views/ChatView";
 import { useUser } from "@/app/hooks/useUser";
+
 const ScheduleItem = ({
   title,
   description,
   time,
   date,
   mentorId,
+  studentId,
 }: {
   title: string;
   description: string;
   time: string;
   date: string;
   mentorId: string;
+  studentId: string;
 }) => {
   // const { data: user } = useUser();
 
@@ -32,7 +35,7 @@ const ScheduleItem = ({
       <span className="text-lg font-bold mt-2">{title}</span>
       <span className="text-sm text-gray-500">{description}</span>
       <div className="flex flex-row flex-1 gap-4 items-center mt-4">
-        <ChatView mentorId={mentorId} />
+        <ChatView name={`s_${studentId}:m_${mentorId}`} />
         {/* <ChatView <ChatView name={`s_${user?.id}:m_${mentor.user_id}`} /> /> */}
         {/* <button className="border-[#2953BE] border-[1.5px] text-[#2953BE] rounded-xl px-4 py-1 text-base flex flex-row gap-2 items-center">
           <MessageCircle className="w-5 h-5" />
@@ -121,6 +124,7 @@ export default async function HomePage() {
             <ScheduleItem
               key={booking.id}
               mentorId={booking.for}
+              studentId={booking.by}
               title="Meeting with mentor"
               description="Research product discussion"
               time={dayjs(booking.start_time).format("h:mm A")}

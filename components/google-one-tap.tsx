@@ -70,6 +70,11 @@ const OneTapComponent = (props: {
           console.log("Session data: ", data);
           console.log("Successfully logged in with Google One Tap");
 
+          await supabase.auth.updateUser({
+            data: {
+              user_type: props.userType || "student",
+            },
+          });
           // Store the token and its expiry
           if (data.session?.provider_token) {
             const expiryDate = new Date();

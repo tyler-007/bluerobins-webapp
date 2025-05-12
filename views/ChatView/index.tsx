@@ -23,7 +23,6 @@ export const ChatView = ({
   mentorId?: string;
 }) => {
   const { data: user } = useUser();
-  console.log("USER:", user);
   if (!id || !name) {
     // id = `s_${user?.id}:m_${mentorId}`;
     name = `s_${user?.id}:m_${mentorId}`;

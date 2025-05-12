@@ -31,7 +31,6 @@ export const Chat = ({
   };
 
   useEffect(() => {
-    console.log("channel_ssid", channel_id);
     try {
       channelMessages
         .on(

@@ -10,10 +10,11 @@ import { format, isToday, isYesterday, isSameDay } from "date-fns";
 import { chats } from "./sample_data";
 import { createClient } from "@/utils/supabase/client";
 import { useGetMessages } from "./useGetMessages";
+import { useUser } from "@/app/hooks/useUser";
 
 interface ChatScreenProps {
   channel_id: string;
-  userId: string;
+  userId?: string;
   onBack?: () => void;
 }
 
@@ -27,11 +28,7 @@ const formatMessageDate = (date: Date) => {
   }
 };
 
-export default function ChatScreen({
-  channel_id,
-  userId,
-  onBack,
-}: ChatScreenProps) {
+export default function ChatScreen({ channel_id, onBack }: ChatScreenProps) {
   const chat = chats[0];
   const supabase = createClient();
   const channelMessages = supabase.channel(`channel_messages_${channel_id}`);
@@ -39,6 +36,9 @@ export default function ChatScreen({
   const [messages, setMessages] = useState<Message[]>([]);
   const { data: oldMessages } = useGetMessages(channel_id);
 
+  const { data: user } = useUser();
+
+  const userId = user?.id ?? "";
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
 
@@ -114,7 +114,7 @@ export default function ChatScreen({
       <div
         className="flex-1 overflow-y-auto p-4"
         style={{
-          backgroundColor: "#f5f5f5",
+          backgroundColor: "#f5f5f500",
           backgroundRepeat: "repeat",
         }}
       >

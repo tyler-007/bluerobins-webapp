@@ -19,7 +19,6 @@ export default async function SearchPage() {
   const { data: new_mentors } = await supabase
     .from("mentor_profiles")
     .select("*, ...profiles(*)");
-  // console.log("new_mentors", new_mentors);
   const allMentors = [...(new_mentors ?? [])];
 
   return <View mentors={allMentors} />;

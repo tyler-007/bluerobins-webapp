@@ -46,7 +46,6 @@ export async function GET(request) {
   const start_time = "10:00";
   const end_time = "23:00";
 
-  console.log("INTERVAL:", interval, from, to);
   //   const booked_slots = [];
   const for_user = mentor;
 
@@ -62,8 +61,6 @@ export async function GET(request) {
     .select("*")
     .eq("user_id", for_user)
     .single();
-
-  console.log("MENTOR DATA:", booking_config, booking_config_error);
   // Add date filter laters
 
   // get array of slots of 15 minutes each between start_time and end_time. Start time is 10:00 and end time is 17:00
@@ -103,6 +100,5 @@ export async function GET(request) {
     };
   }
   // You may want to pass the date as a parameter
-  //   console.log("ALL SLOTS:", allSlots);
   return NextResponse.json(allSlots);
 }

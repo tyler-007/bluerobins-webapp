@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { House, Users, LogOut } from "lucide-react";
+import { House, Users, LogOut, MessageCircle } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
@@ -16,6 +16,11 @@ const options = [
     label: "Find Mentors",
     icon: Users,
     href: "/mentors",
+  },
+  {
+    label: "Chats",
+    icon: MessageCircle,
+    href: "/chats",
   },
 ];
 
@@ -33,7 +38,7 @@ export default function Sidebar() {
     <div className="w-[332px] flex flex-col bg-secondary h-screen">
       <div className="h-20"></div>
       {options.map((option) => {
-        const isActive = option.href.startsWith(selected);
+        const isActive = selected.startsWith(option.href);
         return (
           <div
             onClick={() => {
