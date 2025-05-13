@@ -29,7 +29,7 @@ const mentorOptions = [
   {
     label: "Dashboard",
     icon: Calendar,
-    href: "/dashboard",
+    href: "/home",
   },
   {
     label: "Chats",

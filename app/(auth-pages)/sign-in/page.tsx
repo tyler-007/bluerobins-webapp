@@ -37,7 +37,7 @@ export default function Login() {
   const [current, setCurrent] = useState(1); // Start on the second slide
   const [userType, setUserType] = useState<
     "student" | "parent" | "mentor" | undefined
-  >("student");
+  >();
   const total = carouselSlides.length;
   const slide = carouselSlides[current];
 
@@ -120,7 +120,6 @@ export default function Login() {
               Student
             </button>
             <button
-              disabled
               onClick={() => setUserType("mentor")}
               className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "mentor" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
             >

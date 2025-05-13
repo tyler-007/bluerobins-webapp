@@ -8,6 +8,7 @@ export async function POST(request) {
   const supabase = await createClient();
   const req = await request.json();
   const { identifier } = req;
+  console.log("IDENTIFIER", req);
   if (!identifier)
     return NextResponse.json({ status: false, message: "Channel not found" });
 

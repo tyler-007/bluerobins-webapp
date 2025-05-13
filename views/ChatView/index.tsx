@@ -22,12 +22,15 @@ export const ChatView = ({
   name?: string;
   mentorId?: string;
 }) => {
-  const { data: user } = useUser();gs
+  const { data: user } = useUser();
   const userId = user?.id;
   const [channel_id, setChannelId] = useState("");
 
   const onOpenChange = async (open: boolean) => {
     if (open) {
+      if (!name && mentorId) {
+        name = `s_${userId}:m_${mentorId}`;
+      }
       const channel_id = await useGetChannelId(id, name);
       console.log("channel_id", channel_id);
       setChannelId(channel_id);

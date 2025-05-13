@@ -46,6 +46,33 @@ const ExploreItem = ({
   );
 };
 
+const TimeSlots = ({
+  availability,
+  day,
+}: {
+  availability: any;
+  day: string;
+}) => {
+  return (
+    <>
+      <span>{day}</span>
+      {!availability?.length ? (
+        <span>Unavailable</span>
+      ) : (
+        (availability ?? []).map((item: any, index: number) => (
+          <>
+            {index > 0 && <div />}
+            <span>
+              {item.start} - {item.end}
+            </span>
+          </>
+        ))
+      )}
+      <div className="flex col-span-2 h-1"></div>
+    </>
+  );
+};
+
 export default async function HomePage() {
   const supabase = await createClient();
 
@@ -58,12 +85,23 @@ export default async function HomePage() {
   }
 
   const userType = user?.user_metadata?.user_type;
-  const filterKey = userType === "mentor" ? "for" : "by";
+  const isMentor = userType === "mentor";
+  const filterKey = isMentor ? "for" : "by";
 
   const myBookings = await supabase
     .from("bookings")
     .select("*")
     .eq(filterKey, user.id);
+
+  const { data: bookingConfig } = await supabase
+    .from("booking_configs")
+    .select("*")
+    .eq("user_id", "f9f39868-8211-4118-8284-4d1b1cc1a322")
+    .single();
+
+  console.log("BOOKING CONFIG", bookingConfig);
+  const availability = bookingConfig?.availability;
+  console.log("AVAILABILITY", availability);
 
   return (
     <div className="flex flex-row flex-1">
@@ -136,7 +174,31 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl flex-1 border border-gray-200"></div>
+        <div className="bg-white rounded-2xl flex-1 border border-gray-200 p-3">
+          {isMentor && (
+            <>
+              <span className="text-lg font-bold">Timings</span>
+              <div className="grid grid-cols-[auto_1fr] gap-2 gap-y-1">
+                <TimeSlots availability={availability?.sunday} day="Sunday" />
+                <TimeSlots availability={availability?.monday} day="Monday" />
+                <TimeSlots availability={availability?.tuesday} day="Tuesday" />
+                <TimeSlots
+                  availability={availability?.wednesday}
+                  day="Wednesday"
+                />
+                <TimeSlots
+                  availability={availability?.thursday}
+                  day="Thursday"
+                />
+                <TimeSlots availability={availability?.friday} day="Friday" />
+                <TimeSlots
+                  availability={availability?.saturday}
+                  day="Saturday"
+                />
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

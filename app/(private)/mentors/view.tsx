@@ -40,7 +40,7 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
         <span className="text-xl font-bold">$200/hour</span>
         <div className="flex-1"></div>
         <BookingFlow mentor={mentor} />
-        <ChatView mentorId={mentor.id} />
+        <ChatView name={``} mentorId={mentor.id} />
         <Button variant="mutedOutline">View profile</Button>
         {/* <GoogleMeetButton /> */}
       </div>
