@@ -99,9 +99,7 @@ export default async function HomePage() {
     .eq("user_id", "f9f39868-8211-4118-8284-4d1b1cc1a322")
     .single();
 
-  console.log("BOOKING CONFIG", bookingConfig);
   const availability = bookingConfig?.availability;
-  console.log("AVAILABILITY", availability);
 
   return (
     <div className="flex flex-row flex-1">
