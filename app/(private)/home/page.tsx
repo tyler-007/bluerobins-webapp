@@ -6,49 +6,8 @@ import { redirect } from "next/navigation";
 import dayjs from "dayjs";
 import { ChatView } from "@/views/ChatView";
 import { useUser } from "@/app/hooks/useUser";
-
-const ScheduleItem = ({
-  title,
-  description,
-  time,
-  date,
-  mentorId,
-  studentId,
-}: {
-  title: string;
-  description: string;
-  time: string;
-  date: string;
-  mentorId: string;
-  studentId: string;
-}) => {
-  // const { data: user } = useUser();
-
-  return (
-    <div className="flex flex-col flex-1 gap-1 bg-white max-w-max rounded-2xl border border-gray-200 p-6 pt-4">
-      <div className="flex flex-row gap-4 items-center justify-between">
-        <span className="text-sm text-black">{date}</span>
-        <span className="bg-[#f0f0f0] rounded-full px-4 py-1 text-sm">
-          {time}
-        </span>
-      </div>
-      <span className="text-lg font-bold mt-2">{title}</span>
-      <span className="text-sm text-gray-500">{description}</span>
-      <div className="flex flex-row flex-1 gap-4 items-center mt-4">
-        <ChatView name={`s_${studentId}:m_${mentorId}`} />
-        {/* <ChatView <ChatView name={`s_${user?.id}:m_${mentor.user_id}`} /> /> */}
-        {/* <button className="border-[#2953BE] border-[1.5px] text-[#2953BE] rounded-xl px-4 py-1 text-base flex flex-row gap-2 items-center">
-          <MessageCircle className="w-5 h-5" />
-          <span>Chat</span>
-        </button> */}
-        <button className="bg-[#2953BE] border-[#2953BE] border-[1.5px] gap-2  text-white rounded-xl px-4 py-1 text-base flex flex-row flex-1 items-center justify-center">
-          <Video className="w-5 h-5" />
-          <span>Join Meeting</span>
-        </button>
-      </div>
-    </div>
-  );
-};
+import { useProfile } from "@/app/hooks/useProfile";
+import ScheduleItem from "./ScheduleItem";
 
 const ExploreItem = ({
   title,
@@ -98,10 +57,13 @@ export default async function HomePage() {
     return redirect("/sign-in");
   }
 
+  const userType = user?.user_metadata?.user_type;
+  const filterKey = userType === "mentor" ? "for" : "by";
+
   const myBookings = await supabase
     .from("bookings")
     .select("*")
-    .eq("by", user.id);
+    .eq(filterKey, user.id);
 
   return (
     <div className="flex flex-row flex-1">
@@ -124,8 +86,8 @@ export default async function HomePage() {
             <ScheduleItem
               key={booking.id}
               mentorId={booking.for}
+              userType={userType}
               studentId={booking.by}
-              title="Meeting with mentor"
               description="Research product discussion"
               time={dayjs(booking.start_time).format("h:mm A")}
               date={dayjs(booking.start_time).format("DD MMM YYYY")}
