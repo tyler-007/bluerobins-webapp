@@ -1,10 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { House, Users, LogOut, MessageCircle } from "lucide-react";
+import { House, Users, LogOut, MessageCircle, Calendar } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
+import { useUser } from "@/app/hooks/useUser";
 
 const options = [
   {
@@ -24,6 +25,19 @@ const options = [
   },
 ];
 
+const mentorOptions = [
+  {
+    label: "Dashboard",
+    icon: Calendar,
+    href: "/dashboard",
+  },
+  {
+    label: "Chats",
+    icon: MessageCircle,
+    href: "/chats",
+  },
+];
+
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -34,10 +48,14 @@ export default function Sidebar() {
     router.push("/sign-in");
   };
 
+  const { data: user } = useUser();
+  const userType = user?.user_metadata?.user_type || "student";
+  const finalOptions = userType === "mentor" ? mentorOptions : options;
+
   return (
     <div className="w-[332px] flex flex-col bg-secondary h-screen">
       <div className="h-20"></div>
-      {options.map((option) => {
+      {finalOptions.map((option) => {
         const isActive = selected.startsWith(option.href);
         return (
           <div
