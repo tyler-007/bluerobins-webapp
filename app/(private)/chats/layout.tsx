@@ -7,14 +7,11 @@ import dayjs from "dayjs";
 import ChatList from "./ChatList";
 export default async function ChatsPage({
   children,
-  params,
-  ...rest
 }: {
   children: React.ReactNode;
-  params: { id: string };
 }) {
   const supabase = await createClient();
-  console.log("params", await params, rest);
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
