@@ -8,7 +8,7 @@ import { ChatView } from "@/views/ChatView";
 import { useUser } from "@/app/hooks/useUser";
 import { useProfile } from "@/app/hooks/useProfile";
 import ScheduleItem from "./ScheduleItem";
-
+import StudentProfileEdit from "./StudentProfileEdit";
 const ExploreItem = ({
   title,
   description,
@@ -130,33 +130,6 @@ export default async function HomePage() {
             />
           ))}
         </div>
-        {/* <div className="flex flex-row gap-4 mt-6 items-center justify-between">
-          <span>Explore</span>
-          <span>See All</span>
-        </div>
-        <div className="flex flex-row gap-4">
-          <ExploreItem
-            buttonLabel="View Projects"
-            title="Color essay workshop"
-            items={[
-              { label: "Nanoparticles & Parkison’s Research" },
-              { label: "Diabetes Prediction ML Model" },
-            ]}
-            description="Research product discussion"
-            Icon={<BookOpen className="w-5 h-5 text-[#FFA501]" />}
-          />
-          <ExploreItem
-            buttonLabel="View Careers"
-            title="Career lens"
-            description="See what real people did to get where you want to go"
-            Icon={<Compass className="w-5 h-5 text-[#FFA501]" />}
-            items={[
-              { label: "Biochemical Engineering Pathway" },
-              { label: "Material Science Reasearch Center" },
-            ]}
-          />
-        </div> */}
-        {/* <h1>Home</h1> */}
       </div>
       <div className="flex w-96 flex-col bg-light border-l-2 border-gray-200 p-5 gap-5  ">
         <div className="bg-white rounded-2xl p-6 border border-gray-200">
@@ -169,6 +142,7 @@ export default async function HomePage() {
                 {user?.user_metadata?.full_name}
               </span>
               <span className="text-[#2953BE]">{user?.email}</span>
+              <StudentProfileEdit />
             </div>
           </div>
         </div>
