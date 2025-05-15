@@ -34,8 +34,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Check, ArrowLeft } from "lucide-react";
 
 const formSchema = z.object({
+  name: z.string().min(1, { message: "Name is required" }),
   phone_number: z.string().min(1, { message: "Phone number is required" }),
   address: z.string().min(1, { message: "Address is required" }),
+  state: z.string().min(1, { message: "State is required" }),
+  country: z.string().min(1, { message: "Country is required" }),
   institution_name: z
     .string()
     .min(1, { message: "Institution name is required" }),
@@ -52,8 +55,11 @@ type FormFieldProps<T extends keyof FormValues> = {
 };
 
 const defaultValues: FormValues = {
+  name: "",
   phone_number: "",
   address: "",
+  state: "",
+  country: "",
   institution_name: "",
   linkedin_url: "",
   bio: "",
@@ -61,10 +67,13 @@ const defaultValues: FormValues = {
   availability: "",
 };
 
-const getValues = (profile: any, defaultValues: FormValues) => {
+const getValues = (profile: any, defaultValues: FormValues, props: any) => {
   const payload = {
+    name: profile?.name ?? profile.name ?? props.name ?? defaultValues.name,
     phone_number: profile.phone_number ?? defaultValues.phone_number,
     address: profile.address ?? defaultValues.address,
+    state: profile.state ?? defaultValues.state,
+    country: profile.country ?? defaultValues.country,
     institution_name:
       profile.institution_name ?? defaultValues.institution_name,
     linkedin_url: profile.linkedin_url ?? defaultValues.linkedin_url,
@@ -76,26 +85,46 @@ const getValues = (profile: any, defaultValues: FormValues) => {
 };
 
 const steps = [
-  { label: "Personal Info", fields: ["phone_number", "address"] },
+  {
+    label: "Basic Details",
+    fields: ["name", "phone_number", "address", "state", "country"],
+  },
   {
     label: "Professional Details",
     fields: ["institution_name", "linkedin_url", "bio"],
   },
-  { label: "Availability", fields: ["hourly_rate", "availability"] },
+  {
+    label: "Availability",
+    fields: ["hourly_rate", "availability"],
+  },
+  {
+    label: "Step 4",
+    fields: [],
+  },
+  {
+    label: "Step 5",
+    fields: [],
+  },
 ];
 
 export default function MentorProfileEdit({
   profile,
   userId,
+  name,
+  email,
 }: {
   profile: any;
   userId: string;
+  name: string;
+  email: string;
 }) {
   const supabase = createClient();
   profile = profile || {};
   const [open, setOpen] = useState(true);
   const { toast } = useToast();
-  const values = profile ? getValues(profile, defaultValues) : undefined;
+  const values = profile
+    ? getValues(profile, defaultValues, { name })
+    : undefined;
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -227,40 +256,105 @@ export default function MentorProfileEdit({
                 <Form {...form}>
                   <div className="flex flex-col gap-4">
                     {step === 0 && (
-                      <>
-                        <FormField
-                          control={form.control}
-                          name="phone_number"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Phone number</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder="Enter your phone number"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="address"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Address</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder="Enter your address"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </>
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg font-semibold">
+                            Basic Details
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-4">
+                          <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Name</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    defaultValue={name}
+                                    placeholder="Enter your name"
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  Email: {email}
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="phone_number"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Phone number</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder="Enter your phone number"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="address"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Address</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder="Enter your address"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="state"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>State</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      placeholder="Enter your state"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="country"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Country</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      placeholder="Enter your country"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            Current Timezone:{" "}
+                            {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                          </div>
+                        </CardContent>
+                      </Card>
                     )}
                     {step === 1 && (
                       <Card>
