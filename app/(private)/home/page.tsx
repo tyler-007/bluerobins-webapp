@@ -8,7 +8,7 @@ import { ChatView } from "@/views/ChatView";
 import { useUser } from "@/app/hooks/useUser";
 import { useProfile } from "@/app/hooks/useProfile";
 import ScheduleItem from "./ScheduleItem";
-import StudentProfileEdit from "./StudentProfileEdit";
+import StudentProfileEdit from "./StudentOnboarding";
 import MentorProfileEdit from "./MentorProfileEdit";
 const ExploreItem = ({
   title,
