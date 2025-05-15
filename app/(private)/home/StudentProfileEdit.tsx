@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { createClient } from "@/utils/supabase/client";
 
 const gradeOptions = [
   "Grade 6",
@@ -42,18 +43,16 @@ const gradeOptions = [
 const formSchema = z
   .object({
     grade: z.enum(gradeOptions),
-    schoolName: z.string(),
     parentName: z.string(),
     parentEmail: z.string(),
-    universityName: z.string(),
+    institution_name: z.string(),
     major: z.string(),
   })
   .superRefine((val, ctx) => {
-    console.log("SUPER REFINE", val, ctx);
     if (val.grade === "University") {
-      if (val.universityName === "") {
+      if (val.institution_name === "") {
         ctx.addIssue({
-          path: ["universityName"],
+          path: ["institution_name"],
           code: z.ZodIssueCode.custom,
           message: "University name is required",
         });
@@ -69,10 +68,10 @@ const formSchema = z
 
     if (val.grade !== "University") {
       let errors = [];
-      if (val.schoolName === "") {
-        errors.push("schoolName");
+      if (val.institution_name === "") {
+        errors.push("institution_name");
         ctx.addIssue({
-          path: ["schoolName"],
+          path: ["institution_name"],
           code: z.ZodIssueCode.custom,
           message: "School name is required",
         });
@@ -109,22 +108,6 @@ const formSchema = z
     }
 
     return true;
-    // if (val.length > 3) {
-    //   ctx.addIssue({
-    //     code: z.ZodIssueCode.too_big,
-    //     maximum: 3,
-    //     type: "array",
-    //     inclusive: true,
-    //     message: "Too many items 😡",
-    //   });
-    // }
-
-    // if (val.length !== new Set(val).size) {
-    //   ctx.addIssue({
-    //     code: z.ZodIssueCode.custom,
-    //     message: `No duplicates allowed.`,
-    //   });
-    // }
   });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -133,27 +116,72 @@ type FormFieldProps<T extends keyof FormValues> = {
   field: ControllerRenderProps<FormValues, T>;
 };
 
-export default function StudentProfileEdit() {
-  const [open, setOpen] = useState(false);
-  const { toast } = useToast();
+const defaultValues: FormValues = {
+  grade: "Grade 6",
+  institution_name: "",
+  parentName: "",
+  parentEmail: "",
+  major: "",
+};
 
+const getValues = (profile: any, defaultValues: FormValues) => {
+  const payload = {
+    grade:
+      profile.student_type === "undergrad"
+        ? "University"
+        : (profile.grade ?? defaultValues.grade),
+    institution_name:
+      profile.institution_name ?? defaultValues.institution_name,
+    parentName: profile.parent_name ?? defaultValues.parentName,
+    parentEmail: profile.parent_email ?? defaultValues.parentEmail,
+    major: profile.major ?? defaultValues.major,
+  };
+  return payload;
+};
+
+export default function StudentProfileEdit({
+  profile,
+  userId,
+}: {
+  profile: any;
+  userId: string;
+}) {
+  const supabase = createClient();
+  profile = profile || {};
+  const [open, setOpen] = useState(!profile.institution_name);
+  const { toast } = useToast();
+  const values = profile ? getValues(profile, defaultValues) : undefined;
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      grade: undefined,
-      schoolName: "",
-      parentName: "",
-      parentEmail: "",
-      universityName: "",
-      major: "",
-    },
+    defaultValues,
+    values,
   });
 
+  const onClose = (open: boolean) => {
+    if (!profile.institution_name) return;
+    setOpen(open);
+  };
+
   const onSubmit = async (data: FormValues) => {
-    console.log("SUBMITTING");
     try {
       // TODO: Implement form submission to your backend
-      console.log(data);
+      const { data: updatedProfile, error } = await supabase
+        .from("student_profiles")
+        .upsert({
+          id: userId,
+          ...profile,
+          student_type: data.major
+            ? "undergrad"
+            : [6, 7, 8].some((grade) => data.grade.includes(grade.toString()))
+              ? "middle_school"
+              : "high_school",
+          institution_name: data.institution_name,
+          major: data.major,
+          grade: data.major ? undefined : data.grade,
+          parent_name: data.parentName,
+          parent_email: data.parentEmail,
+        });
+
       toast({
         title: "Success",
         description: "Profile updated successfully",
@@ -170,9 +198,16 @@ export default function StudentProfileEdit() {
 
   const grade = form.watch("grade");
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={onClose}>
       <SheetTrigger asChild>
-        <Button variant="outline" className="w-full">
+        <Button
+          onClick={() => {
+            console.log("OPENING SHEET");
+            setOpen(true);
+          }}
+          variant="ghost"
+          className="w-full justify-start -ml-4 -mt-3"
+        >
           Edit Profile
         </Button>
       </SheetTrigger>
@@ -226,8 +261,10 @@ export default function StudentProfileEdit() {
                     <>
                       <FormField
                         control={form.control}
-                        name="schoolName"
-                        render={({ field }: FormFieldProps<"schoolName">) => (
+                        name="institution_name"
+                        render={({
+                          field,
+                        }: FormFieldProps<"institution_name">) => (
                           <FormItem>
                             <FormLabel>School Name</FormLabel>
                             <FormControl>
@@ -268,10 +305,10 @@ export default function StudentProfileEdit() {
                     <>
                       <FormField
                         control={form.control}
-                        name="universityName"
+                        name="institution_name"
                         render={({
                           field,
-                        }: FormFieldProps<"universityName">) => (
+                        }: FormFieldProps<"institution_name">) => (
                           <FormItem>
                             <FormLabel>University Name</FormLabel>
                             <FormControl>
@@ -298,7 +335,11 @@ export default function StudentProfileEdit() {
                   )}
                 </>
               )}
-              <Button type="submit" className="mt-4">
+              <Button
+                loading={form.formState.isSubmitting}
+                type="submit"
+                className="mt-4"
+              >
                 Save Changes
               </Button>
             </form>
