@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Check, ArrowLeft } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { TagInput } from "@/app/components/ui/TagInput";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -58,6 +59,13 @@ const formSchema = z.object({
       enabled: z.boolean(),
     })
   ),
+  mentoring_areas: z
+    .array(z.string().min(1))
+    .min(1, { message: "Mentoring areas are required" }),
+  marketing_title: z
+    .string()
+    .min(1, { message: "Marketing title is required" }),
+  photo_url: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -94,6 +102,9 @@ const defaultValues: FormValues = {
     { day: "Friday", start_time: "09:00", end_time: "17:00", enabled: false },
     { day: "Saturday", start_time: "09:00", end_time: "17:00", enabled: false },
   ],
+  mentoring_areas: [],
+  marketing_title: "",
+  photo_url: "",
 };
 
 const getValues = (profile: any, defaultValues: FormValues, props: any) => {
@@ -113,6 +124,9 @@ const getValues = (profile: any, defaultValues: FormValues, props: any) => {
       profile.commitment_hours ?? defaultValues.commitment_hours,
     hourly_rate: profile.hourly_rate ?? defaultValues.hourly_rate,
     availability: profile.availability ?? defaultValues.availability,
+    mentoring_areas: profile.mentoring_areas ?? defaultValues.mentoring_areas,
+    marketing_title: profile.marketing_title ?? defaultValues.marketing_title,
+    photo_url: profile.photo_url ?? defaultValues.photo_url,
   };
   return payload;
 };
@@ -131,8 +145,14 @@ const steps = [
     fields: ["commitment_hours", "hourly_rate", "availability"],
   },
   {
-    label: "Professional Details",
-    fields: ["linkedin_url", "bio"],
+    label: "Profile",
+    fields: [
+      "photo_url",
+      "marketing_title",
+      "linkedin_url",
+      "bio",
+      "mentoring_areas",
+    ],
   },
   {
     label: "Step 5",
@@ -184,6 +204,9 @@ export default function MentorProfileEdit({
           bio: data.bio,
           hourly_rate: data.hourly_rate,
           availability: data.availability,
+          mentoring_areas: data.mentoring_areas,
+          marketing_title: data.marketing_title,
+          photo_url: data.photo_url,
         });
 
       console.log("UPDATED PROFILE:", updatedProfile, error);
@@ -199,6 +222,9 @@ export default function MentorProfileEdit({
         bio: data.bio,
         hourly_rate: data.hourly_rate,
         availability: data.availability,
+        mentoring_areas: data.mentoring_areas,
+        marketing_title: data.marketing_title,
+        photo_url: data.photo_url,
       });
 
       toast({
@@ -731,16 +757,77 @@ export default function MentorProfileEdit({
                       <Card>
                         <CardHeader>
                           <CardTitle className="text-lg font-semibold">
-                            Professional Details
+                            Profile
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="flex flex-col gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                            <div className="flex flex-col items-center justify-center">
+                              <FormField
+                                control={form.control}
+                                name="photo_url"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Photo Upload</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={async (e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) {
+                                            // For now, just use a local URL preview
+                                            const url =
+                                              URL.createObjectURL(file);
+                                            field.onChange(url);
+                                          }
+                                        }}
+                                      />
+                                    </FormControl>
+                                    {field.value && (
+                                      <div className="mt-2 flex justify-center">
+                                        <img
+                                          src={field.value}
+                                          alt="Profile preview"
+                                          className="w-32 h-32 object-cover rounded-xl border"
+                                          style={{ aspectRatio: 1 }}
+                                        />
+                                      </div>
+                                    )}
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <div className="md:col-span-2">
+                              <FormField
+                                control={form.control}
+                                name="marketing_title"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Marketing Title</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        placeholder="e.g. Award-winning Science Mentor"
+                                      />
+                                    </FormControl>
+                                    <FormDescription className="text-xs">
+                                      A short headline to market yourself to
+                                      students.
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
                           <FormField
                             control={form.control}
                             name="linkedin_url"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>LinkedIn URL</FormLabel>
+                                <FormLabel>LinkedIn Profile</FormLabel>
                                 <FormDescription>
                                   example:
                                   https://www.linkedin.com/in/your-profile
@@ -759,10 +846,31 @@ export default function MentorProfileEdit({
                               <FormItem>
                                 <FormLabel>Bio</FormLabel>
                                 <FormDescription>
-                                  Why we need the bio goes here.
+                                  Tell students about your background and
+                                  mentoring style.
                                 </FormDescription>
                                 <FormControl>
                                   <Textarea {...field} rows={4} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="mentoring_areas"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Mentoring Areas</FormLabel>
+                                <FormDescription>
+                                  Add tags (e.g. Physics, Math, Robotics)
+                                </FormDescription>
+                                <FormControl>
+                                  <TagInput
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    placeholder="Type and press enter…"
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
