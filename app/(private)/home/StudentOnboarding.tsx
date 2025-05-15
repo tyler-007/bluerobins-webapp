@@ -74,9 +74,11 @@ export default function StudentProfileEdit({
 
       toast({
         title: "Success",
-        description: "Profile updated successfully",
+        description: "Profile updated successfully. Taking you home...",
       });
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       toast({
         title: "Error",
