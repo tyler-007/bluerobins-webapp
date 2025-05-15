@@ -9,6 +9,7 @@ import { useUser } from "@/app/hooks/useUser";
 import { useProfile } from "@/app/hooks/useProfile";
 import ScheduleItem from "./ScheduleItem";
 import StudentProfileEdit from "./StudentProfileEdit";
+import MentorProfileEdit from "./MentorProfileEdit";
 const ExploreItem = ({
   title,
   description,
@@ -154,7 +155,8 @@ export default async function HomePage() {
                 {user?.user_metadata?.full_name}
               </span>
               {/* <span className="text-[#2953BE]">{user?.email}</span> */}
-              <StudentProfileEdit profile={profile} userId={user.id} />
+              {/* <StudentProfileEdit profile={profile} userId={user.id} /> */}
+              <MentorProfileEdit profile={profile} userId={user.id} />
             </div>
           </div>
         </div>
