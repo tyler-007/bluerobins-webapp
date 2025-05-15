@@ -12,6 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { TagInput } from "@/app/components/ui/TagInput";
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "../../types/mentor-profile";
+import { User } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ProfileStepProps {
   form: UseFormReturn<FormValues>;
@@ -20,12 +22,9 @@ interface ProfileStepProps {
 export function ProfileStep({ form }: ProfileStepProps) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Profile</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-          <div className="flex flex-col items-center justify-center">
+      <CardContent className="flex flex-col gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-[auto_1fr_1fr] gap-4 ">
+          <div className="flex flex-col">
             <FormField
               control={form.control}
               name="photo_url"
@@ -33,35 +32,50 @@ export function ProfileStep({ form }: ProfileStepProps) {
                 <FormItem>
                   <FormLabel>Photo Upload</FormLabel>
                   <FormControl>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          // For now, just use a local URL preview
-                          const url = URL.createObjectURL(file);
-                          field.onChange(url);
-                        }
-                      }}
-                    />
-                  </FormControl>
-                  {field.value && (
-                    <div className="mt-2 flex justify-center">
-                      <img
-                        src={field.value}
-                        alt="Profile preview"
-                        className="w-32 h-32 object-cover rounded-xl border"
-                        style={{ aspectRatio: 1 }}
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        id="photo-upload"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const url = URL.createObjectURL(file);
+                            field.onChange(url);
+                          }
+                        }}
                       />
+                      <label
+                        htmlFor="photo-upload"
+                        className={cn(
+                          " w-32 h-32 rounded-xl border-2 border-dashed border-gray-300",
+                          "flex items-center justify-center cursor-pointer",
+                          "hover:border-gray-400 transition-colors",
+                          "relative overflow-hidden"
+                        )}
+                      >
+                        {field.value ? (
+                          <img
+                            src={field.value}
+                            alt="Profile preview"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center gap-2 text-gray-500">
+                            <User className="w-8 h-8" />
+                            <span className="text-xs">Click to upload</span>
+                          </div>
+                        )}
+                      </label>
                     </div>
-                  )}
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-          <div className="md:col-span-2">
+          <div className="flex flex-col justify-between md:col-span-2">
             <FormField
               control={form.control}
               name="marketing_title"
@@ -74,31 +88,30 @@ export function ProfileStep({ form }: ProfileStepProps) {
                       placeholder="e.g. Award-winning Science Mentor"
                     />
                   </FormControl>
-                  <FormDescription className="text-xs">
-                    A short headline to market yourself to students.
-                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="linkedin_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>LinkedIn Profile</FormLabel>
+
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="e.g. https://www.linkedin.com/in/your-profile"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
         </div>
-        <FormField
-          control={form.control}
-          name="linkedin_url"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>LinkedIn Profile</FormLabel>
-              <FormDescription>
-                example: https://www.linkedin.com/in/your-profile
-              </FormDescription>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+
         <FormField
           control={form.control}
           name="bio"

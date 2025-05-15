@@ -158,7 +158,7 @@ export default async function HomePage() {
               {/* <StudentOnboarding profile={profile} userId={user.id} /> */}
               <MentorProfileEdit
                 profile={profile}
-                email={user?.email}
+                email={user?.email ?? ""}
                 name={user?.user_metadata?.full_name}
                 userId={user.id}
               />

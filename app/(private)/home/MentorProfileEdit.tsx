@@ -150,7 +150,7 @@ export default function MentorProfileEdit({
           </div>
 
           {/* Progress bar - full width */}
-          <div className="w-full">
+          {/* <div className="w-full">
             <div className="mx-auto max-w-[640px] px-4 flex gap-1">
               {steps.map((_, idx) => (
                 <div
@@ -162,7 +162,7 @@ export default function MentorProfileEdit({
                 />
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Main content */}
           <div className="flex-1 overflow-auto">
@@ -171,7 +171,7 @@ export default function MentorProfileEdit({
               <div
                 className={`w-full ${
                   step === 4 ? "max-w-[980px]" : "max-w-[640px]"
-                } px-4 py-8`}
+                } px-4 py-4`}
               >
                 <Form {...form}>
                   <div className="flex flex-col gap-4">
