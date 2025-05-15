@@ -885,12 +885,12 @@ export default function MentorProfileEdit({
                       <div className="grid grid-cols-3 grid-rows-2 gap-4">
                         {/* Profile (spans 2 rows, left) */}
                         <Card className="row-span-2">
-                          <CardHeader>
-                            <CardTitle className="text-lg font-semibold">
+                          <CardHeader className="p-2 pb-0">
+                            <CardTitle className="text-base font-semibold">
                               Profile
                             </CardTitle>
                           </CardHeader>
-                          <CardContent className="flex flex-col gap-2">
+                          <CardContent className="flex flex-col gap-1 p-2 pt-1">
                             {steps[3].fields.map((fieldName) => {
                               const value = form.getValues(
                                 fieldName as keyof FormValues
@@ -947,13 +947,15 @@ export default function MentorProfileEdit({
                               return (
                                 <div
                                   key={fieldName}
-                                  className="cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition"
+                                  className="cursor-pointer hover:bg-blue-50 rounded px-1 py-0.5 transition flex flex-col gap-0.5"
                                   onClick={() => setStep(3)}
                                 >
-                                  <span className="font-medium capitalize">
-                                    {fieldName.replace(/_/g, " ")}:
-                                  </span>{" "}
-                                  {displayValue}
+                                  <span className="font-medium capitalize text-sm text-gray-500">
+                                    {fieldName.replace(/_/g, " ")}
+                                  </span>
+                                  <span className="text-sm">
+                                    {displayValue}
+                                  </span>
                                 </div>
                               );
                             })}
@@ -961,12 +963,12 @@ export default function MentorProfileEdit({
                         </Card>
                         {/* Basic Details (top center) */}
                         <Card>
-                          <CardHeader>
-                            <CardTitle className="text-lg font-semibold">
+                          <CardHeader className="p-2 pb-0">
+                            <CardTitle className="text-base font-semibold">
                               Basic Details
                             </CardTitle>
                           </CardHeader>
-                          <CardContent className="flex flex-col gap-2">
+                          <CardContent className="flex flex-col gap-1 p-2 pt-1">
                             {steps[0].fields.map((fieldName) => {
                               const value = form.getValues(
                                 fieldName as keyof FormValues
@@ -987,13 +989,15 @@ export default function MentorProfileEdit({
                               return (
                                 <div
                                   key={fieldName}
-                                  className="cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition"
+                                  className="cursor-pointer hover:bg-blue-50 rounded px-1 py-0.5 transition flex flex-col gap-0.5"
                                   onClick={() => setStep(0)}
                                 >
-                                  <span className="font-medium capitalize">
-                                    {fieldName.replace(/_/g, " ")}:
-                                  </span>{" "}
-                                  {displayValue}
+                                  <span className="font-medium capitalize text-sm text-gray-500">
+                                    {fieldName.replace(/_/g, " ")}
+                                  </span>
+                                  <span className="text-sm">
+                                    {displayValue}
+                                  </span>
                                 </div>
                               );
                             })}
@@ -1001,12 +1005,12 @@ export default function MentorProfileEdit({
                         </Card>
                         {/* Availability (spans 2 rows, right) */}
                         <Card className="row-span-2">
-                          <CardHeader>
-                            <CardTitle className="text-lg font-semibold">
+                          <CardHeader className="p-2 pb-0">
+                            <CardTitle className="text-base font-semibold">
                               Availability
                             </CardTitle>
                           </CardHeader>
-                          <CardContent className="flex flex-col gap-2">
+                          <CardContent className="flex flex-col gap-1 p-2 pt-1">
                             {steps[2].fields.map((fieldName) => {
                               const value = form.getValues(
                                 fieldName as keyof FormValues
@@ -1051,13 +1055,15 @@ export default function MentorProfileEdit({
                               return (
                                 <div
                                   key={fieldName}
-                                  className="cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition"
+                                  className="cursor-pointer hover:bg-blue-50 rounded px-1 py-0.5 transition flex flex-col gap-0.5"
                                   onClick={() => setStep(2)}
                                 >
-                                  <span className="font-medium capitalize">
-                                    {fieldName.replace(/_/g, " ")}:
-                                  </span>{" "}
-                                  {displayValue}
+                                  <span className="font-medium capitalize text-sm text-gray-500">
+                                    {fieldName.replace(/_/g, " ")}
+                                  </span>
+                                  <span className="text-sm">
+                                    {displayValue}
+                                  </span>
                                 </div>
                               );
                             })}
@@ -1065,12 +1071,12 @@ export default function MentorProfileEdit({
                         </Card>
                         {/* Mentor Type (bottom center) */}
                         <Card>
-                          <CardHeader>
-                            <CardTitle className="text-lg font-semibold">
+                          <CardHeader className="p-2 pb-0">
+                            <CardTitle className="text-base font-semibold">
                               Mentor Type
                             </CardTitle>
                           </CardHeader>
-                          <CardContent className="flex flex-col gap-2">
+                          <CardContent className="flex flex-col gap-1 p-2 pt-1">
                             {steps[1].fields.map((fieldName) => {
                               const value = form.getValues(
                                 fieldName as keyof FormValues
@@ -1103,13 +1109,15 @@ export default function MentorProfileEdit({
                               return (
                                 <div
                                   key={fieldName}
-                                  className="cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition"
+                                  className="cursor-pointer hover:bg-blue-50 rounded px-1 py-0.5 transition flex flex-col gap-0.5"
                                   onClick={() => setStep(1)}
                                 >
-                                  <span className="font-medium capitalize">
-                                    {fieldName.replace(/_/g, " ")}:
-                                  </span>{" "}
-                                  {displayValue}
+                                  <span className="font-medium capitalize text-sm text-gray-500">
+                                    {fieldName.replace(/_/g, " ")}
+                                  </span>
+                                  <span className="text-sm">
+                                    {displayValue}
+                                  </span>
                                 </div>
                               );
                             })}
