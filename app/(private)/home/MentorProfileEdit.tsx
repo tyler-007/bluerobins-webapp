@@ -261,25 +261,85 @@ export default function MentorProfileEdit({
         <div className="flex flex-col h-full">
           {/* Header - full width */}
           <div className="w-full border-b p-4 flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => setOpen(false)}>
+            {/* <Button variant="ghost" size="icon" onClick={() => setOpen(false)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex-1 text-center">
               {steps[step].label} (Step {step + 1} of {steps.length})
+            </div> */}
+            {/* Horizontal review stepper */}
+            <div className="w-full flex justify-center">
+              <div className="max-w-[700px] flex items-center justify-between w-full">
+                {[
+                  "Profile",
+                  "Basic Details",
+                  "Mentor Type",
+                  "Availability",
+                  "Review",
+                ].map((label, idx, arr) => {
+                  const isCompleted = true; // All are completed in review
+                  return (
+                    <div
+                      key={label}
+                      className="flex-1 flex flex-col items-center"
+                    >
+                      <div className="flex items-center w-full">
+                        {/* Step circle with checkmark */}
+                        <div
+                          className={
+                            isCompleted
+                              ? "bg-blue-600 border-4 border-white text-white flex items-center justify-center rounded-full w-9 h-9 font-semibold text-lg transition-all duration-200 shadow"
+                              : "bg-gray-200 text-gray-500 flex items-center justify-center rounded-full w-9 h-9 font-semibold text-lg transition-all duration-200"
+                          }
+                        >
+                          <span className="flex items-center justify-center w-5 h-5 rounded-full bg-white">
+                            <svg
+                              className="w-4 h-4 text-blue-600"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          </span>
+                        </div>
+                        {/* Line to next step */}
+                        {idx < arr.length - 1 && (
+                          <div className="bg-blue-600 flex-1 h-1 mx-2 transition-all duration-200" />
+                        )}
+                      </div>
+                      {/* Step label */}
+                      <div
+                        className="mt-2 text-sm font-medium text-center"
+                        style={{ minWidth: 80 }}
+                      >
+                        {label}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
           {/* Progress bar - full width */}
-          <div className="w-full px-4 flex gap-1">
-            {steps.map((_, idx) => (
-              <div
-                key={idx}
-                className={cn(
-                  "h-1 flex-1 rounded-full",
-                  idx === step ? "bg-blue-500" : "bg-blue-100"
-                )}
-              />
-            ))}
+          <div className="w-full">
+            <div className="mx-auto max-w-[640px] px-4 flex gap-1">
+              {steps.map((_, idx) => (
+                <div
+                  key={idx}
+                  className={cn(
+                    "h-1 flex-1 rounded-full",
+                    idx === step ? "bg-blue-500" : "bg-blue-100"
+                  )}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Main content */}
@@ -882,247 +942,251 @@ export default function MentorProfileEdit({
                       </Card>
                     )}
                     {step === 4 && (
-                      <div className="grid grid-cols-3 grid-rows-2 gap-4">
-                        {/* Profile (spans 2 rows, left) */}
-                        <Card className="row-span-2">
-                          <CardHeader className="p-2 pb-0">
-                            <CardTitle className="text-base font-semibold">
-                              Profile
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="flex flex-col gap-1 p-2 pt-1">
-                            {steps[3].fields.map((fieldName) => {
-                              const value = form.getValues(
-                                fieldName as keyof FormValues
-                              );
-                              let displayValue: React.ReactNode = null;
-                              if (
-                                fieldName === "mentoring_areas" &&
-                                Array.isArray(value) &&
-                                value.every((v) => typeof v === "string")
-                              ) {
-                                displayValue =
-                                  value.length > 0 ? (
-                                    <div className="flex flex-wrap gap-2">
-                                      {value.map((tag: string, i: number) => (
-                                        <span
-                                          key={i}
-                                          className="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full border border-blue-200"
-                                        >
-                                          {tag}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  ) : (
-                                    <span>-</span>
+                      <div className="flex flex-col items-center w-full">
+                        <div className="grid grid-cols-3 grid-rows-2 gap-4 w-full">
+                          {/* Profile (spans 2 rows, left) */}
+                          <Card className="row-span-2">
+                            <CardHeader className="p-2 pb-0">
+                              <CardTitle className="text-base font-semibold">
+                                Profile
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex flex-col gap-1 p-2 pt-1">
+                              {steps[3].fields.map((fieldName) => {
+                                const value = form.getValues(
+                                  fieldName as keyof FormValues
+                                );
+                                let displayValue: React.ReactNode = null;
+                                if (
+                                  fieldName === "mentoring_areas" &&
+                                  Array.isArray(value) &&
+                                  value.every((v) => typeof v === "string")
+                                ) {
+                                  displayValue =
+                                    value.length > 0 ? (
+                                      <div className="flex flex-wrap gap-2">
+                                        {value.map((tag: string, i: number) => (
+                                          <span
+                                            key={i}
+                                            className="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full border border-blue-200"
+                                          >
+                                            {tag}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <span>-</span>
+                                    );
+                                } else if (Array.isArray(value)) {
+                                  displayValue =
+                                    value.length > 0 ? (
+                                      value.join(", ")
+                                    ) : (
+                                      <span>-</span>
+                                    );
+                                } else if (typeof value === "boolean") {
+                                  displayValue = value ? "Yes" : "No";
+                                } else if (
+                                  typeof value === "string" &&
+                                  value.startsWith("http")
+                                ) {
+                                  displayValue = (
+                                    <a
+                                      href={value}
+                                      className="text-blue-600 underline"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {value}
+                                    </a>
                                   );
-                              } else if (Array.isArray(value)) {
-                                displayValue =
-                                  value.length > 0 ? (
-                                    value.join(", ")
-                                  ) : (
-                                    <span>-</span>
-                                  );
-                              } else if (typeof value === "boolean") {
-                                displayValue = value ? "Yes" : "No";
-                              } else if (
-                                typeof value === "string" &&
-                                value.startsWith("http")
-                              ) {
-                                displayValue = (
-                                  <a
-                                    href={value}
-                                    className="text-blue-600 underline"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                } else if (!value) {
+                                  displayValue = <span>-</span>;
+                                } else {
+                                  displayValue = <span>{value}</span>;
+                                }
+                                return (
+                                  <div
+                                    key={fieldName}
+                                    className="cursor-pointer hover:bg-blue-50 rounded px-1 py-0.5 transition flex flex-col gap-0.5"
+                                    onClick={() => setStep(3)}
                                   >
-                                    {value}
-                                  </a>
+                                    <span className="font-medium capitalize text-sm text-gray-500">
+                                      {fieldName.replace(/_/g, " ")}
+                                    </span>
+                                    <span className="text-sm">
+                                      {displayValue}
+                                    </span>
+                                  </div>
                                 );
-                              } else if (!value) {
-                                displayValue = <span>-</span>;
-                              } else {
-                                displayValue = <span>{value}</span>;
-                              }
-                              return (
-                                <div
-                                  key={fieldName}
-                                  className="cursor-pointer hover:bg-blue-50 rounded px-1 py-0.5 transition flex flex-col gap-0.5"
-                                  onClick={() => setStep(3)}
-                                >
-                                  <span className="font-medium capitalize text-sm text-gray-500">
-                                    {fieldName.replace(/_/g, " ")}
-                                  </span>
-                                  <span className="text-sm">
-                                    {displayValue}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </CardContent>
-                        </Card>
-                        {/* Basic Details (top center) */}
-                        <Card>
-                          <CardHeader className="p-2 pb-0">
-                            <CardTitle className="text-base font-semibold">
-                              Basic Details
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="flex flex-col gap-1 p-2 pt-1">
-                            {steps[0].fields.map((fieldName) => {
-                              const value = form.getValues(
-                                fieldName as keyof FormValues
-                              );
-                              let displayValue: React.ReactNode = Array.isArray(
-                                value
-                              ) ? (
-                                value.length > 0 ? (
-                                  value.join(", ")
-                                ) : (
-                                  <span>-</span>
-                                )
-                              ) : value ? (
-                                <span>{value}</span>
-                              ) : (
-                                <span>-</span>
-                              );
-                              return (
-                                <div
-                                  key={fieldName}
-                                  className="cursor-pointer hover:bg-blue-50 rounded px-1 py-0.5 transition flex flex-col gap-0.5"
-                                  onClick={() => setStep(0)}
-                                >
-                                  <span className="font-medium capitalize text-sm text-gray-500">
-                                    {fieldName.replace(/_/g, " ")}
-                                  </span>
-                                  <span className="text-sm">
-                                    {displayValue}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </CardContent>
-                        </Card>
-                        {/* Availability (spans 2 rows, right) */}
-                        <Card className="row-span-2">
-                          <CardHeader className="p-2 pb-0">
-                            <CardTitle className="text-base font-semibold">
-                              Availability
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="flex flex-col gap-1 p-2 pt-1">
-                            {steps[2].fields.map((fieldName) => {
-                              const value = form.getValues(
-                                fieldName as keyof FormValues
-                              );
-                              let displayValue: React.ReactNode = null;
-                              if (
-                                fieldName === "availability" &&
-                                Array.isArray(value)
-                              ) {
-                                const enabledDays = value.filter(
-                                  (d: any) => d.enabled
+                              })}
+                            </CardContent>
+                          </Card>
+                          {/* Basic Details (top center) */}
+                          <Card>
+                            <CardHeader className="p-2 pb-0">
+                              <CardTitle className="text-base font-semibold">
+                                Basic Details
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex flex-col gap-1 p-2 pt-1">
+                              {steps[0].fields.map((fieldName) => {
+                                const value = form.getValues(
+                                  fieldName as keyof FormValues
                                 );
-                                displayValue =
-                                  enabledDays.length > 0 ? (
-                                    <div className="flex flex-col gap-1">
-                                      {enabledDays.map((d: any, i: number) => (
-                                        <span
-                                          key={i}
-                                          className="inline-block bg-gray-100 text-gray-800 text-xs font-medium px-2 py-0.5 rounded border border-gray-200"
-                                        >
-                                          {d.day}: {d.start_time} - {d.end_time}
-                                        </span>
-                                      ))}
-                                    </div>
+                                let displayValue: React.ReactNode =
+                                  Array.isArray(value) ? (
+                                    value.length > 0 ? (
+                                      value.join(", ")
+                                    ) : (
+                                      <span>-</span>
+                                    )
+                                  ) : value ? (
+                                    <span>{value}</span>
                                   ) : (
                                     <span>-</span>
                                   );
-                              } else if (Array.isArray(value)) {
-                                displayValue =
-                                  value.length > 0 ? (
-                                    value.join(", ")
-                                  ) : (
-                                    <span>-</span>
-                                  );
-                              } else {
-                                displayValue = value ? (
-                                  <span>{value}</span>
-                                ) : (
-                                  <span>-</span>
+                                return (
+                                  <div
+                                    key={fieldName}
+                                    className="cursor-pointer hover:bg-blue-50 rounded px-1 py-0.5 transition flex flex-col gap-0.5"
+                                    onClick={() => setStep(0)}
+                                  >
+                                    <span className="font-medium capitalize text-sm text-gray-500">
+                                      {fieldName.replace(/_/g, " ")}
+                                    </span>
+                                    <span className="text-sm">
+                                      {displayValue}
+                                    </span>
+                                  </div>
                                 );
-                              }
-                              return (
-                                <div
-                                  key={fieldName}
-                                  className="cursor-pointer hover:bg-blue-50 rounded px-1 py-0.5 transition flex flex-col gap-0.5"
-                                  onClick={() => setStep(2)}
-                                >
-                                  <span className="font-medium capitalize text-sm text-gray-500">
-                                    {fieldName.replace(/_/g, " ")}
-                                  </span>
-                                  <span className="text-sm">
-                                    {displayValue}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </CardContent>
-                        </Card>
-                        {/* Mentor Type (bottom center) */}
-                        <Card>
-                          <CardHeader className="p-2 pb-0">
-                            <CardTitle className="text-base font-semibold">
-                              Mentor Type
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="flex flex-col gap-1 p-2 pt-1">
-                            {steps[1].fields.map((fieldName) => {
-                              const value = form.getValues(
-                                fieldName as keyof FormValues
-                              );
-                              let displayValue: React.ReactNode = null;
-                              if (
-                                fieldName === "student_types" &&
-                                Array.isArray(value)
-                              ) {
-                                displayValue =
-                                  value.length > 0 ? (
-                                    value.join(", ")
-                                  ) : (
-                                    <span>-</span>
-                                  );
-                              } else if (Array.isArray(value)) {
-                                displayValue =
-                                  value.length > 0 ? (
-                                    value.join(", ")
-                                  ) : (
-                                    <span>-</span>
-                                  );
-                              } else {
-                                displayValue = value ? (
-                                  <span>{value}</span>
-                                ) : (
-                                  <span>-</span>
+                              })}
+                            </CardContent>
+                          </Card>
+                          {/* Availability (spans 2 rows, right) */}
+                          <Card className="row-span-2">
+                            <CardHeader className="p-2 pb-0">
+                              <CardTitle className="text-base font-semibold">
+                                Availability
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex flex-col gap-1 p-2 pt-1">
+                              {steps[2].fields.map((fieldName) => {
+                                const value = form.getValues(
+                                  fieldName as keyof FormValues
                                 );
-                              }
-                              return (
-                                <div
-                                  key={fieldName}
-                                  className="cursor-pointer hover:bg-blue-50 rounded px-1 py-0.5 transition flex flex-col gap-0.5"
-                                  onClick={() => setStep(1)}
-                                >
-                                  <span className="font-medium capitalize text-sm text-gray-500">
-                                    {fieldName.replace(/_/g, " ")}
-                                  </span>
-                                  <span className="text-sm">
-                                    {displayValue}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </CardContent>
-                        </Card>
+                                let displayValue: React.ReactNode = null;
+                                if (
+                                  fieldName === "availability" &&
+                                  Array.isArray(value)
+                                ) {
+                                  const enabledDays = value.filter(
+                                    (d: any) => d.enabled
+                                  );
+                                  displayValue =
+                                    enabledDays.length > 0 ? (
+                                      <div className="flex flex-col gap-1">
+                                        {enabledDays.map(
+                                          (d: any, i: number) => (
+                                            <span
+                                              key={i}
+                                              className="inline-block bg-gray-100 text-gray-800 text-xs font-medium px-2 py-0.5 rounded border border-gray-200"
+                                            >
+                                              {d.day}: {d.start_time} -{" "}
+                                              {d.end_time}
+                                            </span>
+                                          )
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <span>-</span>
+                                    );
+                                } else if (Array.isArray(value)) {
+                                  displayValue =
+                                    value.length > 0 ? (
+                                      value.join(", ")
+                                    ) : (
+                                      <span>-</span>
+                                    );
+                                } else {
+                                  displayValue = value ? (
+                                    <span>{value}</span>
+                                  ) : (
+                                    <span>-</span>
+                                  );
+                                }
+                                return (
+                                  <div
+                                    key={fieldName}
+                                    className="cursor-pointer hover:bg-blue-50 rounded px-1 py-0.5 transition flex flex-col gap-0.5"
+                                    onClick={() => setStep(2)}
+                                  >
+                                    <span className="font-medium capitalize text-sm text-gray-500">
+                                      {fieldName.replace(/_/g, " ")}
+                                    </span>
+                                    <span className="text-sm">
+                                      {displayValue}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </CardContent>
+                          </Card>
+                          {/* Mentor Type (bottom center) */}
+                          <Card>
+                            <CardHeader className="p-2 pb-0">
+                              <CardTitle className="text-base font-semibold">
+                                Mentor Type
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex flex-col gap-1 p-2 pt-1">
+                              {steps[1].fields.map((fieldName) => {
+                                const value = form.getValues(
+                                  fieldName as keyof FormValues
+                                );
+                                let displayValue: React.ReactNode = null;
+                                if (
+                                  fieldName === "student_types" &&
+                                  Array.isArray(value)
+                                ) {
+                                  displayValue =
+                                    value.length > 0 ? (
+                                      value.join(", ")
+                                    ) : (
+                                      <span>-</span>
+                                    );
+                                } else if (Array.isArray(value)) {
+                                  displayValue =
+                                    value.length > 0 ? (
+                                      value.join(", ")
+                                    ) : (
+                                      <span>-</span>
+                                    );
+                                } else {
+                                  displayValue = value ? (
+                                    <span>{value}</span>
+                                  ) : (
+                                    <span>-</span>
+                                  );
+                                }
+                                return (
+                                  <div
+                                    key={fieldName}
+                                    className="cursor-pointer hover:bg-blue-50 rounded px-1 py-0.5 transition flex flex-col gap-0.5"
+                                    onClick={() => setStep(1)}
+                                  >
+                                    <span className="font-medium capitalize text-sm text-gray-500">
+                                      {fieldName.replace(/_/g, " ")}
+                                    </span>
+                                    <span className="text-sm">
+                                      {displayValue}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </CardContent>
+                          </Card>
+                        </div>
                       </div>
                     )}
                   </div>
