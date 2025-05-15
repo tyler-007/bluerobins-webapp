@@ -13,6 +13,7 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -41,7 +42,7 @@ const formSchema = z.object({
   linkedin_url: z.string().min(1, { message: "LinkedIn URL is required" }),
   bio: z.string().min(1, { message: "Bio is required" }),
   hourly_rate: z.number().min(1, { message: "Hourly rate is required" }),
-  availability: z.array(z.string()),
+  availability: z.string(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -57,7 +58,7 @@ const defaultValues: FormValues = {
   linkedin_url: "",
   bio: "",
   hourly_rate: 20,
-  availability: [],
+  availability: "",
 };
 
 const getValues = (profile: any, defaultValues: FormValues) => {
@@ -109,19 +110,20 @@ export default function MentorProfileEdit({
   const onSubmit = async (data: FormValues) => {
     try {
       // TODO: Implement form submission to your backend
-      // const { data: updatedProfile, error } = await supabase
-      //   .from("mentor_profiles")
-      //   .upsert({
-      //     id: userId,
-      //     ...profile,
-      //     phone_number: data.phone_number,
-      //     address: data.address,
-      //     institution_name: data.institution_name,
-      //     linkedin_url: data.linkedin_url,
-      //     bio: data.bio,
-      //     hourly_rate: data.hourly_rate,
-      //     availability: data.availability,
-      //   });
+      const { data: updatedProfile, error } = await supabase
+        .from("mentor_profiles")
+        .upsert({
+          user_id: userId,
+          phone_number: data.phone_number,
+          address: data.address,
+          institution_name: data.institution_name,
+          linkedin_profile: data.linkedin_url,
+          bio: data.bio,
+          hourly_rate: data.hourly_rate,
+          availability: data.availability,
+        });
+
+      console.log("UPDATED PROFILE:", updatedProfile, error);
 
       console.log("PAYLOAD:", {
         id: userId,
@@ -139,7 +141,7 @@ export default function MentorProfileEdit({
         title: "Success",
         description: "Profile updated successfully",
       });
-      // setOpen(false);
+      setOpen(false);
     } catch (error) {
       toast({
         title: "Error",
@@ -196,14 +198,16 @@ export default function MentorProfileEdit({
       </SheetTrigger>
       <SheetContent
         side="right"
-        className={cn("outline-none p-0 transition-all duration-300")}
+        className={cn(
+          "outline-none p-0 transition-all duration-300 min-w-screen max-w-none sm:max-w-none w-screen"
+        )}
       >
         <div className="flex flex-col gap-4 p-3">
-          <h1 className="text-xl font-bold">Profile Details</h1>
+          {/* <h1 className="text-xl font-bold">Profile Details</h1> */}
           <Stepper />
           <div className="flex flex-row gap-2">
             <Image src={mascot} alt="logo" width={48} height={48} />
-            <div className="flex flex-col gap-2 flex-1">
+            <div className="flex flex-col gap-2 flex-1 border-2 bg-[#C5e8fd] rounded-md p-1 px-3">
               <span>A few details before we proceed</span>
             </div>
           </div>
@@ -223,6 +227,9 @@ export default function MentorProfileEdit({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Phone Number</FormLabel>
+                          <FormDescription>
+                            Why we need the phone number goes here.
+                          </FormDescription>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -236,6 +243,9 @@ export default function MentorProfileEdit({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Address</FormLabel>
+                          <FormDescription>
+                            Why do we need the address goes here.
+                          </FormDescription>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -260,6 +270,9 @@ export default function MentorProfileEdit({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Institution Name</FormLabel>
+                          <FormDescription>
+                            Why we need the institution name goes here.
+                          </FormDescription>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -273,6 +286,9 @@ export default function MentorProfileEdit({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>LinkedIn URL</FormLabel>
+                          <FormDescription>
+                            example: https://www.linkedin.com/in/your-profile
+                          </FormDescription>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -286,6 +302,9 @@ export default function MentorProfileEdit({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Bio</FormLabel>
+                          <FormDescription>
+                            Why we need the bio goes here.
+                          </FormDescription>
                           <FormControl>
                             <Textarea {...field} rows={4} />
                           </FormControl>
@@ -310,6 +329,9 @@ export default function MentorProfileEdit({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Hourly Rate</FormLabel>
+                          <FormDescription>
+                            Why we need the hourly rate goes here.
+                          </FormDescription>
                           <FormControl>
                             <Input
                               type="number"
@@ -329,6 +351,9 @@ export default function MentorProfileEdit({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Availability</FormLabel>
+                          <FormDescription>
+                            Why we need the availability goes here.
+                          </FormDescription>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -340,7 +365,7 @@ export default function MentorProfileEdit({
                 </Card>
               )}
 
-              <div className="flex gap-2 mt-4">
+              <div className="flex gap-2 mt-4 justify-end">
                 {step > 0 && (
                   <Button
                     type="button"

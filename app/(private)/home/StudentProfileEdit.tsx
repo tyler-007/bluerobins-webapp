@@ -213,14 +213,28 @@ export default function StudentProfileEdit({
       </SheetTrigger>
       <SheetContent
         side="right"
-        className={cn("outline-none p-0 transition-all duration-300")}
+        className={cn(
+          "outline-none p-0 transition-all duration-300 min-w-screen max-w-none sm:max-w-none w-screen"
+        )}
       >
-        <div className="flex flex-col gap-4 p-3">
-          <h1 className="text-xl font-bold">Profile Details</h1>
+        <div className="flex flex-col gap-4 p-3 bg-gradient-primary">
           <div className="flex flex-row gap-2">
-            <Image src={mascot} alt="logo" width={48} height={48} />
+            <Image src={mascot} alt="logo" width={88} height={88} />
             <div className="flex flex-col gap-2 flex-1">
-              <span>A few details before we proceed</span>
+              <div className="relative bg-white rounded-2xl p-4 shadow-sm">
+                {/* Triangle pointer */}
+                <div
+                  className="absolute left-[-10px] top-4 w-0 h-0 
+                  border-t-[10px] border-t-transparent
+                  border-r-[10px] border-r-white
+                  border-b-[10px] border-b-transparent"
+                ></div>
+                {/* Message content */}
+                <p className="text-gray-700">
+                  Tell us about yourself so that students gets you know you
+                  better
+                </p>
+              </div>
             </div>
           </div>
           <Form {...form}>

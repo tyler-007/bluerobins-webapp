@@ -155,8 +155,8 @@ export default async function HomePage() {
                 {user?.user_metadata?.full_name}
               </span>
               {/* <span className="text-[#2953BE]">{user?.email}</span> */}
-              {/* <StudentProfileEdit profile={profile} userId={user.id} /> */}
-              <MentorProfileEdit profile={profile} userId={user.id} />
+              <StudentProfileEdit profile={profile} userId={user.id} />
+              {/* <MentorProfileEdit profile={profile} userId={user.id} /> */}
             </div>
           </div>
         </div>
