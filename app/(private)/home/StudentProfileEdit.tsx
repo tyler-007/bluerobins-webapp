@@ -32,21 +32,33 @@ import { createClient } from "@/utils/supabase/client";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Combobox } from "@/components/ui/combobox";
 import { countries } from "@/lib/countries";
+import {
+  getCountryFromTimezone,
+  getCountryFromSpecificTimezone,
+  getCountry,
+} from "@/lib/timezone";
 
-const gradeOptions = [
-  "Grade 6",
-  "Grade 7",
-  "Grade 8",
-  "Grade 9",
-  "Grade 10",
-  "Grade 11",
-  "Grade 12",
-  "Undergrad",
+const studentTypes = [
+  { value: "middle_school", label: "Middle School" },
+  { value: "high_school", label: "High School" },
+  { value: "undergrad", label: "Undergraduate" },
 ] as const;
+
+const middleSchoolGrades = ["Grade 6", "Grade 7", "Grade 8"] as const;
+const highSchoolGrades = [
+  "Grade 9 (Freshman)",
+  "Grade 10 (Sophomore)",
+  "Grade 11 (Junior)",
+  "Grade 12 (Senior)",
+] as const;
+const undergradGrades = ["Undergrad"] as const;
 
 const formSchema = z
   .object({
-    grade: z.enum(gradeOptions),
+    studentType: z
+      .enum(["middle_school", "high_school", "undergrad"])
+      .optional(),
+    grade: z.string(),
     parentName: z.string(),
     parentEmail: z.string(),
     institution_name: z.string(),
@@ -54,7 +66,16 @@ const formSchema = z
     country: z.string().min(2, { message: "Please select a country" }),
   })
   .superRefine((val, ctx) => {
-    if (val.grade === "Undergrad") {
+    if (!val.studentType) {
+      ctx.addIssue({
+        path: ["studentType"],
+        code: z.ZodIssueCode.custom,
+        message: "Please select a student type",
+      });
+      return false;
+    }
+
+    if (val.studentType === "undergrad") {
       if (val.institution_name === "") {
         ctx.addIssue({
           path: ["institution_name"],
@@ -71,7 +92,7 @@ const formSchema = z
       }
     }
 
-    if (val.grade !== "Undergrad") {
+    if (val.studentType !== "undergrad") {
       let errors = [];
       if (val.institution_name === "") {
         errors.push("institution_name");
@@ -122,7 +143,8 @@ type FormFieldProps<T extends keyof FormValues> = {
 };
 
 const defaultValues: FormValues = {
-  grade: "Grade 6",
+  studentType: undefined,
+  grade: "",
   institution_name: "",
   parentName: "",
   parentEmail: "",
@@ -132,10 +154,8 @@ const defaultValues: FormValues = {
 
 const getValues = (profile: any, defaultValues: FormValues) => {
   const payload = {
-    grade:
-      profile.student_type === "undergrad"
-        ? "University"
-        : (profile.grade ?? defaultValues.grade),
+    studentType: profile.student_type || undefined,
+    grade: profile.grade ?? defaultValues.grade,
     institution_name:
       profile.institution_name ?? defaultValues.institution_name,
     parentName: profile.parent_name ?? defaultValues.parentName,
@@ -160,8 +180,7 @@ export default function StudentProfileEdit({
   const values = profile ? getValues(profile, defaultValues) : undefined;
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues,
-    values,
+    defaultValues: values || defaultValues,
   });
 
   const onClose = (open: boolean) => {
@@ -203,22 +222,16 @@ export default function StudentProfileEdit({
     }
   };
 
+  const studentType = form.watch("studentType");
   const grade = form.watch("grade");
 
-  useEffect(() => {
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    // Simple mapping of common timezones to country codes
-    const timezoneToCountry: Record<string, string> = {
-      "America/New_York": "US",
-      "America/Los_Angeles": "US",
-      "America/Chicago": "US",
-      "Europe/London": "GB",
-      "Asia/Tokyo": "JP",
-      // Add more mappings as needed
-    };
-
-    const defaultCountry = timezoneToCountry[timezone] || "US";
+  const _getCountry = async () => {
+    const defaultCountry = await getCountry();
     form.setValue("country", defaultCountry);
+  };
+
+  useEffect(() => {
+    _getCountry();
   }, []);
 
   return (
@@ -232,16 +245,16 @@ export default function StudentProfileEdit({
           <Image src={mascot} alt="logo" width={88} height={88} />
           <div className="flex flex-col gap-2 flex-1">
             <div className="relative bg-white rounded-2xl p-4 shadow-sm">
-              {/* Triangle pointer */}
               <div
                 className="absolute left-[-10px] top-4 w-0 h-0 
-                  border-t-[10px] border-t-transparent
-                  border-r-[10px] border-r-white
-                  border-b-[10px] border-b-transparent"
+                border-t-[10px] border-t-transparent
+                border-r-[10px] border-r-white
+                border-b-[10px] border-b-transparent"
               ></div>
-              {/* Message content */}
               <p className="text-gray-700">
-                Tell us about yourself so that students gets you know you better
+                {!studentType
+                  ? "First, tell us what type of student you are"
+                  : "Now, let's get to know you better"}
               </p>
             </div>
           </div>
@@ -253,58 +266,124 @@ export default function StudentProfileEdit({
           >
             <FormField
               control={form.control}
-              name="grade"
-              render={({ field }: FormFieldProps<"grade">) => (
+              name="studentType"
+              render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Which grade are you in?</FormLabel>
+                  <FormLabel>What type of student are you?</FormLabel>
                   <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a grade" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {gradeOptions.map((grade) => (
-                          <SelectItem key={grade} value={grade}>
-                            {grade}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex flex-row gap-2">
+                      {studentTypes.map((type) => (
+                        <Button
+                          key={type.value}
+                          type="button"
+                          variant={
+                            field.value === type.value ? "default" : "outline"
+                          }
+                          className="flex-1"
+                          onClick={() => field.onChange(type.value)}
+                        >
+                          {type.label}
+                        </Button>
+                      ))}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {grade && (
-              <>
-                {grade !== "Undergrad" ? (
+
+            {studentType && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                {studentType !== "undergrad" ? (
                   <>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="institution_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>School Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="Enter your school name"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="country"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Country</FormLabel>
+                            <FormControl>
+                              <Combobox
+                                items={countries.map((country) => ({
+                                  value: country.code,
+                                  label: country.name,
+                                }))}
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                placeholder="Select country"
+                                searchPlaceholder="Search country..."
+                                emptyText="No country found."
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
                     <FormField
                       control={form.control}
-                      name="institution_name"
-                      render={({
-                        field,
-                      }: FormFieldProps<"institution_name">) => (
+                      name="grade"
+                      render={({ field }) => (
                         <FormItem>
-                          <FormLabel>School Name</FormLabel>
+                          <FormLabel>Which grade are you in?</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a grade" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {studentType === "middle_school" &&
+                                  middleSchoolGrades.map((grade) => (
+                                    <SelectItem key={grade} value={grade}>
+                                      {grade}
+                                    </SelectItem>
+                                  ))}
+                                {studentType === "high_school" &&
+                                  highSchoolGrades.map((grade) => (
+                                    <SelectItem key={grade} value={grade}>
+                                      {grade}
+                                    </SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+
                     <FormField
                       control={form.control}
                       name="parentName"
-                      render={({ field }: FormFieldProps<"parentName">) => (
+                      render={({ field }) => (
                         <FormItem>
                           <FormLabel>Parent's Name</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input
+                              {...field}
+                              placeholder="Enter parent's name"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -313,11 +392,15 @@ export default function StudentProfileEdit({
                     <FormField
                       control={form.control}
                       name="parentEmail"
-                      render={({ field }: FormFieldProps<"parentEmail">) => (
+                      render={({ field }) => (
                         <FormItem>
                           <FormLabel>Parent's Email</FormLabel>
                           <FormControl>
-                            <Input {...field} type="email" />
+                            <Input
+                              {...field}
+                              type="email"
+                              placeholder="Enter parent's email"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -326,29 +409,55 @@ export default function StudentProfileEdit({
                   </>
                 ) : (
                   <>
-                    <FormField
-                      control={form.control}
-                      name="institution_name"
-                      render={({
-                        field,
-                      }: FormFieldProps<"institution_name">) => (
-                        <FormItem>
-                          <FormLabel>University Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="institution_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>University Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="Enter your university name"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="country"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Country</FormLabel>
+                            <FormControl>
+                              <Combobox
+                                items={countries.map((country) => ({
+                                  value: country.code,
+                                  label: country.name,
+                                }))}
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                placeholder="Select country"
+                                searchPlaceholder="Search country..."
+                                emptyText="No country found."
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     <FormField
                       control={form.control}
                       name="major"
-                      render={({ field }: FormFieldProps<"major">) => (
+                      render={({ field }) => (
                         <FormItem>
                           <FormLabel>Major</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} placeholder="Enter your major" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -356,41 +465,19 @@ export default function StudentProfileEdit({
                     />
                   </>
                 )}
-              </>
+
+                <div className="flex-1" />
+                <div className="flex flex-row gap-2">
+                  <Button
+                    loading={form.formState.isSubmitting}
+                    type="submit"
+                    className="mt-4"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
             )}
-            <FormField
-              control={form.control}
-              name="country"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Country</FormLabel>
-                  <FormControl>
-                    <Combobox
-                      items={countries.map((country) => ({
-                        value: country.code,
-                        label: country.name,
-                      }))}
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      placeholder="Select country"
-                      searchPlaceholder="Search country..."
-                      emptyText="No country found."
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex-1" />
-            <div className="flex flex-row gap-2">
-              <Button
-                loading={form.formState.isSubmitting}
-                type="submit"
-                className="mt-4"
-              >
-                Save Changes
-              </Button>
-            </div>
           </form>
         </Form>
       </div>
