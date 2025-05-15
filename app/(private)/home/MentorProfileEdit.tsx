@@ -32,6 +32,8 @@ import { createClient } from "@/utils/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Check, ArrowLeft } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -39,9 +41,16 @@ const formSchema = z.object({
   address: z.string().min(1, { message: "Address is required" }),
   state: z.string().min(1, { message: "State is required" }),
   country: z.string().min(1, { message: "Country is required" }),
-  institution_name: z
-    .string()
-    .min(1, { message: "Institution name is required" }),
+  mentoring_type: z.enum(["pay_as_you_go", "research_packages", "both"], {
+    required_error: "Please select a mentoring type",
+  }),
+  student_types: z
+    .array(z.enum(["middle_school", "high_school", "undergrad"]))
+    .min(1, {
+      message: "Please select at least one student type",
+    }),
+  institution: z.string().min(1, { message: "Institution is required" }),
+  major: z.string().min(1, { message: "Major is required" }),
   linkedin_url: z.string().min(1, { message: "LinkedIn URL is required" }),
   bio: z.string().min(1, { message: "Bio is required" }),
   hourly_rate: z.number().min(1, { message: "Hourly rate is required" }),
@@ -60,7 +69,10 @@ const defaultValues: FormValues = {
   address: "",
   state: "",
   country: "",
-  institution_name: "",
+  mentoring_type: "pay_as_you_go",
+  student_types: [],
+  institution: "",
+  major: "",
   linkedin_url: "",
   bio: "",
   hourly_rate: 20,
@@ -74,8 +86,10 @@ const getValues = (profile: any, defaultValues: FormValues, props: any) => {
     address: profile.address ?? defaultValues.address,
     state: profile.state ?? defaultValues.state,
     country: profile.country ?? defaultValues.country,
-    institution_name:
-      profile.institution_name ?? defaultValues.institution_name,
+    mentoring_type: profile.mentoring_type ?? defaultValues.mentoring_type,
+    student_types: profile.student_types ?? defaultValues.student_types,
+    institution: profile.institution ?? defaultValues.institution,
+    major: profile.major ?? defaultValues.major,
     linkedin_url: profile.linkedin_url ?? defaultValues.linkedin_url,
     bio: profile.bio ?? defaultValues.bio,
     hourly_rate: profile.hourly_rate ?? defaultValues.hourly_rate,
@@ -90,16 +104,22 @@ const steps = [
     fields: ["name", "phone_number", "address", "state", "country"],
   },
   {
+    label: "Mentor Type",
+    fields: [
+      "institution",
+      "major",
+      "linkedin_url",
+      "mentoring_type",
+      "student_types",
+    ],
+  },
+  {
     label: "Professional Details",
-    fields: ["institution_name", "linkedin_url", "bio"],
+    fields: ["bio"],
   },
   {
     label: "Availability",
     fields: ["hourly_rate", "availability"],
-  },
-  {
-    label: "Step 4",
-    fields: [],
   },
   {
     label: "Step 5",
@@ -145,7 +165,8 @@ export default function MentorProfileEdit({
           user_id: userId,
           phone_number: data.phone_number,
           address: data.address,
-          institution_name: data.institution_name,
+          institution: data.institution,
+          major: data.major,
           linkedin_profile: data.linkedin_url,
           bio: data.bio,
           hourly_rate: data.hourly_rate,
@@ -159,7 +180,8 @@ export default function MentorProfileEdit({
         ...profile,
         phone_number: data.phone_number,
         address: data.address,
-        institution_name: data.institution_name,
+        institution: data.institution,
+        major: data.major,
         linkedin_url: data.linkedin_url,
         bio: data.bio,
         hourly_rate: data.hourly_rate,
@@ -360,21 +382,250 @@ export default function MentorProfileEdit({
                       <Card>
                         <CardHeader>
                           <CardTitle className="text-lg font-semibold">
+                            Mentor Details
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-6">
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="institution"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Institution</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      placeholder="Enter your institution"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="major"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Major</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      placeholder="Enter your major"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <FormField
+                            control={form.control}
+                            name="mentoring_type"
+                            render={({ field }) => (
+                              <FormItem className="space-y-2">
+                                <FormLabel>Mentoring Type</FormLabel>
+                                <FormControl>
+                                  <RadioGroup
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    className="flex flex-col gap-2"
+                                  >
+                                    <FormItem className="flex space-x-3 space-y-0">
+                                      <FormControl>
+                                        <RadioGroupItem
+                                          className="mt-[6px]"
+                                          value="pay_as_you_go"
+                                        />
+                                      </FormControl>
+                                      <div>
+                                        <FormLabel className="font-normal">
+                                          Pay as you go sessions
+                                        </FormLabel>
+                                        <FormDescription className="text-xs">
+                                          One-on-one sessions that can be booked
+                                          individually, perfect for specific
+                                          questions or short-term guidance
+                                        </FormDescription>
+                                      </div>
+                                    </FormItem>
+                                    <FormItem className="flex space-x-3 space-y-0">
+                                      <FormControl>
+                                        <RadioGroupItem
+                                          className="mt-[6px]"
+                                          value="research_packages"
+                                        />
+                                      </FormControl>
+                                      <div>
+                                        <FormLabel className="font-normal">
+                                          Research mentorship packages
+                                        </FormLabel>
+                                        <FormDescription className="text-xs">
+                                          Comprehensive packages for long-term
+                                          research projects, including regular
+                                          meetings and structured guidance
+                                        </FormDescription>
+                                      </div>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-3 space-y-0">
+                                      <FormControl>
+                                        <RadioGroupItem value="both" />
+                                      </FormControl>
+                                      <div className="space-y-1">
+                                        <FormLabel className="font-normal">
+                                          Both
+                                        </FormLabel>
+                                      </div>
+                                    </FormItem>
+                                  </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="student_types"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <FormLabel>Type of Students</FormLabel>
+                                <div className="flex flex-col gap-4">
+                                  <FormItem className="flex items-center space-x-3 space-y-0">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(
+                                          "middle_school"
+                                        )}
+                                        onCheckedChange={(checked) => {
+                                          const currentValues =
+                                            field.value || [];
+                                          if (checked) {
+                                            field.onChange([
+                                              ...currentValues,
+                                              "middle_school",
+                                            ]);
+                                          } else {
+                                            field.onChange(
+                                              currentValues.filter(
+                                                (v) => v !== "middle_school"
+                                              )
+                                            );
+                                          }
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                      Middle School
+                                    </FormLabel>
+                                  </FormItem>
+                                  <FormItem className="flex items-center space-x-3 space-y-0">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(
+                                          "high_school"
+                                        )}
+                                        onCheckedChange={(checked) => {
+                                          const currentValues =
+                                            field.value || [];
+                                          if (checked) {
+                                            field.onChange([
+                                              ...currentValues,
+                                              "high_school",
+                                            ]);
+                                          } else {
+                                            field.onChange(
+                                              currentValues.filter(
+                                                (v) => v !== "high_school"
+                                              )
+                                            );
+                                          }
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                      High School
+                                    </FormLabel>
+                                  </FormItem>
+                                  <FormItem className="flex items-center space-x-3 space-y-0">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(
+                                          "undergrad"
+                                        )}
+                                        onCheckedChange={(checked) => {
+                                          const currentValues =
+                                            field.value || [];
+                                          if (checked) {
+                                            field.onChange([
+                                              ...currentValues,
+                                              "undergrad",
+                                            ]);
+                                          } else {
+                                            field.onChange(
+                                              currentValues.filter(
+                                                (v) => v !== "undergrad"
+                                              )
+                                            );
+                                          }
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                      Undergraduate
+                                    </FormLabel>
+                                  </FormItem>
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </CardContent>
+                      </Card>
+                    )}
+                    {step === 2 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg font-semibold">
                             Professional Details
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="flex flex-col gap-4">
                           <FormField
                             control={form.control}
-                            name="institution_name"
+                            name="institution"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Institution Name</FormLabel>
+                                <FormLabel>Institution</FormLabel>
                                 <FormDescription>
-                                  Why we need the institution name goes here.
+                                  Your current or most recent educational
+                                  institution
                                 </FormDescription>
                                 <FormControl>
-                                  <Input {...field} />
+                                  <Input
+                                    {...field}
+                                    placeholder="Enter your institution"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="major"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Major</FormLabel>
+                                <FormDescription>
+                                  Your field of study or specialization
+                                </FormDescription>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder="Enter your major"
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -416,7 +667,7 @@ export default function MentorProfileEdit({
                         </CardContent>
                       </Card>
                     )}
-                    {step === 2 && (
+                    {step === 3 && (
                       <Card>
                         <CardHeader>
                           <CardTitle className="text-lg font-semibold">
@@ -487,10 +738,11 @@ export default function MentorProfileEdit({
                 <Button
                   type="button"
                   onClick={async () => {
-                    const valid = await form.trigger(
-                      steps[step].fields as Parameters<typeof form.trigger>[0]
-                    );
-                    if (valid) setStep(step + 1);
+                    setStep(step + 1);
+                    // const valid = await form.trigger(
+                    //   steps[step].fields as Parameters<typeof form.trigger>[0]
+                    // );
+                    // if (valid) setStep(step + 1);
                   }}
                 >
                   Next
