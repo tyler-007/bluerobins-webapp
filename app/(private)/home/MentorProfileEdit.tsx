@@ -21,13 +21,6 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
 import { ControllerRenderProps } from "react-hook-form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { createClient } from "@/utils/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,8 +46,18 @@ const formSchema = z.object({
   major: z.string().min(1, { message: "Major is required" }),
   linkedin_url: z.string().min(1, { message: "LinkedIn URL is required" }),
   bio: z.string().min(1, { message: "Bio is required" }),
+  commitment_hours: z
+    .number()
+    .min(1, { message: "Commitment hours is required" }),
   hourly_rate: z.number().min(1, { message: "Hourly rate is required" }),
-  availability: z.string(),
+  availability: z.array(
+    z.object({
+      day: z.string(),
+      start_time: z.string(),
+      end_time: z.string(),
+      enabled: z.boolean(),
+    })
+  ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -75,8 +78,22 @@ const defaultValues: FormValues = {
   major: "",
   linkedin_url: "",
   bio: "",
+  commitment_hours: 5,
   hourly_rate: 20,
-  availability: "",
+  availability: [
+    { day: "Sunday", start_time: "09:00", end_time: "17:00", enabled: false },
+    { day: "Monday", start_time: "09:00", end_time: "17:00", enabled: false },
+    { day: "Tuesday", start_time: "09:00", end_time: "17:00", enabled: false },
+    {
+      day: "Wednesday",
+      start_time: "09:00",
+      end_time: "17:00",
+      enabled: false,
+    },
+    { day: "Thursday", start_time: "09:00", end_time: "17:00", enabled: false },
+    { day: "Friday", start_time: "09:00", end_time: "17:00", enabled: false },
+    { day: "Saturday", start_time: "09:00", end_time: "17:00", enabled: false },
+  ],
 };
 
 const getValues = (profile: any, defaultValues: FormValues, props: any) => {
@@ -92,6 +109,8 @@ const getValues = (profile: any, defaultValues: FormValues, props: any) => {
     major: profile.major ?? defaultValues.major,
     linkedin_url: profile.linkedin_url ?? defaultValues.linkedin_url,
     bio: profile.bio ?? defaultValues.bio,
+    commitment_hours:
+      profile.commitment_hours ?? defaultValues.commitment_hours,
     hourly_rate: profile.hourly_rate ?? defaultValues.hourly_rate,
     availability: profile.availability ?? defaultValues.availability,
   };
@@ -105,21 +124,15 @@ const steps = [
   },
   {
     label: "Mentor Type",
-    fields: [
-      "institution",
-      "major",
-      "linkedin_url",
-      "mentoring_type",
-      "student_types",
-    ],
-  },
-  {
-    label: "Professional Details",
-    fields: ["bio"],
+    fields: ["institution", "major", "mentoring_type", "student_types"],
   },
   {
     label: "Availability",
-    fields: ["hourly_rate", "availability"],
+    fields: ["commitment_hours", "hourly_rate", "availability"],
+  },
+  {
+    label: "Professional Details",
+    fields: ["linkedin_url", "bio"],
   },
   {
     label: "Step 5",
@@ -226,7 +239,7 @@ export default function MentorProfileEdit({
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex-1 text-center">
-              Basic Details (Step {step + 1} of {steps.length})
+              {steps[step].label} (Step {step + 1} of {steps.length})
             </div>
           </div>
 
@@ -246,7 +259,7 @@ export default function MentorProfileEdit({
           {/* Main content */}
           <div className="flex-1 overflow-auto">
             {/* Mascot and chat bubble - full width */}
-            <div className="p-4">
+            {/* <div className="p-4">
               <div className="flex gap-4 mb-6">
                 <div className="w-12 h-12">
                   <Image
@@ -270,11 +283,11 @@ export default function MentorProfileEdit({
                   </p>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Centered form container */}
-            <div className="flex justify-center w-full">
-              <div className="w-full max-w-[640px] px-4">
+            <div className="flex justify-center items-center min-h-full w-full">
+              <div className="w-full max-w-[640px] px-4 py-8">
                 <Form {...form}>
                   <div className="flex flex-col gap-4">
                     {step === 0 && (
@@ -586,51 +599,142 @@ export default function MentorProfileEdit({
                     )}
                     {step === 2 && (
                       <Card>
+                        <CardContent className="flex flex-col gap-4 mt-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="commitment_hours"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    Commitment per week (hours)
+                                  </FormLabel>
+                                  <FormDescription className="text-xs">
+                                    Hours per week can you commit
+                                  </FormDescription>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      {...field}
+                                      onChange={(e) =>
+                                        field.onChange(e.target.valueAsNumber)
+                                      }
+                                      min={1}
+                                      placeholder="Enter hours per week"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="hourly_rate"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Per hour rate ($)</FormLabel>
+                                  <FormDescription className="text-xs">
+                                    Your hourly rate for mentoring sessions
+                                  </FormDescription>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      {...field}
+                                      onChange={(e) =>
+                                        field.onChange(e.target.valueAsNumber)
+                                      }
+                                      min={1}
+                                      placeholder="Enter hourly rate"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <FormField
+                            control={form.control}
+                            name="availability"
+                            render={({ field }) => (
+                              <FormItem className="space-y-2">
+                                <FormLabel>Weekly Availability</FormLabel>
+                                <FormDescription className="text-xs">
+                                  Select your available time slots for each day
+                                </FormDescription>
+                                <div className="space-y-2">
+                                  {field.value.map((day, index) => (
+                                    <div
+                                      key={day.day}
+                                      className="flex items-center gap-4"
+                                    >
+                                      <FormControl>
+                                        <Checkbox
+                                          checked={day.enabled}
+                                          onCheckedChange={(checked) => {
+                                            const newValue = [...field.value];
+                                            newValue[index] = {
+                                              ...day,
+                                              enabled: checked as boolean,
+                                            };
+                                            field.onChange(newValue);
+                                          }}
+                                        />
+                                      </FormControl>
+                                      <div className="flex-1 grid grid-cols-3 gap-4">
+                                        <div className="font-medium flex items-center h-full">
+                                          {day.day}
+                                        </div>
+                                        <div className="w-full">
+                                          <Input
+                                            type="time"
+                                            value={day.start_time}
+                                            onChange={(e) => {
+                                              const newValue = [...field.value];
+                                              newValue[index] = {
+                                                ...day,
+                                                start_time: e.target.value,
+                                              };
+                                              field.onChange(newValue);
+                                            }}
+                                            disabled={!day.enabled}
+                                            className="w-40 min-w-[120px]"
+                                          />
+                                        </div>
+                                        <div className="w-full">
+                                          <Input
+                                            type="time"
+                                            value={day.end_time}
+                                            onChange={(e) => {
+                                              const newValue = [...field.value];
+                                              newValue[index] = {
+                                                ...day,
+                                                end_time: e.target.value,
+                                              };
+                                              field.onChange(newValue);
+                                            }}
+                                            disabled={!day.enabled}
+                                            className="w-full"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </CardContent>
+                      </Card>
+                    )}
+                    {step === 3 && (
+                      <Card>
                         <CardHeader>
                           <CardTitle className="text-lg font-semibold">
                             Professional Details
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="flex flex-col gap-4">
-                          <FormField
-                            control={form.control}
-                            name="institution"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Institution</FormLabel>
-                                <FormDescription>
-                                  Your current or most recent educational
-                                  institution
-                                </FormDescription>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    placeholder="Enter your institution"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="major"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Major</FormLabel>
-                                <FormDescription>
-                                  Your field of study or specialization
-                                </FormDescription>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    placeholder="Enter your major"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
                           <FormField
                             control={form.control}
                             name="linkedin_url"
@@ -659,55 +763,6 @@ export default function MentorProfileEdit({
                                 </FormDescription>
                                 <FormControl>
                                   <Textarea {...field} rows={4} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </CardContent>
-                      </Card>
-                    )}
-                    {step === 3 && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-lg font-semibold">
-                            Availability
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex flex-col gap-4">
-                          <FormField
-                            control={form.control}
-                            name="hourly_rate"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Hourly Rate</FormLabel>
-                                <FormDescription>
-                                  Why we need the hourly rate goes here.
-                                </FormDescription>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(e.target.valueAsNumber)
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="availability"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Availability</FormLabel>
-                                <FormDescription>
-                                  Why we need the availability goes here.
-                                </FormDescription>
-                                <FormControl>
-                                  <Input {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
