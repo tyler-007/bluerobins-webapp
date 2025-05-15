@@ -31,7 +31,7 @@ import {
 import { createClient } from "@/utils/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Check } from "lucide-react";
+import { Check, ArrowLeft } from "lucide-react";
 
 const formSchema = z.object({
   phone_number: z.string().min(1, { message: "Phone number is required" }),
@@ -151,45 +151,11 @@ export default function MentorProfileEdit({
     }
   };
 
-  // Stepper UI
-  const Stepper = () => (
-    <div className="flex items-center justify-between mb-6">
-      {steps.map((s, idx) => (
-        <div key={s.label} className="flex-1 flex flex-col items-center">
-          <div
-            className={`flex items-center justify-center w-8 h-8 rounded-full ${step >= idx ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-400"}`}
-          >
-            {step > idx ? (
-              <Check className="w-5 h-5" />
-            ) : step === idx ? (
-              <span className="font-bold">{idx + 1}</span>
-            ) : (
-              <span>{idx + 1}</span>
-            )}
-          </div>
-          <span
-            className={`mt-2 text-xs font-medium ${step === idx ? "text-blue-700" : "text-gray-500"}`}
-          >
-            {s.label}
-          </span>
-          {/* {idx < steps.length - 1 && (
-            <div
-              className={`h-1 w-full ${step > idx ? "bg-blue-600" : "bg-gray-200"}`}
-            ></div>
-          )} */}
-        </div>
-      ))}
-    </div>
-  );
-
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetTrigger asChild>
         <Button
-          onClick={() => {
-            console.log("OPENING SHEET");
-            setOpen(true);
-          }}
+          onClick={() => setOpen(true)}
           variant="ghost"
           className="w-full justify-start -ml-4 -mt-3"
         >
@@ -199,207 +165,253 @@ export default function MentorProfileEdit({
       <SheetContent
         side="right"
         className={cn(
-          "outline-none p-0 transition-all duration-300 min-w-screen max-w-none sm:max-w-none w-screen"
+          "outline-none p-0 transition-all duration-300 min-w-screen max-w-none sm:max-w-none w-screen bg-gradient-primary"
         )}
       >
-        <div className="flex flex-col gap-4 p-3">
-          {/* <h1 className="text-xl font-bold">Profile Details</h1> */}
-          <Stepper />
-          <div className="flex flex-row gap-2">
-            <Image src={mascot} alt="logo" width={48} height={48} />
-            <div className="flex flex-col gap-2 flex-1 border-2 bg-[#C5e8fd] rounded-md p-1 px-3">
-              <span>A few details before we proceed</span>
+        <div className="flex flex-col h-full">
+          {/* Header - full width */}
+          <div className="w-full border-b p-4 flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => setOpen(false)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="flex-1 text-center">
+              Basic Details (Step {step + 1} of {steps.length})
             </div>
           </div>
-          <Form {...form}>
-            <div className="flex flex-col gap-4">
-              {step === 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold">
-                      Personal Details
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex flex-col gap-4">
-                    <FormField
-                      control={form.control}
-                      name="phone_number"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number</FormLabel>
-                          <FormDescription>
-                            Why we need the phone number goes here.
-                          </FormDescription>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="address"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Address</FormLabel>
-                          <FormDescription>
-                            Why do we need the address goes here.
-                          </FormDescription>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-                </Card>
-              )}
-              {step === 1 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold">
-                      Professional Details
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex flex-col gap-4">
-                    <FormField
-                      control={form.control}
-                      name="institution_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Institution Name</FormLabel>
-                          <FormDescription>
-                            Why we need the institution name goes here.
-                          </FormDescription>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="linkedin_url"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>LinkedIn URL</FormLabel>
-                          <FormDescription>
-                            example: https://www.linkedin.com/in/your-profile
-                          </FormDescription>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="bio"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Bio</FormLabel>
-                          <FormDescription>
-                            Why we need the bio goes here.
-                          </FormDescription>
-                          <FormControl>
-                            <Textarea {...field} rows={4} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-                </Card>
-              )}
-              {step === 2 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold">
-                      Availability
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex flex-col gap-4">
-                    <FormField
-                      control={form.control}
-                      name="hourly_rate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Hourly Rate</FormLabel>
-                          <FormDescription>
-                            Why we need the hourly rate goes here.
-                          </FormDescription>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(e.target.valueAsNumber)
-                              }
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="availability"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Availability</FormLabel>
-                          <FormDescription>
-                            Why we need the availability goes here.
-                          </FormDescription>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-                </Card>
-              )}
 
-              <div className="flex gap-2 mt-4 justify-end">
-                {step > 0 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setStep(step - 1)}
-                  >
-                    Back
-                  </Button>
+          {/* Progress bar - full width */}
+          <div className="w-full px-4 flex gap-1">
+            {steps.map((_, idx) => (
+              <div
+                key={idx}
+                className={cn(
+                  "h-1 flex-1 rounded-full",
+                  idx === step ? "bg-blue-500" : "bg-blue-100"
                 )}
-                {step < steps.length - 1 ? (
-                  <Button
-                    type="button"
-                    onClick={async () => {
-                      const valid = await form.trigger(
-                        steps[step].fields as Parameters<typeof form.trigger>[0]
-                      );
+              />
+            ))}
+          </div>
 
-                      if (valid) setStep(step + 1);
-                    }}
-                  >
-                    Next
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={form.handleSubmit(onSubmit)}
-                    loading={form.formState.isSubmitting}
-                    type="button"
-                  >
-                    Save Changes
-                  </Button>
-                )}
+          {/* Main content */}
+          <div className="flex-1 overflow-auto">
+            {/* Mascot and chat bubble - full width */}
+            <div className="p-4">
+              <div className="flex gap-4 mb-6">
+                <div className="w-12 h-12">
+                  <Image
+                    src={mascot}
+                    alt="mascot"
+                    width={48}
+                    height={48}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="relative bg-white rounded-2xl p-4 shadow-sm flex-1">
+                  <div
+                    className="absolute left-[-10px] top-4 w-0 h-0 
+                    border-t-[10px] border-t-transparent
+                    border-r-[10px] border-r-white
+                    border-b-[10px] border-b-transparent"
+                  ></div>
+                  <p className="text-gray-700">
+                    Tell us about yourself so that students gets you know you
+                    better
+                  </p>
+                </div>
               </div>
             </div>
-          </Form>
+
+            {/* Form content - centered with max-width */}
+            <div className="flex justify-center">
+              <div className="w-full max-w-[980px] px-4">
+                <Form {...form}>
+                  <div className="flex flex-col gap-4">
+                    {step === 0 && (
+                      <>
+                        <FormField
+                          control={form.control}
+                          name="phone_number"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Phone number</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Enter your phone number"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="address"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Address</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Enter your address"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </>
+                    )}
+                    {step === 1 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg font-semibold">
+                            Professional Details
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-4">
+                          <FormField
+                            control={form.control}
+                            name="institution_name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Institution Name</FormLabel>
+                                <FormDescription>
+                                  Why we need the institution name goes here.
+                                </FormDescription>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="linkedin_url"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>LinkedIn URL</FormLabel>
+                                <FormDescription>
+                                  example:
+                                  https://www.linkedin.com/in/your-profile
+                                </FormDescription>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="bio"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Bio</FormLabel>
+                                <FormDescription>
+                                  Why we need the bio goes here.
+                                </FormDescription>
+                                <FormControl>
+                                  <Textarea {...field} rows={4} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </CardContent>
+                      </Card>
+                    )}
+                    {step === 2 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg font-semibold">
+                            Availability
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-4">
+                          <FormField
+                            control={form.control}
+                            name="hourly_rate"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Hourly Rate</FormLabel>
+                                <FormDescription>
+                                  Why we need the hourly rate goes here.
+                                </FormDescription>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    {...field}
+                                    onChange={(e) =>
+                                      field.onChange(e.target.valueAsNumber)
+                                    }
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="availability"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Availability</FormLabel>
+                                <FormDescription>
+                                  Why we need the availability goes here.
+                                </FormDescription>
+                                <FormControl>
+                                  <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                </Form>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer - full width */}
+          <div className="w-full border-t bg-white p-4">
+            <div className="flex gap-2 justify-end">
+              {step > 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStep(step - 1)}
+                >
+                  Back
+                </Button>
+              )}
+              {step < steps.length - 1 ? (
+                <Button
+                  type="button"
+                  onClick={async () => {
+                    const valid = await form.trigger(
+                      steps[step].fields as Parameters<typeof form.trigger>[0]
+                    );
+                    if (valid) setStep(step + 1);
+                  }}
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button
+                  onClick={form.handleSubmit(onSubmit)}
+                  loading={form.formState.isSubmitting}
+                  type="button"
+                >
+                  Save Changes
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
       </SheetContent>
     </Sheet>
