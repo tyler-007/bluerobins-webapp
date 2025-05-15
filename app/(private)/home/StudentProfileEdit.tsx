@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import mascot from "./mascot.png";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,10 @@ import {
 } from "@/components/ui/select";
 import { createClient } from "@/utils/supabase/client";
 
+import { Check, ChevronsUpDown } from "lucide-react";
+import { Combobox } from "@/components/ui/combobox";
+import { countries } from "@/lib/countries";
+
 const gradeOptions = [
   "Grade 6",
   "Grade 7",
@@ -37,7 +41,7 @@ const gradeOptions = [
   "Grade 10",
   "Grade 11",
   "Grade 12",
-  "University",
+  "Undergrad",
 ] as const;
 
 const formSchema = z
@@ -47,9 +51,10 @@ const formSchema = z
     parentEmail: z.string(),
     institution_name: z.string(),
     major: z.string(),
+    country: z.string().min(2, { message: "Please select a country" }),
   })
   .superRefine((val, ctx) => {
-    if (val.grade === "University") {
+    if (val.grade === "Undergrad") {
       if (val.institution_name === "") {
         ctx.addIssue({
           path: ["institution_name"],
@@ -66,7 +71,7 @@ const formSchema = z
       }
     }
 
-    if (val.grade !== "University") {
+    if (val.grade !== "Undergrad") {
       let errors = [];
       if (val.institution_name === "") {
         errors.push("institution_name");
@@ -122,6 +127,7 @@ const defaultValues: FormValues = {
   parentName: "",
   parentEmail: "",
   major: "",
+  country: "",
 };
 
 const getValues = (profile: any, defaultValues: FormValues) => {
@@ -135,6 +141,7 @@ const getValues = (profile: any, defaultValues: FormValues) => {
     parentName: profile.parent_name ?? defaultValues.parentName,
     parentEmail: profile.parent_email ?? defaultValues.parentEmail,
     major: profile.major ?? defaultValues.major,
+    country: profile.country ?? defaultValues.country,
   };
   return payload;
 };
@@ -197,158 +204,185 @@ export default function StudentProfileEdit({
   };
 
   const grade = form.watch("grade");
+
+  useEffect(() => {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // Simple mapping of common timezones to country codes
+    const timezoneToCountry: Record<string, string> = {
+      "America/New_York": "US",
+      "America/Los_Angeles": "US",
+      "America/Chicago": "US",
+      "Europe/London": "GB",
+      "Asia/Tokyo": "JP",
+      // Add more mappings as needed
+    };
+
+    const defaultCountry = timezoneToCountry[timezone] || "US";
+    form.setValue("country", defaultCountry);
+  }, []);
+
   return (
-    <Sheet open={open} onOpenChange={onClose}>
-      <SheetTrigger asChild>
-        <Button
-          onClick={() => {
-            console.log("OPENING SHEET");
-            setOpen(true);
-          }}
-          variant="ghost"
-          className="w-full justify-start -ml-4 -mt-3"
-        >
-          Edit Profile
-        </Button>
-      </SheetTrigger>
-      <SheetContent
-        side="right"
-        className={cn(
-          "outline-none p-0 transition-all duration-300 min-w-screen max-w-none sm:max-w-none w-screen"
-        )}
-      >
-        <div className="flex flex-col gap-4 p-3 bg-gradient-primary">
-          <div className="flex flex-row gap-2">
-            <Image src={mascot} alt="logo" width={88} height={88} />
-            <div className="flex flex-col gap-2 flex-1">
-              <div className="relative bg-white rounded-2xl p-4 shadow-sm">
-                {/* Triangle pointer */}
-                <div
-                  className="absolute left-[-10px] top-4 w-0 h-0 
+    <div
+      className={cn(
+        "absolute inset-0 outline-none p-0 transition-all duration-300 min-w-screen max-w-none sm:max-w-none w-screen"
+      )}
+    >
+      <div className="flex flex-col gap-4 p-3 h-screen bg-gradient-primary">
+        <div className="flex flex-row gap-2">
+          <Image src={mascot} alt="logo" width={88} height={88} />
+          <div className="flex flex-col gap-2 flex-1">
+            <div className="relative bg-white rounded-2xl p-4 shadow-sm">
+              {/* Triangle pointer */}
+              <div
+                className="absolute left-[-10px] top-4 w-0 h-0 
                   border-t-[10px] border-t-transparent
                   border-r-[10px] border-r-white
                   border-b-[10px] border-b-transparent"
-                ></div>
-                {/* Message content */}
-                <p className="text-gray-700">
-                  Tell us about yourself so that students gets you know you
-                  better
-                </p>
-              </div>
+              ></div>
+              {/* Message content */}
+              <p className="text-gray-700">
+                Tell us about yourself so that students gets you know you better
+              </p>
             </div>
           </div>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col gap-4"
-            >
-              <FormField
-                control={form.control}
-                name="grade"
-                render={({ field }: FormFieldProps<"grade">) => (
-                  <FormItem>
-                    <FormLabel>Which grade are you in?</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a grade" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {gradeOptions.map((grade) => (
-                            <SelectItem key={grade} value={grade}>
-                              {grade}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {grade && (
-                <>
-                  {grade !== "University" ? (
-                    <>
-                      <FormField
-                        control={form.control}
-                        name="institution_name"
-                        render={({
-                          field,
-                        }: FormFieldProps<"institution_name">) => (
-                          <FormItem>
-                            <FormLabel>School Name</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="parentName"
-                        render={({ field }: FormFieldProps<"parentName">) => (
-                          <FormItem>
-                            <FormLabel>Parent's Name</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="parentEmail"
-                        render={({ field }: FormFieldProps<"parentEmail">) => (
-                          <FormItem>
-                            <FormLabel>Parent's Email</FormLabel>
-                            <FormControl>
-                              <Input {...field} type="email" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <FormField
-                        control={form.control}
-                        name="institution_name"
-                        render={({
-                          field,
-                        }: FormFieldProps<"institution_name">) => (
-                          <FormItem>
-                            <FormLabel>University Name</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="major"
-                        render={({ field }: FormFieldProps<"major">) => (
-                          <FormItem>
-                            <FormLabel>Major</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>
-                  )}
-                </>
+        </div>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4 flex-1 w-full max-w-[640px] mx-auto"
+          >
+            <FormField
+              control={form.control}
+              name="grade"
+              render={({ field }: FormFieldProps<"grade">) => (
+                <FormItem>
+                  <FormLabel>Which grade are you in?</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a grade" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {gradeOptions.map((grade) => (
+                          <SelectItem key={grade} value={grade}>
+                            {grade}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
+            />
+            {grade && (
+              <>
+                {grade !== "Undergrad" ? (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="institution_name"
+                      render={({
+                        field,
+                      }: FormFieldProps<"institution_name">) => (
+                        <FormItem>
+                          <FormLabel>School Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="parentName"
+                      render={({ field }: FormFieldProps<"parentName">) => (
+                        <FormItem>
+                          <FormLabel>Parent's Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="parentEmail"
+                      render={({ field }: FormFieldProps<"parentEmail">) => (
+                        <FormItem>
+                          <FormLabel>Parent's Email</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="email" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="institution_name"
+                      render={({
+                        field,
+                      }: FormFieldProps<"institution_name">) => (
+                        <FormItem>
+                          <FormLabel>University Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="major"
+                      render={({ field }: FormFieldProps<"major">) => (
+                        <FormItem>
+                          <FormLabel>Major</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
+              </>
+            )}
+            <FormField
+              control={form.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Country</FormLabel>
+                  <FormControl>
+                    <Combobox
+                      items={countries.map((country) => ({
+                        value: country.code,
+                        label: country.name,
+                      }))}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Select country"
+                      searchPlaceholder="Search country..."
+                      emptyText="No country found."
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex-1" />
+            <div className="flex flex-row gap-2">
               <Button
                 loading={form.formState.isSubmitting}
                 type="submit"
@@ -356,10 +390,10 @@ export default function StudentProfileEdit({
               >
                 Save Changes
               </Button>
-            </form>
-          </Form>
-        </div>
-      </SheetContent>
-    </Sheet>
+            </div>
+          </form>
+        </Form>
+      </div>
+    </div>
   );
 }

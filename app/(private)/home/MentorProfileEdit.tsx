@@ -165,7 +165,7 @@ export default function MentorProfileEdit({
       <SheetContent
         side="right"
         className={cn(
-          "outline-none p-0 transition-all duration-300 min-w-screen max-w-none sm:max-w-none w-screen bg-gradient-primary"
+          "outline-none p-0 transition-all duration-300 min-w-screen max-w-none sm:max-w-none w-screen bg-[#EBF5FF]"
         )}
       >
         <div className="flex flex-col h-full">
@@ -221,9 +221,9 @@ export default function MentorProfileEdit({
               </div>
             </div>
 
-            {/* Form content - centered with max-width */}
-            <div className="flex justify-center">
-              <div className="w-full max-w-[980px] px-4">
+            {/* Centered form container */}
+            <div className="flex justify-center w-full">
+              <div className="w-full max-w-[640px] px-4">
                 <Form {...form}>
                   <div className="flex flex-col gap-4">
                     {step === 0 && (
