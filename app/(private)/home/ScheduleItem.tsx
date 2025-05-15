@@ -25,7 +25,6 @@ const ScheduleItem = ({
   const { data: profile } = useProfile(profileId);
   // const { data: user } = useUser();
 
-  console.log("profile", profile, studentId, mentorId);
   return (
     <div className="flex flex-col flex-1 gap-1 bg-white max-w-max rounded-2xl border border-gray-200 p-6 pt-4">
       <div className="flex flex-row gap-4 items-center justify-between">

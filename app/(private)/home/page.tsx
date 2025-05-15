@@ -8,7 +8,8 @@ import { ChatView } from "@/views/ChatView";
 import { useUser } from "@/app/hooks/useUser";
 import { useProfile } from "@/app/hooks/useProfile";
 import ScheduleItem from "./ScheduleItem";
-
+import StudentProfileEdit from "./StudentOnboarding";
+import MentorProfileEdit from "./MentorProfileEdit";
 const ExploreItem = ({
   title,
   description,
@@ -88,16 +89,28 @@ export default async function HomePage() {
   const isMentor = userType === "mentor";
   const filterKey = isMentor ? "for" : "by";
 
-  const myBookings = await supabase
-    .from("bookings")
-    .select("*")
-    .eq(filterKey, user.id);
+  const profileKey = isMentor ? "mentor_profiles" : "student_profiles";
+  const userKey = isMentor ? "user_id" : "id";
 
-  const { data: bookingConfig } = await supabase
-    .from("booking_configs")
-    .select("*")
-    .eq("user_id", "f9f39868-8211-4118-8284-4d1b1cc1a322")
-    .single();
+  const [profileResult, bookingsResult, bookingConfigResult] =
+    await Promise.allSettled([
+      supabase.from(profileKey).select("*").eq(userKey, user.id).single(),
+      supabase.from("bookings").select("*").eq(filterKey, user.id),
+      supabase
+        .from("booking_configs")
+        .select("*")
+        .eq("user_id", user.id)
+        .single(),
+    ]);
+
+  const profile =
+    profileResult.status === "fulfilled" ? profileResult.value.data : null;
+  const myBookings =
+    bookingsResult.status === "fulfilled" ? bookingsResult.value.data : [];
+  const bookingConfig =
+    bookingConfigResult.status === "fulfilled"
+      ? bookingConfigResult.value.data
+      : null;
 
   const availability = bookingConfig?.availability;
 
@@ -118,7 +131,7 @@ export default async function HomePage() {
           <span>See All</span>
         </div>
         <div className="flex flex-row flex-wrap gap-4">
-          {myBookings.data?.map((booking) => (
+          {myBookings?.map((booking) => (
             <ScheduleItem
               key={booking.id}
               mentorId={booking.for}
@@ -130,33 +143,6 @@ export default async function HomePage() {
             />
           ))}
         </div>
-        {/* <div className="flex flex-row gap-4 mt-6 items-center justify-between">
-          <span>Explore</span>
-          <span>See All</span>
-        </div>
-        <div className="flex flex-row gap-4">
-          <ExploreItem
-            buttonLabel="View Projects"
-            title="Color essay workshop"
-            items={[
-              { label: "Nanoparticles & Parkison’s Research" },
-              { label: "Diabetes Prediction ML Model" },
-            ]}
-            description="Research product discussion"
-            Icon={<BookOpen className="w-5 h-5 text-[#FFA501]" />}
-          />
-          <ExploreItem
-            buttonLabel="View Careers"
-            title="Career lens"
-            description="See what real people did to get where you want to go"
-            Icon={<Compass className="w-5 h-5 text-[#FFA501]" />}
-            items={[
-              { label: "Biochemical Engineering Pathway" },
-              { label: "Material Science Reasearch Center" },
-            ]}
-          />
-        </div> */}
-        {/* <h1>Home</h1> */}
       </div>
       <div className="flex w-96 flex-col bg-light border-l-2 border-gray-200 p-5 gap-5  ">
         <div className="bg-white rounded-2xl p-6 border border-gray-200">
@@ -168,7 +154,9 @@ export default async function HomePage() {
               <span className="text-lg font-bold">
                 {user?.user_metadata?.full_name}
               </span>
-              <span className="text-[#2953BE]">{user?.email}</span>
+              {/* <span className="text-[#2953BE]">{user?.email}</span> */}
+              <StudentProfileEdit profile={profile} userId={user.id} />
+              {/* <MentorProfileEdit profile={profile} userId={user.id} /> */}
             </div>
           </div>
         </div>
