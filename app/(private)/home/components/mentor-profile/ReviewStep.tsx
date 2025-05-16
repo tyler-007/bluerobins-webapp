@@ -21,7 +21,7 @@ export function ReviewStep({ form, onStepClick }: ReviewStepProps) {
               const value = form.getValues(fieldName as keyof FormValues);
               let displayValue: React.ReactNode = null;
               if (
-                fieldName === "mentoring_areas" &&
+                fieldName === "expertise" &&
                 Array.isArray(value) &&
                 value.every((v) => typeof v === "string")
               ) {

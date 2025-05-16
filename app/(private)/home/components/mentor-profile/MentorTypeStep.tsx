@@ -115,10 +115,10 @@ export function MentorTypeStep({ form }: MentorTypeStepProps) {
 
         <FormField
           control={form.control}
-          name="student_types"
+          name="preferred_mentees"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>Type of Students</FormLabel>
+              <FormLabel>Preferred Students</FormLabel>
               <div className="flex flex-col gap-4">
                 <FormItem className="flex items-center space-x-3 space-y-0">
                   <FormControl>

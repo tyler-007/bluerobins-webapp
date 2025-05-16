@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -30,16 +30,16 @@ const getValues = (profile: any, defaultValues: FormValues, props: any) => {
     state: profile.state ?? defaultValues.state,
     country: profile.country ?? defaultValues.country,
     mentoring_type: profile.mentoring_type ?? defaultValues.mentoring_type,
-    student_types: profile.student_types ?? defaultValues.student_types,
+    preferred_mentees:
+      profile.preferred_mentees ?? defaultValues.preferred_mentees,
     institution: profile.institution ?? defaultValues.institution,
     major: profile.major ?? defaultValues.major,
     linkedin_url: profile.linkedin_url ?? defaultValues.linkedin_url,
     bio: profile.bio ?? defaultValues.bio,
-    commitment_hours:
-      profile.commitment_hours ?? defaultValues.commitment_hours,
+    hours_per_week: profile.hours_per_week ?? defaultValues.hours_per_week,
     hourly_rate: profile.hourly_rate ?? defaultValues.hourly_rate,
     availability: profile.availability ?? defaultValues.availability,
-    mentoring_areas: profile.mentoring_areas ?? defaultValues.mentoring_areas,
+    expertise: profile.expertise ?? defaultValues.expertise,
     marketing_title: profile.marketing_title ?? defaultValues.marketing_title,
     photo_url: profile.photo_url ?? defaultValues.photo_url,
   };
@@ -77,47 +77,43 @@ export default function MentorProfileEdit({
 
   const onSubmit = async (data: FormValues) => {
     try {
-      const { data: updatedProfile, error } = await supabase
+      const { name, ...payload } = data;
+
+      const { data: updatedProfile, error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          name,
+        })
+        .eq("id", userId);
+      console.log("UPDATED PROFILE:", updatedProfile, profileError);
+
+      const availability = data.availability.reduce((acc: any, curr: any) => {
+        acc[curr.day] = [];
+        if (curr.enabled)
+          acc[curr.day].push({
+            end: curr.end_time,
+            start: curr.start_time,
+          });
+        return acc;
+      }, {});
+
+      payload.availability = availability;
+
+      const { data: updatedMentorProfile, error } = await supabase
         .from("mentor_profiles")
         .upsert({
-          user_id: userId,
-          phone_number: data.phone_number,
-          address: data.address,
-          institution: data.institution,
-          major: data.major,
-          linkedin_profile: data.linkedin_url,
-          bio: data.bio,
-          hourly_rate: data.hourly_rate,
-          availability: data.availability,
-          mentoring_areas: data.mentoring_areas,
-          marketing_title: data.marketing_title,
-          photo_url: data.photo_url,
+          id: userId,
+          ...payload,
         });
-
-      console.log("UPDATED PROFILE:", updatedProfile, error);
-
-      console.log("PAYLOAD:", {
-        id: userId,
-        ...profile,
-        phone_number: data.phone_number,
-        address: data.address,
-        institution: data.institution,
-        major: data.major,
-        linkedin_url: data.linkedin_url,
-        bio: data.bio,
-        hourly_rate: data.hourly_rate,
-        availability: data.availability,
-        mentoring_areas: data.mentoring_areas,
-        marketing_title: data.marketing_title,
-        photo_url: data.photo_url,
-      });
 
       toast({
         title: "Success",
         description: "Profile updated successfully",
       });
+
       setOpen(false);
     } catch (error) {
+      console.log("ERROR:", error);
       toast({
         title: "Error",
         description: "Failed to update profile",
@@ -126,8 +122,12 @@ export default function MentorProfileEdit({
     }
   };
 
+  const clearFieldError = (fieldName: keyof FormValues) => {
+    form.clearErrors(fieldName);
+  };
+
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet open={open} onOpenChange={onClose} modal={false}>
       <SheetTrigger asChild>
         <Button
           onClick={() => setOpen(true)}
@@ -206,11 +206,10 @@ export default function MentorProfileEdit({
                 <Button
                   type="button"
                   onClick={async () => {
-                    setStep(step + 1);
-                    // const valid = await form.trigger(
-                    //   steps[step].fields as Parameters<typeof form.trigger>[0]
-                    // );
-                    // if (valid) setStep(step + 1);
+                    const valid = await form.trigger(
+                      steps[step].fields as Parameters<typeof form.trigger>[0]
+                    );
+                    if (valid) setStep(step + 1);
                   }}
                 >
                   Next

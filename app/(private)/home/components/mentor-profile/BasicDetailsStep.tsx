@@ -8,6 +8,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Combobox } from "@/components/ui/combobox";
+import { countries } from "@/lib/countries";
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "../../types/mentor-profile";
 
@@ -84,7 +86,18 @@ export function BasicDetailsStep({ form, email }: BasicDetailsStepProps) {
               <FormItem>
                 <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter your country" />
+                  <Combobox
+                    items={countries.map((country) => ({
+                      value: country.code,
+                      label: country.name,
+                    }))}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Select country"
+                    searchPlaceholder="Search country..."
+                    emptyText="No country found."
+                    className="border border-gray-300 rounded px-3 py-2 w-full focus:border-black focus:ring-0 focus:outline-none text-black"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

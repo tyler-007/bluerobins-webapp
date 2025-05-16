@@ -9,7 +9,7 @@ export const formSchema = z.object({
   mentoring_type: z.enum(["pay_as_you_go", "research_packages", "both"], {
     required_error: "Please select a mentoring type",
   }),
-  student_types: z
+  preferred_mentees: z
     .array(z.enum(["middle_school", "high_school", "undergrad"]))
     .min(1, {
       message: "Please select at least one student type",
@@ -18,10 +18,14 @@ export const formSchema = z.object({
   major: z.string().min(1, { message: "Major is required" }),
   linkedin_url: z.string().min(1, { message: "LinkedIn URL is required" }),
   bio: z.string().min(1, { message: "Bio is required" }),
-  commitment_hours: z
+  hours_per_week: z
     .number()
-    .min(1, { message: "Commitment hours is required" }),
-  hourly_rate: z.number().min(1, { message: "Hourly rate is required" }),
+    .min(1, { message: "Commitment hours is required" })
+    .nullable(),
+  hourly_rate: z
+    .number()
+    .min(1, { message: "Hourly rate is required" })
+    .nullable(),
   availability: z.array(
     z.object({
       day: z.string(),
@@ -30,7 +34,7 @@ export const formSchema = z.object({
       enabled: z.boolean(),
     })
   ),
-  mentoring_areas: z
+  expertise: z
     .array(z.string().min(1))
     .min(1, { message: "Mentoring areas are required" }),
   marketing_title: z
@@ -48,13 +52,13 @@ export const defaultValues: FormValues = {
   state: "",
   country: "",
   mentoring_type: "pay_as_you_go",
-  student_types: [],
+  preferred_mentees: [],
   institution: "",
   major: "",
   linkedin_url: "",
   bio: "",
-  commitment_hours: 5,
-  hourly_rate: 20,
+  hours_per_week: null,
+  hourly_rate: null,
   availability: [
     { day: "Sunday", start_time: "09:00", end_time: "17:00", enabled: false },
     { day: "Monday", start_time: "09:00", end_time: "17:00", enabled: false },
@@ -69,7 +73,7 @@ export const defaultValues: FormValues = {
     { day: "Friday", start_time: "09:00", end_time: "17:00", enabled: false },
     { day: "Saturday", start_time: "09:00", end_time: "17:00", enabled: false },
   ],
-  mentoring_areas: [],
+  expertise: [],
   marketing_title: "",
   photo_url: "",
 };
@@ -85,7 +89,7 @@ export const steps = [
   },
   {
     label: "Availability",
-    fields: ["commitment_hours", "hourly_rate", "availability"],
+    fields: ["hours_per_week", "hourly_rate", "availability"],
   },
   {
     label: "Profile",
@@ -94,7 +98,7 @@ export const steps = [
       "marketing_title",
       "linkedin_url",
       "bio",
-      "mentoring_areas",
+      "expertise",
     ],
   },
   {

@@ -130,7 +130,7 @@ export function ProfileStep({ form }: ProfileStepProps) {
         />
         <FormField
           control={form.control}
-          name="mentoring_areas"
+          name="expertise"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Mentoring Areas</FormLabel>

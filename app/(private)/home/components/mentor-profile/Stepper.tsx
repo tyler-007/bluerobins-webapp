@@ -12,6 +12,7 @@ export function Stepper({ currentStep, steps }: StepperProps) {
         <div className="flex items-center justify-between w-full">
           {steps.map((step, idx) => {
             const isCompleted = currentStep >= idx + 1;
+            const isCurrent = currentStep === idx;
             return (
               <div
                 key={step.label}
@@ -24,7 +25,8 @@ export function Stepper({ currentStep, steps }: StepperProps) {
                       "flex items-center justify-center rounded-full w-9 h-9 font-semibold text-lg transition-all duration-200",
                       isCompleted
                         ? "bg-blue-600 border-4 border-white text-white shadow"
-                        : "bg-gray-200 text-gray-500"
+                        : "bg-white text-gray-500 border-4",
+                      isCurrent && "bg-white text-white border-blue-600"
                     )}
                   >
                     {isCompleted && (
