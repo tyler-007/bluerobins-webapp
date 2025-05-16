@@ -31,7 +31,7 @@ export const GradeSelector = ({ control, studentType }: GradeSelectorProps) => (
     name="grade"
     render={({ field }) => (
       <FormItem>
-        <FormLabel>Which grade are you in?</FormLabel>
+        <FormLabel className="text-base">Which grade are you in?</FormLabel>
         <FormControl>
           <Select onValueChange={field.onChange} defaultValue={field.value}>
             <SelectTrigger>

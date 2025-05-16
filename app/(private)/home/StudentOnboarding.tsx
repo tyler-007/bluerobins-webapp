@@ -117,7 +117,7 @@ export default function StudentProfileEdit({
                 border-r-[10px] border-r-white
                 border-b-[10px] border-b-transparent"
               ></div>
-              <p className="text-gray-700">
+              <p className="text-gray-700 text-lg">
                 {!studentType
                   ? "First, tell us what type of student you are"
                   : "Now, let's get to know you better"}

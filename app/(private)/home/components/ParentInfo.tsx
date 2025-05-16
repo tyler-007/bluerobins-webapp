@@ -20,7 +20,7 @@ export const ParentInfo = ({ control }: ParentInfoProps) => (
       name="parentName"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Parent's Name</FormLabel>
+          <FormLabel className="text-base">Parent's Name</FormLabel>
           <FormControl>
             <Input {...field} placeholder="Enter parent's name" />
           </FormControl>
@@ -33,7 +33,7 @@ export const ParentInfo = ({ control }: ParentInfoProps) => (
       name="parentEmail"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Parent's Email</FormLabel>
+          <FormLabel className="text-base">Parent's Email</FormLabel>
           <FormControl>
             <Input {...field} type="email" placeholder="Enter parent's email" />
           </FormControl>

@@ -14,12 +14,29 @@ import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "../../types/mentor-profile";
 import { User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useState } from "react";
 
 interface ProfileStepProps {
   form: UseFormReturn<FormValues>;
 }
 
 export function ProfileStep({ form }: ProfileStepProps) {
+  const { toast } = useToast();
+  const supabase = createClient();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    getUser();
+  }, [supabase.auth]);
+
   return (
     <Card>
       <CardContent className="flex flex-col gap-4 mt-4">
@@ -40,9 +57,61 @@ export function ProfileStep({ form }: ProfileStepProps) {
                         id="photo-upload"
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
-                          if (file) {
-                            const url = URL.createObjectURL(file);
-                            field.onChange(url);
+                          if (!file || !userId) return;
+
+                          try {
+                            // Upload to Supabase Storage
+                            const fileExt = file.name.split(".").pop();
+                            const fileName = `${userId}/${Date.now()}.${fileExt}`;
+
+                            // First try to delete any existing profile photo
+                            // const { data: existingFiles } =
+                            //   await supabase.storage
+                            //     .from("profile-photos")
+                            //     .list(`${userId}/`);
+
+                            // if (existingFiles?.length) {
+                            //   await supabase.storage
+                            //     .from("profile-photos")
+                            //     .remove(
+                            //       existingFiles.map(
+                            //         (f) => `${userId}/${f.name}`
+                            //       )
+                            //     );
+                            // }
+
+                            const { error: uploadError } =
+                              await supabase.storage
+                                .from("profile-photos")
+                                .upload(fileName, file, {
+                                  cacheControl: "3600",
+                                  upsert: true,
+                                });
+
+                            if (uploadError) throw uploadError;
+
+                            // Get public URL
+                            const {
+                              data: { publicUrl },
+                            } = supabase.storage
+                              .from("profile-photos")
+                              .getPublicUrl(fileName);
+
+                            field.onChange(publicUrl);
+
+                            toast({
+                              title: "Success",
+                              description:
+                                "Profile photo uploaded successfully",
+                            });
+                          } catch (error: any) {
+                            console.error("Error uploading file:", error);
+                            toast({
+                              title: "Error",
+                              description:
+                                error.message || "Failed to upload photo",
+                              variant: "destructive",
+                            });
                           }
                         }}
                       />
