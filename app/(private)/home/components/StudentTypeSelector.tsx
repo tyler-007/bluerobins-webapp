@@ -15,7 +15,7 @@ interface StudentTypeSelectorProps {
 
 export const StudentTypeSelector = ({ field }: StudentTypeSelectorProps) => (
   <FormItem>
-    <FormLabel>What type of student are you?</FormLabel>
+    <FormLabel className="text-lg">What type of student are you?</FormLabel>
     <FormControl>
       <div className="flex flex-row gap-2">
         {STUDENT_TYPES.map((type) => (

@@ -19,7 +19,7 @@ export const MajorField = ({ control }: MajorFieldProps) => (
     name="major"
     render={({ field }) => (
       <FormItem>
-        <FormLabel>Major</FormLabel>
+        <FormLabel className="text-base">Major</FormLabel>
         <FormControl>
           <Input {...field} placeholder="Enter your major" />
         </FormControl>

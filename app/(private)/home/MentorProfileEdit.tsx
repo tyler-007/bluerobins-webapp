@@ -3,99 +3,66 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-import Image from "next/image";
-import mascot from "./mascot.png";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
-import { ControllerRenderProps } from "react-hook-form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { createClient } from "@/utils/supabase/client";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Check, ArrowLeft } from "lucide-react";
+import {
+  defaultValues,
+  formSchema,
+  FormValues,
+  steps,
+} from "./types/mentor-profile";
+import { BasicDetailsStep } from "./components/mentor-profile/BasicDetailsStep";
+import { MentorTypeStep } from "./components/mentor-profile/MentorTypeStep";
+import { AvailabilityStep } from "./components/mentor-profile/AvailabilityStep";
+import { ProfileStep } from "./components/mentor-profile/ProfileStep";
+import { Stepper } from "./components/mentor-profile/Stepper";
 
-const formSchema = z.object({
-  phone_number: z.string().min(1, { message: "Phone number is required" }),
-  address: z.string().min(1, { message: "Address is required" }),
-  institution_name: z
-    .string()
-    .min(1, { message: "Institution name is required" }),
-  linkedin_url: z.string().min(1, { message: "LinkedIn URL is required" }),
-  bio: z.string().min(1, { message: "Bio is required" }),
-  hourly_rate: z.number().min(1, { message: "Hourly rate is required" }),
-  availability: z.string(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-type FormFieldProps<T extends keyof FormValues> = {
-  field: ControllerRenderProps<FormValues, T>;
-};
-
-const defaultValues: FormValues = {
-  phone_number: "",
-  address: "",
-  institution_name: "",
-  linkedin_url: "",
-  bio: "",
-  hourly_rate: 20,
-  availability: "",
-};
-
-const getValues = (profile: any, defaultValues: FormValues) => {
+const getValues = (profile: any, defaultValues: FormValues, props: any) => {
   const payload = {
+    name: profile?.name ?? profile.name ?? props.name ?? defaultValues.name,
     phone_number: profile.phone_number ?? defaultValues.phone_number,
     address: profile.address ?? defaultValues.address,
-    institution_name:
-      profile.institution_name ?? defaultValues.institution_name,
+    state: profile.state ?? defaultValues.state,
+    country: profile.country ?? defaultValues.country,
+    mentoring_type: profile.mentoring_type ?? defaultValues.mentoring_type,
+    preferred_mentees:
+      profile.preferred_mentees ?? defaultValues.preferred_mentees,
+    institution: profile.institution ?? defaultValues.institution,
+    major: profile.major ?? defaultValues.major,
     linkedin_url: profile.linkedin_url ?? defaultValues.linkedin_url,
     bio: profile.bio ?? defaultValues.bio,
+    hours_per_week: profile.hours_per_week ?? defaultValues.hours_per_week,
     hourly_rate: profile.hourly_rate ?? defaultValues.hourly_rate,
     availability: profile.availability ?? defaultValues.availability,
+    expertise: profile.expertise ?? defaultValues.expertise,
+    marketing_title: profile.marketing_title ?? defaultValues.marketing_title,
+    photo_url: profile.photo_url ?? defaultValues.photo_url,
   };
   return payload;
 };
 
-const steps = [
-  { label: "Personal Info", fields: ["phone_number", "address"] },
-  {
-    label: "Professional Details",
-    fields: ["institution_name", "linkedin_url", "bio"],
-  },
-  { label: "Availability", fields: ["hourly_rate", "availability"] },
-];
-
 export default function MentorProfileEdit({
   profile,
   userId,
+  name,
+  email,
 }: {
   profile: any;
   userId: string;
+  name: string;
+  email: string;
 }) {
   const supabase = createClient();
   profile = profile || {};
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(!profile.photo_url);
   const { toast } = useToast();
-  const values = profile ? getValues(profile, defaultValues) : undefined;
+  const values = profile
+    ? getValues(profile, defaultValues, { name })
+    : undefined;
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -109,40 +76,43 @@ export default function MentorProfileEdit({
 
   const onSubmit = async (data: FormValues) => {
     try {
-      // TODO: Implement form submission to your backend
-      const { data: updatedProfile, error } = await supabase
+      const { name, ...payload } = data;
+
+      const { data: updatedProfile, error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          name,
+        })
+        .eq("id", userId);
+      console.log("UPDATED PROFILE:", updatedProfile, profileError);
+
+      const availability = data.availability.reduce((acc: any, curr: any) => {
+        acc[curr.day] = [];
+        if (curr.enabled)
+          acc[curr.day].push({
+            end: curr.end_time,
+            start: curr.start_time,
+          });
+        return acc;
+      }, {});
+
+      payload.availability = availability;
+
+      const { data: updatedMentorProfile, error } = await supabase
         .from("mentor_profiles")
         .upsert({
-          user_id: userId,
-          phone_number: data.phone_number,
-          address: data.address,
-          institution_name: data.institution_name,
-          linkedin_profile: data.linkedin_url,
-          bio: data.bio,
-          hourly_rate: data.hourly_rate,
-          availability: data.availability,
+          id: userId,
+          ...payload,
         });
-
-      console.log("UPDATED PROFILE:", updatedProfile, error);
-
-      console.log("PAYLOAD:", {
-        id: userId,
-        ...profile,
-        phone_number: data.phone_number,
-        address: data.address,
-        institution_name: data.institution_name,
-        linkedin_url: data.linkedin_url,
-        bio: data.bio,
-        hourly_rate: data.hourly_rate,
-        availability: data.availability,
-      });
 
       toast({
         title: "Success",
         description: "Profile updated successfully",
       });
+
       setOpen(false);
     } catch (error) {
+      console.log("ERROR:", error);
       toast({
         title: "Error",
         description: "Failed to update profile",
@@ -151,8 +121,12 @@ export default function MentorProfileEdit({
     }
   };
 
+  const clearFieldError = (fieldName: keyof FormValues) => {
+    form.clearErrors(fieldName);
+  };
+
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet open={open} onOpenChange={onClose} modal={false}>
       <SheetTrigger asChild>
         <Button
           onClick={() => setOpen(true)}
@@ -170,207 +144,38 @@ export default function MentorProfileEdit({
       >
         <div className="flex flex-col h-full">
           {/* Header - full width */}
-          <div className="w-full border-b p-4 flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => setOpen(false)}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex-1 text-center">
-              Basic Details (Step {step + 1} of {steps.length})
-            </div>
+          <div className="w-full border-b p-4">
+            <Stepper currentStep={step} steps={steps} />
           </div>
 
           {/* Progress bar - full width */}
-          <div className="w-full px-4 flex gap-1">
-            {steps.map((_, idx) => (
-              <div
-                key={idx}
-                className={cn(
-                  "h-1 flex-1 rounded-full",
-                  idx === step ? "bg-blue-500" : "bg-blue-100"
-                )}
-              />
-            ))}
-          </div>
+          {/* <div className="w-full">
+            <div className="mx-auto max-w-[640px] px-4 flex gap-1">
+              {steps.map((_, idx) => (
+                <div
+                  key={idx}
+                  className={cn(
+                    "h-1 flex-1 rounded-full",
+                    idx === step ? "bg-blue-500" : "bg-blue-100"
+                  )}
+                />
+              ))}
+            </div>
+          </div> */}
 
           {/* Main content */}
           <div className="flex-1 overflow-auto">
-            {/* Mascot and chat bubble - full width */}
-            <div className="p-4">
-              <div className="flex gap-4 mb-6">
-                <div className="w-12 h-12">
-                  <Image
-                    src={mascot}
-                    alt="mascot"
-                    width={48}
-                    height={48}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div className="relative bg-white rounded-2xl p-4 shadow-sm flex-1">
-                  <div
-                    className="absolute left-[-10px] top-4 w-0 h-0 
-                    border-t-[10px] border-t-transparent
-                    border-r-[10px] border-r-white
-                    border-b-[10px] border-b-transparent"
-                  ></div>
-                  <p className="text-gray-700">
-                    Tell us about yourself so that students gets you know you
-                    better
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* Centered form container */}
-            <div className="flex justify-center w-full">
-              <div className="w-full max-w-[640px] px-4">
+            <div className="flex justify-center items-center min-h-full w-full">
+              <div className={`w-full max-w-[640px] px-4 py-4`}>
                 <Form {...form}>
                   <div className="flex flex-col gap-4">
                     {step === 0 && (
-                      <>
-                        <FormField
-                          control={form.control}
-                          name="phone_number"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Phone number</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder="Enter your phone number"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="address"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Address</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder="Enter your address"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </>
+                      <BasicDetailsStep form={form} email={email} />
                     )}
-                    {step === 1 && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-lg font-semibold">
-                            Professional Details
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex flex-col gap-4">
-                          <FormField
-                            control={form.control}
-                            name="institution_name"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Institution Name</FormLabel>
-                                <FormDescription>
-                                  Why we need the institution name goes here.
-                                </FormDescription>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="linkedin_url"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>LinkedIn URL</FormLabel>
-                                <FormDescription>
-                                  example:
-                                  https://www.linkedin.com/in/your-profile
-                                </FormDescription>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="bio"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Bio</FormLabel>
-                                <FormDescription>
-                                  Why we need the bio goes here.
-                                </FormDescription>
-                                <FormControl>
-                                  <Textarea {...field} rows={4} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </CardContent>
-                      </Card>
-                    )}
-                    {step === 2 && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-lg font-semibold">
-                            Availability
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex flex-col gap-4">
-                          <FormField
-                            control={form.control}
-                            name="hourly_rate"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Hourly Rate</FormLabel>
-                                <FormDescription>
-                                  Why we need the hourly rate goes here.
-                                </FormDescription>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(e.target.valueAsNumber)
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="availability"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Availability</FormLabel>
-                                <FormDescription>
-                                  Why we need the availability goes here.
-                                </FormDescription>
-                                <FormControl>
-                                  <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </CardContent>
-                      </Card>
-                    )}
+                    {step === 1 && <MentorTypeStep form={form} />}
+                    {step === 2 && <AvailabilityStep form={form} />}
+                    {step === 3 && <ProfileStep form={form} />}
                   </div>
                 </Form>
               </div>

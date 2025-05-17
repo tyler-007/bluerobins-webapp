@@ -8,7 +8,7 @@ import { ChatView } from "@/views/ChatView";
 import { useUser } from "@/app/hooks/useUser";
 import { useProfile } from "@/app/hooks/useProfile";
 import ScheduleItem from "./ScheduleItem";
-import StudentProfileEdit from "./StudentOnboarding";
+import StudentOnboarding from "./StudentOnboarding";
 import MentorProfileEdit from "./MentorProfileEdit";
 const ExploreItem = ({
   title,
@@ -155,8 +155,16 @@ export default async function HomePage() {
                 {user?.user_metadata?.full_name}
               </span>
               {/* <span className="text-[#2953BE]">{user?.email}</span> */}
-              <StudentProfileEdit profile={profile} userId={user.id} />
-              {/* <MentorProfileEdit profile={profile} userId={user.id} /> */}
+              {isMentor ? (
+                <MentorProfileEdit
+                  profile={profile}
+                  email={user?.email ?? ""}
+                  name={user?.user_metadata?.full_name}
+                  userId={user.id}
+                />
+              ) : (
+                <StudentOnboarding profile={profile} userId={user.id} />
+              )}
             </div>
           </div>
         </div>

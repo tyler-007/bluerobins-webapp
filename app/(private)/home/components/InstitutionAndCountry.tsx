@@ -26,7 +26,7 @@ export const InstitutionAndCountry = ({
       name="institution_name"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>
+          <FormLabel className="text-base">
             {isUndergrad ? "University Name" : "School Name"}
           </FormLabel>
           <FormControl>
@@ -44,7 +44,7 @@ export const InstitutionAndCountry = ({
       name="country"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Country</FormLabel>
+          <FormLabel className="text-base">Country</FormLabel>
           <FormControl>
             <Combobox
               items={countries.map((country) => ({
