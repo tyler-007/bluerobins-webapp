@@ -106,11 +106,11 @@ export default function StudentProfileEdit({
         "absolute inset-0 outline-none p-0 transition-all duration-300 min-w-screen max-w-none sm:max-w-none w-screen"
       )}
     >
-      <div className="flex flex-col gap-4 p-3 h-screen bg-gradient-primary">
+      <div className="flex flex-col gap-4 p-3 h-screen bg-gradient-primary pt-12">
         <div className="flex flex-row gap-2">
           <Image src={mascot} alt="logo" width={88} height={88} />
           <div className="flex flex-col gap-2 flex-1">
-            <div className="relative bg-white rounded-2xl p-4 shadow-sm">
+            <div className="relative bg-white rounded-2xl p-4 shadow-sm w-max">
               <div
                 className="absolute left-[-10px] top-4 w-0 h-0 
                 border-t-[10px] border-t-transparent
