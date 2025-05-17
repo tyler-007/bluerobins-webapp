@@ -64,22 +64,6 @@ export function ProfileStep({ form }: ProfileStepProps) {
                             const fileExt = file.name.split(".").pop();
                             const fileName = `${userId}/${Date.now()}.${fileExt}`;
 
-                            // First try to delete any existing profile photo
-                            // const { data: existingFiles } =
-                            //   await supabase.storage
-                            //     .from("profile-photos")
-                            //     .list(`${userId}/`);
-
-                            // if (existingFiles?.length) {
-                            //   await supabase.storage
-                            //     .from("profile-photos")
-                            //     .remove(
-                            //       existingFiles.map(
-                            //         (f) => `${userId}/${f.name}`
-                            //       )
-                            //     );
-                            // }
-
                             const { error: uploadError } =
                               await supabase.storage
                                 .from("profile-photos")

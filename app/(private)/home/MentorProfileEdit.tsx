@@ -19,7 +19,6 @@ import { BasicDetailsStep } from "./components/mentor-profile/BasicDetailsStep";
 import { MentorTypeStep } from "./components/mentor-profile/MentorTypeStep";
 import { AvailabilityStep } from "./components/mentor-profile/AvailabilityStep";
 import { ProfileStep } from "./components/mentor-profile/ProfileStep";
-import { ReviewStep } from "./components/mentor-profile/ReviewStep";
 import { Stepper } from "./components/mentor-profile/Stepper";
 
 const getValues = (profile: any, defaultValues: FormValues, props: any) => {
@@ -59,7 +58,7 @@ export default function MentorProfileEdit({
 }) {
   const supabase = createClient();
   profile = profile || {};
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(!profile.photo_url);
   const { toast } = useToast();
   const values = profile
     ? getValues(profile, defaultValues, { name })
@@ -168,11 +167,7 @@ export default function MentorProfileEdit({
           <div className="flex-1 overflow-auto">
             {/* Centered form container */}
             <div className="flex justify-center items-center min-h-full w-full">
-              <div
-                className={`w-full ${
-                  step === 4 ? "max-w-[980px]" : "max-w-[640px]"
-                } px-4 py-4`}
-              >
+              <div className={`w-full max-w-[640px] px-4 py-4`}>
                 <Form {...form}>
                   <div className="flex flex-col gap-4">
                     {step === 0 && (
@@ -181,9 +176,6 @@ export default function MentorProfileEdit({
                     {step === 1 && <MentorTypeStep form={form} />}
                     {step === 2 && <AvailabilityStep form={form} />}
                     {step === 3 && <ProfileStep form={form} />}
-                    {step === 4 && (
-                      <ReviewStep form={form} onStepClick={setStep} />
-                    )}
                   </div>
                 </Form>
               </div>

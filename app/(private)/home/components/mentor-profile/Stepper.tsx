@@ -18,7 +18,7 @@ export function Stepper({ currentStep, steps }: StepperProps) {
                 key={step.label}
                 className="flex-1 flex flex-col items-center"
               >
-                <div className="flex items-center w-full -mr-[98px]">
+                <div className="flex items-center w-full -mr-[120px]">
                   {/* Step circle with checkmark */}
                   <div
                     className={cn(

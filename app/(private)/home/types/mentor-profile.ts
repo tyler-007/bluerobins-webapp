@@ -2,7 +2,10 @@ import { z } from "zod";
 
 export const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
-  phone_number: z.string().min(1, { message: "Phone number is required" }),
+  phone_number: z
+    .string()
+    .min(1, { message: "Phone number is required" })
+    .min(10, { message: "Phone number must be at least 10 digits" }),
   address: z.string().min(1, { message: "Address is required" }),
   state: z.string().min(1, { message: "State is required" }),
   country: z.string().min(1, { message: "Country is required" }),
@@ -40,7 +43,7 @@ export const formSchema = z.object({
   marketing_title: z
     .string()
     .min(1, { message: "Marketing title is required" }),
-  photo_url: z.string().optional(),
+  photo_url: z.string(),
 });
 
 export type FormValues = z.infer<typeof formSchema>;
@@ -100,9 +103,5 @@ export const steps = [
       "bio",
       "expertise",
     ],
-  },
-  {
-    label: "Review",
-    fields: [],
   },
 ];
