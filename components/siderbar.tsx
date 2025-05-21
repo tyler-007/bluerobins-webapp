@@ -1,7 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { House, Users, LogOut, MessageCircle, Calendar } from "lucide-react";
+import {
+  House,
+  Users,
+  LogOut,
+  MessageCircle,
+  Calendar,
+  BookOpen,
+} from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
@@ -23,6 +30,11 @@ const options = [
     icon: MessageCircle,
     href: "/chats",
   },
+  {
+    label: "Project Hub",
+    icon: BookOpen,
+    href: "/project-hub",
+  },
 ];
 
 const mentorOptions = [
@@ -35,6 +47,11 @@ const mentorOptions = [
     label: "Chats",
     icon: MessageCircle,
     href: "/chats",
+  },
+  {
+    label: "Project Hub",
+    icon: BookOpen,
+    href: "/project-hub",
   },
 ];
 

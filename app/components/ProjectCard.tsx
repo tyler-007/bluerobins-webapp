@@ -1,6 +1,7 @@
 import { Calendar, Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Chip from "@/components/chip";
+import ProjectDetailsButton from "@/app/(private)/project-hub/ProjectDetailsButton";
 
 interface ProjectCardProps {
   title: string;
@@ -105,9 +106,19 @@ export default function ProjectCard({
             <Button className="w-full mt-2 text-lg py-6" onClick={onBuy}>
               Buy Package
             </Button>
-            <Button variant="outline" className="w-full mt-2 text-lg py-6">
-              View Details
-            </Button>
+            <ProjectDetailsButton
+              project={{
+                title,
+                description,
+                tags: ["Tag 1", "Tag 2", "Tag 3"],
+                duration,
+                sessions,
+                startDate,
+                endDate,
+                time,
+                day,
+              }}
+            />
           </>
         )}
       </div>

@@ -13,6 +13,7 @@ import { GoogleMeetButton } from "@/components/GoogleMeetButton";
 import ProjectCard from "@/app/components/ProjectCard";
 
 export default async function SearchPage(props: { mentors: any[] }) {
+  const isMentor = false;
   return (
     <>
       <div className="flex flex-col gap-4 w-full p-6">
@@ -22,7 +23,7 @@ export default async function SearchPage(props: { mentors: any[] }) {
         </div>
         <div className="flex flex-wrap gap-4">
           <ProjectCard
-            isMentor
+            isMentor={isMentor}
             title="Data Science Project"
             description="Explore how artificial intelligence is transforming learning experiences"
             tags={["Data science", "8 weeks"]}
@@ -36,7 +37,7 @@ export default async function SearchPage(props: { mentors: any[] }) {
             price={839}
           />
           <ProjectCard
-            isMentor
+            isMentor={isMentor}
             title="Data Science Project"
             description="Explore how artificial intelligence is transforming learning experiences…"
             tags={["Data science", "8 weeks"]}
@@ -50,7 +51,7 @@ export default async function SearchPage(props: { mentors: any[] }) {
             price={839}
           />
           <ProjectCard
-            isMentor
+            isMentor={isMentor}
             title="Data Science Project"
             description="Explore how artificial intelligence is transforming learning experiences…"
             tags={["Data science", "8 weeks"]}
@@ -64,7 +65,7 @@ export default async function SearchPage(props: { mentors: any[] }) {
             price={839}
           />
           <ProjectCard
-            isMentor
+            isMentor={isMentor}
             title="Data Science Project"
             description="Explore how artificial intelligence is transforming learning experiences…"
             tags={["Data science", "8 weeks"]}
