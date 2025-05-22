@@ -51,7 +51,7 @@ export default function ProjectCard({
   prerequisites,
 }: ProjectCardProps) {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-
+  const [navigating, setNavigating] = useState(false);
   const bookSlotAPI = async (
     order: any,
     mentor_user: string,
@@ -68,16 +68,6 @@ export default function ProjectCard({
       .add(1, "hour")
       .format("YYYY-MM-DDTHH:mm:ssZ");
 
-    //   const res = await createCalendarEvent({
-    //     summary: "Test Event",
-    //     description: "Test Description",
-    //     location: "Test Location",
-
-    //     attendees: [{ email: "nishanthShankr@gmail.com" }],
-    //     host: "nishanthShankr@gmail.com",
-    //   });
-    // const event_id = "ASb";
-    // const event_link = "https://meet.google.com/ASb";
     return fetch("/api/book_slot", {
       method: "POST",
       body: JSON.stringify({
@@ -88,128 +78,16 @@ export default function ProjectCard({
         end_time,
         payment_id: order.id,
         package_id,
+        details: order,
       }),
     });
   };
 
   const onBuyPackage = async (order: any) => {
+    setNavigating(true);
     setShowPaymentDialog(true);
     console.log("Buy Packagessss:");
   };
-  // const handlePaymentSuccess = async (order: any) => {
-  //   console.log("Payment success", order);
-  //   const response = {
-  //     id: "7HB08823YP7257228",
-  //     intent: "CAPTURE",
-  //     status: "COMPLETED",
-  //     purchase_units: [
-  //         {
-  //             "reference_id": "default",
-  //             "amount": {
-  //                 "currency_code": "USD",
-  //                 "value": "1089.00"
-  //             },
-  //             "payee": {
-  //                 "email_address": "sb-dt8qw41484342@business.example.com",
-  //                 "merchant_id": "GMF25SXL8GB2E"
-  //             },
-  //             "shipping": {
-  //                 "name": {
-  //                     "full_name": "John Doe"
-  //                 },
-  //                 "address": {
-  //                     "address_line_1": "1 Main St",
-  //                     "admin_area_2": "San Jose",
-  //                     "admin_area_1": "CA",
-  //                     "postal_code": "95131",
-  //                     "country_code": "US"
-  //                 }
-  //             },
-  //             "payments": {
-  //                 "captures": [
-  //                     {
-  //                         "id": "5U307570YT931411E",
-  //                         "status": "COMPLETED",
-  //                         "amount": {
-  //                             "currency_code": "USD",
-  //                             "value": "1089.00"
-  //                         },
-  //                         "final_capture": true,
-  //                         "seller_protection": {
-  //                             "status": "ELIGIBLE",
-  //                             "dispute_categories": [
-  //                                 "ITEM_NOT_RECEIVED",
-  //                                 "UNAUTHORIZED_TRANSACTION"
-  //                             ]
-  //                         },
-  //                         "create_time": "2025-05-22T09:13:25Z",
-  //                         "update_time": "2025-05-22T09:13:25Z"
-  //                     }
-  //                 ]
-  //             }
-  //         }
-  //     ],
-  //     "payer": {
-  //         "name": {
-  //             "given_name": "John",
-  //             "surname": "Doe"
-  //         },
-  //         "email_address": "sb-rdnl041518730@personal.example.com",
-  //         "payer_id": "XEAQCSKUYL4EL",
-  //         "address": {
-  //             "country_code": "US"
-  //         }
-  //     },
-  //     "create_time": "2025-05-22T09:13:06Z",
-  //     "update_time": "2025-05-22T09:13:26Z",
-  //     "links": [
-  //         {
-  //             "href": "https://api.sandbox.paypal.com/v2/checkout/orders/7HB08823YP7257228",
-  //             "rel": "self",
-  //             "method": "GET"
-  //         }
-  //     ]
-  // }
-  //   try {
-  //     const book
-
-  //   } catch (error) {
-  //     console.error("Payment error", error);
-  //   }
-
-  //   // try {
-  //   //   const res = await fetch("/api/book_slot", {
-  //   //     method: "POST",
-  //   //     body: JSON.stringify({
-  //   //       for_user: mentor.id,
-  //   //       // start_time,
-  //   //       // end_time,
-  //   //       payment_id: order.id,
-  //   //     }),
-  //   //   });
-
-  //   //   if (!res.ok) {
-  //   //     const error = await res.json();
-  //   //     throw new Error(error.message || "Failed to book slot");
-  //   //   }
-
-  //   //   toast({
-  //   //     description: "Slot booked successfully",
-  //   //   });
-
-  //   //   setShowPaymentDialog(false);
-  //   // } catch (error) {
-  //   //   console.error("Booking error:", error);
-  //   //   toast({
-  //   //     description:
-  //   //       error instanceof Error
-  //   //         ? error.message
-  //   //         : "Failed to book slot. Please contact support.",
-  //   //     variant: "destructive",
-  //   //   });
-  //   // } finally {
-  //   // }
-  // };
 
   const handlePaymentError = () => {
     setShowPaymentDialog(false);
@@ -220,23 +98,6 @@ export default function ProjectCard({
   };
 
   const handlePaymentSuccess = async (order: any) => {
-    // setShowPaymentDialog(true);
-
-    // TODO: Implement buy package
-    /* later
-    // create 8 bookings attached to package id
-    /*
-    
-    bookings:
-    - package_id
-    - payment_id
-    - status
-    - start_date
-    - end_date
-    - status
-    */
-    // schedule 8 bookings on google calendar
-    // trigger email to mentor -> google invite for now
     const session_count = sessions;
     const bookingsAPI = new Array(session_count).fill(0).map((_, index) => {
       return bookSlotAPI(
@@ -256,6 +117,7 @@ export default function ProjectCard({
   };
 
   const onEdit = () => {
+    setNavigating(true);
     redirect(`/project-hub/${package_id}/edit`);
   };
 
@@ -325,7 +187,11 @@ export default function ProjectCard({
           </div>
         )}
         {isMentor ? (
-          <Button className="w-full mt-2 text-lg py-6" onClick={onEdit}>
+          <Button
+            loading={navigating}
+            className="w-full mt-2 text-lg py-6"
+            onClick={onEdit}
+          >
             Edit Details
           </Button>
         ) : (

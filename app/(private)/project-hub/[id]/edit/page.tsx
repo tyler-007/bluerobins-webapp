@@ -132,12 +132,21 @@ export default function EditPage() {
     <div className="min-h-screen flex flex-col items-center">
       <div className="w-full p-8 relative">
         <div className="flex items-center mb-6">
-          <Button variant="ghost" size="icon" className="mr-2">
+          <Button
+            onClick={() => redirect(`/project-hub`)}
+            variant="ghost"
+            size="icon"
+            className="mr-2"
+          >
             <ArrowLeft className="w-6 h-6" />
           </Button>
           <h1 className="text-2xl font-bold flex-1">Edit project details</h1>
           <div className="flex justify-end gap-4 pt-4">
-            <Button variant="outline" type="button">
+            <Button
+              onClick={() => redirect(`/project-hub`)}
+              variant="outline"
+              type="button"
+            >
               Cancel
             </Button>
             <Button

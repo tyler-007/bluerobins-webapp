@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { useLayoutData } from "../../useLayoutData";
 import { createClient } from "@/utils/supabase/client";
+import { redirect } from "next/navigation";
 const sessionCount = 8;
 
 const resourceSchema = z.object({
@@ -67,7 +68,6 @@ const getValues = (project: any) => {
 
 export default function EditPage() {
   const project = useLayoutData();
-  console.log("PROJECT", project);
   const values = project ? getValues(project) : undefined;
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -106,27 +106,36 @@ export default function EditPage() {
         prerequisites: values.prereqs,
       })
       .eq("id", values.id);
-    console.log("Data", data, error);
+    redirect(`/project-hub`);
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center">
       <div className="w-full max-w-3xl p-8 relative">
-        <div className="flex items-center mb-6">
-          <Button variant="ghost" size="icon" className="mr-2">
-            <ArrowLeft className="w-6 h-6" />
-          </Button>
-          <h1 className="text-2xl font-bold flex-1">Edit Session details</h1>
-          <div className="flex justify-end gap-4 pt-4">
-            <Button variant="outline" type="button">
-              Cancel
-            </Button>
-            <Button type="submit" className="px-8">
-              Save
-            </Button>
-          </div>
-        </div>
         <Form {...form}>
+          <div className="flex items-center mb-6">
+            <Button
+              onClick={() => redirect(`/project-hub`)}
+              variant="ghost"
+              size="icon"
+              className="mr-2"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </Button>
+            <h1 className="text-2xl font-bold flex-1">Edit Session details</h1>
+            <div className="flex gap-4">
+              <Button
+                onClick={() => redirect(`/project-hub`)}
+                variant="outline"
+                type="button"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" className="px-8">
+                Save
+              </Button>
+            </div>
+          </div>
           <form
             className="space-y-8"
             onSubmit={form.handleSubmit(onSubmit)}
@@ -265,6 +274,8 @@ export default function EditPage() {
                 ))}
               </div>
             </div>
+
+            {/* Move the buttons inside the form */}
           </form>
         </Form>
       </div>
