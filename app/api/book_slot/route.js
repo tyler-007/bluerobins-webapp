@@ -77,6 +77,27 @@ export async function POST(request) {
     );
   }
 
+  if (project_id) {
+    const data = await supabase
+      .from("projects")
+      .select("*")
+      .eq("id", project_id)
+      .single();
+
+    if (data) {
+      await supabase
+        .from("projects")
+        .update({
+          filled_slots: (data.filled_slots ?? 0) + 1,
+        })
+        .eq("id", project_id);
+
+      if (projectError) {
+        console.log("Error updating project:", projectError);
+      }
+    }
+  }
+
   return NextResponse.json({
     status: true,
     message: "Slot booked successfully",

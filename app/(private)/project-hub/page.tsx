@@ -16,7 +16,9 @@ export default async function SearchPage() {
     return redirect("/");
   }
 
+  console.log("user", user);
+
   const { data: projects } = await supabase.from("projects").select("*");
 
-  return <View projects={projects} />;
+  return <View projects={projects} isMentor={user.user_metadata.is_mentor} />;
 }

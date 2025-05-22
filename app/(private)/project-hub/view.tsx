@@ -3,8 +3,11 @@ import logo from "../home/mascot.png";
 
 import ProjectCard from "@/app/components/ProjectCard";
 import dayjs from "dayjs";
-export default async function SearchPage(props: { projects: any[] }) {
-  const isMentor = true;
+export default async function SearchPage(props: {
+  projects: any[];
+  isMentor: boolean;
+}) {
+  const isMentor = props.isMentor;
 
   return (
     <>
