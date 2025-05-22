@@ -9,6 +9,8 @@ import { PaymentDialog } from "@/components/PaymentDialog";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { createCalendarEvent } from "@/lib/actions";
+import { redirect } from "next/navigation";
+
 interface ProjectCardProps {
   package_id: number;
   title: string;
@@ -254,7 +256,7 @@ export default function ProjectCard({
   };
 
   const onEdit = () => {
-    console.log("Edit Project");
+    redirect(`/project-hub/${package_id}/edit`);
   };
 
   return (

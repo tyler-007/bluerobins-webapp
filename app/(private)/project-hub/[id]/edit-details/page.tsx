@@ -14,7 +14,8 @@ import { z } from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
-
+import { useLayoutData } from "../../useLayoutData";
+import { createClient } from "@/utils/supabase/client";
 const sessionCount = 8;
 
 const resourceSchema = z.object({
@@ -27,6 +28,7 @@ const prereqSchema = z.object({
 });
 
 const formSchema = z.object({
+  id: z.number().min(1, "Project id is required"),
   sessionDescriptions: z
     .array(z.string())
     .length(sessionCount, `Must have ${sessionCount} sessions`),
@@ -37,6 +39,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const defaultValues: FormValues = {
+  id: 0,
   sessionDescriptions: Array(sessionCount).fill(""),
   tools: [
     { title: "SAM Platform + SAM Paper", url: "" },
@@ -51,10 +54,25 @@ const defaultValues: FormValues = {
   ],
 };
 
+const getValues = (project: any) => {
+  return {
+    id: project.id,
+    sessionDescriptions: project?.agenda?.map(
+      (agenda: any) => agenda.description
+    ),
+    tools: project?.tools,
+    prereqs: project?.prerequisites,
+  };
+};
+
 export default function EditPage() {
+  const project = useLayoutData();
+  console.log("PROJECT", project);
+  const values = project ? getValues(project) : undefined;
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
+    values,
     mode: "onChange",
   });
 
@@ -76,10 +94,22 @@ export default function EditPage() {
     name: "prereqs",
   });
 
-  const onSubmit = (values: FormValues) => {
+  const onSubmit = async (values: FormValues) => {
     // handle form submission
-    console.log(values);
+    console.log("Values", values);
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("projects")
+      .update({
+        agenda: values.sessionDescriptions,
+        tools: values.tools,
+        prerequisites: values.prereqs,
+      })
+      .eq("id", values.id);
+    console.log("Data", data, error);
   };
+
+  console.log("Form", form.getValues(), form.formState.errors);
 
   return (
     <div className="min-h-screen flex flex-col items-center">

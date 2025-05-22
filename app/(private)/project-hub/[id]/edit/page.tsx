@@ -23,8 +23,13 @@ import {
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { createClient } from "@/utils/supabase/client";
+import { useLayoutData } from "../../useLayoutData";
+import { defaultValues } from "@/app/(private)/home/types";
+import dayjs from "dayjs";
+import { redirect } from "next/navigation";
 const formSchema = z.object({
+  id: z.number().min(1, "Project id is required"),
   title: z.string().min(1, "Project title is required"),
   category: z.string().min(1, "Project category is required"),
   description: z.string().min(1, "Project description is required"),
@@ -43,24 +48,84 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+const getValues = (project: any) => {
+  const payload = {
+    id: project?.id,
+    title: project?.title,
+    category: project?.categories.join(", "),
+    description: project?.description,
+    sessions: project?.sessions_count,
+    spots: project?.spots,
+    startDate: dayjs(project?.start_date).format("YYYY-MM-DD"),
+    dayOfWeek: "Sunday",
+    time: dayjs(project?.session_time).format("HH:mm"),
+  };
+  return payload;
+};
+
+const SELLING_PRICE_COST_MAP = {
+  "8": {
+    selling_price: 1089,
+    cost_price: 839,
+  },
+  "12": {
+    selling_price: 1289,
+    cost_price: 900,
+  },
+};
+
 export default function EditPage() {
+  const project = useLayoutData();
+
+  const values = project ? getValues(project) : undefined;
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       category: "",
       description: "",
+      dayOfWeek: "",
       sessions: 8,
       spots: 1,
-      startDate: "",
-      dayOfWeek: "",
-      time: "",
     },
+    values,
   });
 
-  const onSubmit = (values: FormValues) => {
-    console.log(values);
+  const onSubmit = async (values: FormValues) => {
     // Handle form submission
+    const selling_price =
+      SELLING_PRICE_COST_MAP?.[
+        `${values.sessions}` as keyof typeof SELLING_PRICE_COST_MAP
+      ].selling_price;
+    const cost_price =
+      SELLING_PRICE_COST_MAP?.[
+        `${values.sessions}` as keyof typeof SELLING_PRICE_COST_MAP
+      ].cost_price;
+
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("projects")
+      .update({
+        title: values.title,
+        description: values.description,
+        categories: values.category.split(","),
+        sessions_count: values.sessions,
+        spots: values.spots,
+        start_date: dayjs(
+          `${values.startDate} ${values.time}`,
+          "YYYY-MM-DD HH:mm"
+        ).toDate(),
+        session_time: dayjs(
+          `${values.startDate} ${values.time}`,
+          "YYYY-MM-DD HH:mm"
+        ).toDate(),
+        session_day: values.dayOfWeek,
+        selling_price: selling_price,
+        cost_price: cost_price,
+      })
+      .eq("id", values.id);
+
+    redirect(`/project-hub/${values.id}/edit-details`);
   };
 
   return (
@@ -134,11 +199,7 @@ export default function EditPage() {
                     Project Description
                   </FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Explore how artificial intelligence is transforming learning experiences, personalizing education."
-                      rows={3}
-                      {...field}
-                    />
+                    <Textarea rows={3} {...field} />
                   </FormControl>
                   <FormMessage />
                   <div className="text-gray-400 text-sm mt-1">
@@ -226,36 +287,42 @@ export default function EditPage() {
               <FormField
                 control={form.control}
                 name="dayOfWeek"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel className="font-semibold text-lg">
-                      Day of the week
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a day" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Monday">Monday</SelectItem>
-                        <SelectItem value="Tuesday">Tuesday</SelectItem>
-                        <SelectItem value="Wednesday">Wednesday</SelectItem>
-                        <SelectItem value="Thursday">Thursday</SelectItem>
-                        <SelectItem value="Friday">Friday</SelectItem>
-                        <SelectItem value="Saturday">Saturday</SelectItem>
-                        <SelectItem value="Sunday">Sunday</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    <div className="text-gray-400 text-sm mt-1">
-                      Which day will sessions take place?
-                    </div>
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  return (
+                    <FormItem className="flex-1">
+                      <FormLabel className="font-semibold text-lg">
+                        Day of the week
+                      </FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          if (!value) return;
+                          field.onChange(value);
+                        }}
+                        defaultValue={field.value}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a day" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Monday">Monday</SelectItem>
+                          <SelectItem value="Tuesday">Tuesday</SelectItem>
+                          <SelectItem value="Wednesday">Wednesday</SelectItem>
+                          <SelectItem value="Thursday">Thursday</SelectItem>
+                          <SelectItem value="Friday">Friday</SelectItem>
+                          <SelectItem value="Saturday">Saturday</SelectItem>
+                          <SelectItem value="Sunday">Sunday</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                      <div className="text-gray-400 text-sm mt-1">
+                        Which day will sessions take place?
+                      </div>
+                    </FormItem>
+                  );
+                }}
               />
             </div>
 

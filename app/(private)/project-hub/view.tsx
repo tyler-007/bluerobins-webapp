@@ -4,7 +4,7 @@ import logo from "../home/mascot.png";
 import ProjectCard from "@/app/components/ProjectCard";
 import dayjs from "dayjs";
 export default async function SearchPage(props: { projects: any[] }) {
-  const isMentor = false;
+  const isMentor = true;
 
   return (
     <>
