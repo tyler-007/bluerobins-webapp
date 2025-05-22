@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { InfoIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 
-import View from "./MentorView";
+import View from "./view";
 
 export default async function SearchPage() {
   const supabase = await createClient();
@@ -16,10 +16,7 @@ export default async function SearchPage() {
     return redirect("/");
   }
 
-  const { data: new_mentors } = await supabase
-    .from("mentor_profiles")
-    .select("*, ...profiles(*)");
-  const allMentors = [...(new_mentors ?? [])];
+  const { data: projects } = await supabase.from("projects").select("*");
 
-  return <View mentors={allMentors} />;
+  return <View projects={projects} />;
 }

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -14,11 +14,19 @@ import { Badge } from "@/components/ui/badge";
 
 export default function ProjectDetailsButton({
   project,
-  userId,
-  name,
-  email,
 }: {
-  project?: any;
+  project: {
+    title: string;
+    description: string;
+    sessions: number;
+    startDate: string;
+    endDate: string;
+    time: string;
+    day: string;
+    agenda: { description: string }[];
+    tools: { title: string; url: string }[];
+    prerequisites: { title: string; url: string }[];
+  };
   userId?: string;
   name?: string;
   email?: string;
@@ -88,81 +96,50 @@ export default function ProjectDetailsButton({
             </div>
             <h2 className="text-xl font-bold">Session Details</h2>
             <div className="grid grid-cols-[auto_1fr] gap-2 -mt-3 text-lg">
-              <span className="font-medium">Session 1:</span>
-              <span>Introduction to the project</span>
-              <span className="font-medium">Session 2:</span>
-              <span>
-                Introduction to the project. Introduction to the project.
-                Introduction to the project. Introduction to the project
-              </span>
-              <span className="font-medium">Session 3:</span>
-              <span>Introduction to the project</span>
-              <span className="font-medium">Session 4:</span>
-              <span>Introduction to the project</span>
-              <span className="font-medium">Session 5:</span>
-              <span>Introduction to the project</span>
-              <span className="font-medium">Session 6:</span>
-              <span>Introduction to the project</span>
-              <span className="font-medium">Session 7:</span>
-              <span>Introduction to the project</span>
-              <span className="font-medium">Session 8:</span>
-              <span>Introduction to the project</span>
+              {project.agenda.map((agenda, index) => (
+                <Fragment key={index}>
+                  <span className="font-medium">Session {index + 1}:</span>
+                  <span>{agenda.description}</span>
+                </Fragment>
+              ))}
             </div>
             <h2 className="text-xl font-bold">Prerequisites</h2>
             <div className="flex flex-wrap gap-2 -mt-3">
-              <a
-                href="https://www.python.org/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Badge className="cursor-pointer hover:bg-secondary/80 flex items-center gap-2 px-4 text-base">
-                  Python
-                  <ExternalLink className="w-5 h-5" />
-                </Badge>
-              </a>
-              <a
-                href="https://www.javascript.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Badge className="cursor-pointer hover:bg-secondary/80 flex items-center gap-2 px-4 text-base">
-                  JavaScript
-                  <ExternalLink className="w-5 h-5" />
-                </Badge>
-              </a>
+              {project.prerequisites
+                .sort((a, b) => (a.url ? 1 : -1) - (b.url ? 1 : -1))
+                .map(({ title, url }, index) =>
+                  url ? (
+                    <a href={url} target="_blank" rel="noopener noreferrer">
+                      <Badge className="cursor-pointer text-primary bg-transparent border border-primary hover:bg-secondary/80 flex items-center gap-2 px-4 text-base">
+                        {title}
+                        <ExternalLink className="w-5 h-5" />
+                      </Badge>
+                    </a>
+                  ) : (
+                    <Badge className=" hover:bg-secondary/80 flex items-center gap-2 px-4 text-base">
+                      {title}
+                    </Badge>
+                  )
+                )}
             </div>
             <h2 className="text-xl font-bold">Tools & Resources</h2>
             <div className="flex flex-wrap gap-2 -mt-3">
-              <a
-                href="https://code.visualstudio.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Badge className="cursor-pointer hover:bg-secondary/80 flex items-center gap-2 px-4 text-base">
-                  VS Code
-                  <ExternalLink className="w-3 h-3" />
-                </Badge>
-              </a>
-              <a
-                href="https://git-scm.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Badge className="cursor-pointer hover:bg-secondary/80 flex items-center gap-2 px-4 text-base">
-                  Git
-                  <ExternalLink className="w-3 h-3" />
-                </Badge>
-              </a>
-              <a
-                href="https://github.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Badge className="cursor-pointer hover:bg-secondary/80 flex items-center gap-2 px-4 text-base">
-                  GitHub
-                  <ExternalLink className="w-3 h-3" />
-                </Badge>
-              </a>
+              {project.tools
+                .sort((a, b) => (a.url ? 1 : -1) - (b.url ? 1 : -1))
+                .map(({ title, url }, index) =>
+                  url ? (
+                    <a href={url} target="_blank" rel="noopener noreferrer">
+                      <Badge className="cursor-pointer text-primary bg-transparent border border-primary hover:bg-secondary/80 flex items-center gap-2 px-4 text-base">
+                        {title}
+                        <ExternalLink className="w-5 h-5" />
+                      </Badge>
+                    </a>
+                  ) : (
+                    <Badge className=" hover:bg-secondary/80 flex items-center gap-2 px-4 text-base">
+                      {title}
+                    </Badge>
+                  )
+                )}
             </div>
           </div>
         </div>

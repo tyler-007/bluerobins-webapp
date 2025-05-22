@@ -8,7 +8,8 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 export async function POST(request) {
   const supabase = await createClient();
   const req = await request.json();
-  const { by_user, for_user, start_time, end_time, payment_id } = req;
+  const { for_user, start_time, end_time, payment_id, project_id, details } =
+    req;
   const { data: user } = await supabase.auth.getUser();
 
   const { data, error } = await supabase
@@ -19,7 +20,9 @@ export async function POST(request) {
       start_time,
       end_time,
       payment_id,
+      project_id,
       payment_status: "confirmed",
+      payment_details: details,
     })
     .select();
 
