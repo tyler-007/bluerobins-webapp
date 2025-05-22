@@ -92,6 +92,8 @@ export default async function HomePage() {
   const profileKey = isMentor ? "mentor_profiles" : "student_profiles";
   const userKey = isMentor ? "user_id" : "id";
 
+  console.log("PROFILE KEY:", profileKey, userKey, user.id);
+
   const [profileResult, bookingsResult, bookingConfigResult] =
     await Promise.allSettled([
       supabase.from(profileKey).select("*").eq(userKey, user.id).single(),
@@ -160,7 +162,7 @@ export default async function HomePage() {
               <span className="text-lg font-bold">
                 {user?.user_metadata?.full_name}
               </span>
-              {/* {isMentor ? (
+              {isMentor ? (
                 <MentorProfileEdit
                   profile={profile}
                   email={user?.email ?? ""}
@@ -169,7 +171,7 @@ export default async function HomePage() {
                 />
               ) : (
                 <StudentOnboarding profile={profile} userId={user.id} />
-              )} */}
+              )}
             </div>
           </div>
         </div>

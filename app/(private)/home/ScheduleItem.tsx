@@ -2,7 +2,7 @@
 
 import { useProfile } from "@/app/hooks/useProfile";
 import { ChatView } from "@/views/ChatView";
-import { Video } from "lucide-react";
+import { Clock, Video } from "lucide-react";
 import Link from "next/link";
 const ScheduleItem = ({
   title,
@@ -53,7 +53,10 @@ const ScheduleItem = ({
             </Link>
           </button>
         ) : (
-          <span>Link not available</span>
+          <button className="bg-[#2953BE] border-[#2953BE] border-[1.5px] gap-2  text-white rounded-xl px-4 py-1 text-base flex flex-row flex-1 items-center justify-center">
+            <Clock className="w-5 h-5" />
+            <span>Schedule</span>
+          </button>
         )}
       </div>
     </div>
