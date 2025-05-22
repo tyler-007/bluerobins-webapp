@@ -31,15 +31,22 @@ export async function POST(request) {
 
   console.log("Mentor Details:", mentorDetails);
 
-  const { eventId, meetLink } = await createCalendarEvent({
-    summary: title,
-    description: description,
-    location: "Virtual Meeting",
-    startDateTime: dayjs(start_time).format("YYYY-MM-DDTHH:mm:ssZ"),
-    endDateTime: dayjs(end_time).format("YYYY-MM-DDTHH:mm:ssZ"),
-    attendees: [{ email: mentorDetails.email }, { email: user.user.email }],
-    externalRecorderEmail: "tools@bluerobins.com",
-  });
+  let eventId, meetLink;
+  try {
+    const info = await createCalendarEvent({
+      summary: title,
+      description: description,
+      location: "Virtual Meeting",
+      startDateTime: dayjs(start_time).format("YYYY-MM-DDTHH:mm:ssZ"),
+      endDateTime: dayjs(end_time).format("YYYY-MM-DDTHH:mm:ssZ"),
+      attendees: [{ email: mentorDetails.email }, { email: user.user.email }],
+      externalRecorderEmail: "tools@bluerobins.com",
+    });
+    eventId = info.eventId;
+    meetLink = info.meetLink;
+  } catch (error) {
+    console.log("Error creating event:", error);
+  }
 
   const { data, error } = await supabase
     .from("bookings")

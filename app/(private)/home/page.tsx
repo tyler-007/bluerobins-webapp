@@ -95,7 +95,12 @@ export default async function HomePage() {
   const [profileResult, bookingsResult, bookingConfigResult] =
     await Promise.allSettled([
       supabase.from(profileKey).select("*").eq(userKey, user.id).single(),
-      supabase.from("bookings").select("*").eq(filterKey, user.id),
+      supabase
+        .from("bookings")
+        .select("*")
+        .gte("start_time", dayjs().format("YYYY-MM-DDTHH:mm:ssZ"))
+        .order("start_time", { ascending: true })
+        .eq(filterKey, user.id),
       supabase
         .from("booking_configs")
         .select("*")
@@ -135,6 +140,7 @@ export default async function HomePage() {
             <ScheduleItem
               key={booking.id}
               mentorId={booking.for}
+              eventLink={booking.event_link}
               userType={userType}
               studentId={booking.by}
               description="Research product discussion"
