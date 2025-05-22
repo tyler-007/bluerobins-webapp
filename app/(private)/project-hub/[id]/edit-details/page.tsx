@@ -109,8 +109,6 @@ export default function EditPage() {
     console.log("Data", data, error);
   };
 
-  console.log("Form", form.getValues(), form.formState.errors);
-
   return (
     <div className="min-h-screen flex flex-col items-center">
       <div className="w-full max-w-3xl p-8 relative">
