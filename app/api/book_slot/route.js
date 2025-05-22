@@ -4,13 +4,42 @@ import { createAdminClient } from "@/utils/supabase/admin";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-
+import { createCalendarEvent } from "@/lib/actions";
 export async function POST(request) {
   const supabase = await createClient();
   const req = await request.json();
-  const { for_user, start_time, end_time, payment_id, project_id, details } =
-    req;
+  const {
+    for_user,
+    start_time,
+    end_time,
+    payment_id,
+    project_id,
+    details,
+    title,
+    description,
+  } = req;
   const { data: user } = await supabase.auth.getUser();
+
+  //May be get mentor email
+  console.log("User:", user.user.email, start_time, end_time);
+
+  const mentorDetails = await supabase
+    .from("profiles")
+    .select("email")
+    .eq("id", for_user)
+    .single();
+
+  console.log("Mentor Details:", mentorDetails);
+
+  const { eventId, meetLink } = await createCalendarEvent({
+    summary: title,
+    description: description,
+    location: "Virtual Meeting",
+    startDateTime: dayjs(start_time).format("YYYY-MM-DDTHH:mm:ssZ"),
+    endDateTime: dayjs(end_time).format("YYYY-MM-DDTHH:mm:ssZ"),
+    attendees: [{ email: mentorDetails.email }, { email: user.user.email }],
+    externalRecorderEmail: "tools@bluerobins.com",
+  });
 
   const { data, error } = await supabase
     .from("bookings")
@@ -23,6 +52,10 @@ export async function POST(request) {
       project_id,
       payment_status: "confirmed",
       payment_details: details,
+      event_id: eventId,
+      event_link: meetLink,
+      title: title,
+      description: description,
     })
     .select();
 

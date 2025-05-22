@@ -8,6 +8,7 @@ import { toast } from "@/components/ui/use-toast";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { useState } from "react";
 import dayjs from "dayjs";
+import { createCalendarEvent } from "@/lib/actions";
 interface ProjectCardProps {
   package_id: number;
   title: string;
@@ -54,16 +55,33 @@ export default function ProjectCard({
     mentor_user: string,
     startDate: string,
     session_number: number,
-    package_id: number
+    package_id: number,
+    title: string,
+    description: string
   ) => {
     const start_time = dayjs(startDate)
       .add(session_number, "day")
-      .format("YYYY-MM-DD");
-    const end_time = dayjs(start_time).add(1, "hour").format("YYYY-MM-DD");
+      .format("YYYY-MM-DDTHH:mm:ssZ");
+    const end_time = dayjs(start_time)
+      .add(1, "hour")
+      .format("YYYY-MM-DDTHH:mm:ssZ");
+
+    //   const res = await createCalendarEvent({
+    //     summary: "Test Event",
+    //     description: "Test Description",
+    //     location: "Test Location",
+
+    //     attendees: [{ email: "nishanthShankr@gmail.com" }],
+    //     host: "nishanthShankr@gmail.com",
+    //   });
+    // const event_id = "ASb";
+    // const event_link = "https://meet.google.com/ASb";
     return fetch("/api/book_slot", {
       method: "POST",
       body: JSON.stringify({
         for_user: mentor_user,
+        title: title,
+        description: `Session ${session_number + 1} of ${sessions}`,
         start_time,
         end_time,
         payment_id: order.id,
@@ -74,6 +92,7 @@ export default function ProjectCard({
 
   const onBuyPackage = async (order: any) => {
     setShowPaymentDialog(true);
+    console.log("Buy Packagessss:");
   };
   // const handlePaymentSuccess = async (order: any) => {
   //   console.log("Payment success", order);
@@ -216,9 +235,17 @@ export default function ProjectCard({
     */
     // schedule 8 bookings on google calendar
     // trigger email to mentor -> google invite for now
-    const session_count = 2;
+    const session_count = sessions;
     const bookingsAPI = new Array(session_count).fill(0).map((_, index) => {
-      return bookSlotAPI(order, mentor_user, startDate, index, package_id);
+      return bookSlotAPI(
+        order,
+        mentor_user,
+        startDate,
+        index,
+        package_id,
+        title,
+        description
+      );
     });
 
     const res = await Promise.all(bookingsAPI);
