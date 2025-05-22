@@ -34,11 +34,11 @@ export default function ChatScreen({ channel_id, onBack }: ChatScreenProps) {
   const channelMessages = supabase.channel(`channel_messages_${channel_id}`);
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const { data: oldMessages } = useGetMessages(channel_id);
 
   const { data: user } = useUser();
-
   const userId = user?.id ?? "";
+  const { data: oldMessages } = useGetMessages(channel_id, userId);
+
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
 
@@ -68,6 +68,11 @@ export default function ChatScreen({ channel_id, onBack }: ChatScreenProps) {
       return;
     }
     if (!payload.old.id && payload.new.id) {
+      payload.new.read_by = userId;
+      await supabase
+        .from("channel_messages")
+        .update({ read_by: userId })
+        .eq("id", payload.new.id);
       // Push message to ,essages
       setMessages((prev) => [...prev, payload.new]);
     }

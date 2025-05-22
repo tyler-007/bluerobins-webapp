@@ -92,10 +92,17 @@ export default async function HomePage() {
   const profileKey = isMentor ? "mentor_profiles" : "student_profiles";
   const userKey = isMentor ? "user_id" : "id";
 
+  console.log("PROFILE KEY:", profileKey, userKey, user.id);
+
   const [profileResult, bookingsResult, bookingConfigResult] =
     await Promise.allSettled([
       supabase.from(profileKey).select("*").eq(userKey, user.id).single(),
-      supabase.from("bookings").select("*").eq(filterKey, user.id),
+      supabase
+        .from("bookings")
+        .select("*")
+        .gte("start_time", dayjs().format("YYYY-MM-DDTHH:mm:ssZ"))
+        .order("start_time", { ascending: true })
+        .eq(filterKey, user.id),
       supabase
         .from("booking_configs")
         .select("*")
@@ -135,6 +142,7 @@ export default async function HomePage() {
             <ScheduleItem
               key={booking.id}
               mentorId={booking.for}
+              eventLink={booking.event_link}
               userType={userType}
               studentId={booking.by}
               description="Research product discussion"
@@ -154,7 +162,6 @@ export default async function HomePage() {
               <span className="text-lg font-bold">
                 {user?.user_metadata?.full_name}
               </span>
-              {/* <span className="text-[#2953BE]">{user?.email}</span> */}
               {isMentor ? (
                 <MentorProfileEdit
                   profile={profile}

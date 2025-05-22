@@ -31,7 +31,7 @@ export default function StudentProfileEdit({
   profile = profile || {};
   const [show, setShow] = useState(!profile.institution_name);
   const { toast } = useToast();
-
+  console.log("PRAO:", profile);
   const values = profile
     ? {
         studentType: profile.student_type || undefined,
