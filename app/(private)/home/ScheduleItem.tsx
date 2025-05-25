@@ -24,6 +24,8 @@ const ScheduleItem = ({
   eventLink?: string;
 }) => {
   const profileId = userType === "mentor" ? studentId : mentorId;
+  const senderId = userType === "mentor" ? mentorId : studentId;
+  const receiverId = userType === "mentor" ? studentId : mentorId;
   const { data: profile } = useProfile(profileId);
   // const { data: user } = useUser();
 
@@ -40,7 +42,11 @@ const ScheduleItem = ({
       </span>
       {/* <span className="text-sm text-gray-500">{description}</span> */}
       <div className="flex flex-row flex-1 gap-4 items-center mt-4">
-        <ChatView name={`s_${studentId}:m_${mentorId}`} />
+        <ChatView
+          name={`s_${studentId}:m_${mentorId}`}
+          senderId={senderId}
+          receiverId={receiverId}
+        />
         {eventLink ? (
           <button className="bg-[#2953BE] border-[#2953BE] border-[1.5px] gap-2  text-white rounded-xl px-4 py-1 text-base flex flex-row flex-1 items-center justify-center">
             <Link

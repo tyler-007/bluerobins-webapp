@@ -90,7 +90,11 @@ export default function MentorItem({
           Chat
         </Button> */}
         {user?.id && mentor.user_id && (
-          <ChatView name={`s_${user?.id}:m_${mentor.user_id}`} />
+          <ChatView
+            name={`s_${user?.id}:m_${mentor.user_id}`}
+            senderId={user?.id}
+            receiverId={mentor.user_id}
+          />
         )}
         <Button
           className="text-sm py-2 bg-[#B78727] hover:bg-[#9b7421] text-white"

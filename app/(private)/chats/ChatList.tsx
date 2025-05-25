@@ -8,27 +8,29 @@ import { cn } from "@/lib/utils";
 export default function ChatList({
   myChannels,
   lastMessageObject,
+  unreadCount,
 }: {
   myChannels: any;
   lastMessageObject: any;
+  unreadCount?: number;
 }) {
   const { id } = useParams();
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow divide-y">
+    <div className="w-full max-w-md mx-auto divide-y border-[#DDD] border-b">
       {myChannels.map((chat: any) => (
         <Link
           key={chat.channel_id}
           href={`/chats/${chat.channel_id}`}
           className={cn(
-            "flex items-center px-4 py-3 hover:bg-gray-50 transition",
-            id === chat.channel_id && "bg-primary/10"
+            "flex items-center px-4 py-3 hover:bg-[#E0E6F6] transition",
+            id === chat.channel_id && "bg-[#E0E6F6]"
           )}
         >
           <Image
             src={chat.avatar}
             alt={chat.name}
-            width={48}
-            height={48}
+            width={56}
+            height={56}
             className="rounded-full object-cover"
           />
           <div className="flex-1 ml-4 min-w-0">
@@ -38,7 +40,7 @@ export default function ChatList({
               </span>
               <span
                 className={cn(
-                  "text-xs text-gray-400 ml-2 whitespace-nowrap",
+                  "text-xs text-[#2953BE] ml-2 whitespace-nowrap",
                   id === chat.channel_id && "hidden"
                 )}
               >
@@ -49,12 +51,19 @@ export default function ChatList({
             </div>
             <div
               className={cn(
-                "text-sm text-gray-600 truncate",
+                "flex justify-between text-gray-600 truncate",
                 id === chat.channel_id && "hidden"
               )}
             >
-              {lastMessageObject[chat.channel_id]?.message ??
-                "Hello, how are you?"}
+              <span>
+                {lastMessageObject[chat.channel_id]?.message ??
+                  "Click to see messages"}
+              </span>
+              {unreadCount && (
+                <div className="h-6 w-6 flex items-center justify-center bg-[#2953BE] text-white text-sm rounded-full">
+                  <span className="text-sm">{unreadCount}</span>
+                </div>
+              )}
             </div>
           </div>
         </Link>

@@ -17,10 +17,14 @@ export const ChatView = ({
   id,
   name,
   mentorId,
+  senderId,
+  receiverId,
 }: {
   id?: string;
   name?: string;
   mentorId?: string;
+  senderId: string;
+  receiverId: string;
 }) => {
   const { data: user } = useUser();
   const userId = user?.id;
@@ -52,6 +56,8 @@ export const ChatView = ({
           <ChatScreen
             channel_id={channel_id}
             userId={userId}
+            senderId={senderId}
+            receiverId={receiverId}
             onBack={() => {}}
           />
         )}
