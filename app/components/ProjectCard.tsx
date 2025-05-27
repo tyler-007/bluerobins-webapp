@@ -4,12 +4,10 @@ import { Calendar, Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Chip from "@/components/chip";
 import ProjectDetailsButton from "@/app/(private)/project-hub/ProjectDetailsButton";
-import { toast } from "@/components/ui/use-toast";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { useState } from "react";
 import dayjs from "dayjs";
-import { createCalendarEvent } from "@/lib/actions";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 interface ProjectCardProps {
   package_id: number;
@@ -52,6 +50,7 @@ export default function ProjectCard({
 }: ProjectCardProps) {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [navigating, setNavigating] = useState(false);
+  const router = useRouter();
   const bookSlotAPI = async (
     order: any,
     mentor_user: string,
@@ -118,7 +117,7 @@ export default function ProjectCard({
 
   const onEdit = () => {
     setNavigating(true);
-    redirect(`/project-hub/${package_id}/edit`);
+    router.push(`/project-hub/${package_id}/edit`);
   };
 
   return (

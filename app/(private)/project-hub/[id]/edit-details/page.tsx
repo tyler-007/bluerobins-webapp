@@ -13,10 +13,10 @@ import {
 import { z } from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import React, { Fragment } from "react";
 import { useLayoutData } from "../../useLayoutData";
 import { createClient } from "@/utils/supabase/client";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 const sessionCount = 8;
 
 const resourceSchema = z.object({
@@ -42,8 +42,16 @@ type FormValues = z.infer<typeof formSchema>;
 const defaultValues: FormValues = {
   id: 0,
   sessionDescriptions: Array(sessionCount).fill(""),
-  tools: [],
-  prereqs: [],
+  tools: [
+    { title: "", url: "" },
+    { title: "", url: "" },
+    { title: "", url: "" },
+  ],
+  prereqs: [
+    { title: "", url: "" },
+    { title: "", url: "" },
+    { title: "", url: "" },
+  ],
 };
 
 const getValues = (project: any) => {
@@ -59,6 +67,7 @@ const getValues = (project: any) => {
 
 export default function EditPage() {
   const project = useLayoutData();
+  const router = useRouter();
   const values = project ? getValues(project) : undefined;
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -101,12 +110,12 @@ export default function EditPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center">
-      <div className="w-full max-w-3xl p-8 relative">
+    <div className="min-h-screen grid grid-cols-[1fr] w-full items-center">
+      <div className="w-full p-8 relative">
         <Form {...form}>
           <div className="flex items-center mb-6">
             <Button
-              onClick={() => redirect(`/project-hub`)}
+              onClick={() => router.back()}
               variant="ghost"
               size="icon"
               className="mr-2"
@@ -116,7 +125,7 @@ export default function EditPage() {
             <h1 className="text-2xl font-bold flex-1">Edit Session details</h1>
             <div className="flex gap-4">
               <Button
-                onClick={() => redirect(`/project-hub`)}
+                onClick={() => router.back()}
                 variant="outline"
                 type="button"
               >
@@ -137,21 +146,28 @@ export default function EditPage() {
               <label className="font-semibold text-lg block mb-3">
                 Write a description for each sessions
               </label>
-              <div className="space-y-3">
+              <div className="space-y-3 grid grid-cols-[auto_1fr] gap-4 items-center">
                 {Array.from({ length: sessionCount }).map((_, i) => (
-                  <FormField
-                    key={i}
-                    control={form.control}
-                    name={`sessionDescriptions.${i}`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input {...field} placeholder={`Session ${i + 1}`} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <Fragment key={i}>
+                    <span className="text-lg text-black mt-2">
+                      Session {i + 1} :
+                    </span>
+                    <FormField
+                      control={form.control}
+                      name={`sessionDescriptions.${i}`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder={`Session ${i + 1}`}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </Fragment>
                 ))}
               </div>
             </div>
@@ -270,6 +286,7 @@ export default function EditPage() {
           </form>
         </Form>
       </div>
+      {/* <div className="bg-white h-full "></div> */}
     </div>
   );
 }

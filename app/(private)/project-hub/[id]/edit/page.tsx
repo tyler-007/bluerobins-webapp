@@ -27,7 +27,8 @@ import { createClient } from "@/utils/supabase/client";
 import { useLayoutData } from "../../useLayoutData";
 import { defaultValues } from "@/app/(private)/home/types";
 import dayjs from "dayjs";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
+
 const formSchema = z.object({
   id: z.number().min(1, "Project id is required"),
   title: z.string().min(1, "Project title is required"),
@@ -76,7 +77,7 @@ const SELLING_PRICE_COST_MAP = {
 
 export default function EditPage() {
   const project = useLayoutData();
-
+  const router = useRouter();
   const values = project ? getValues(project) : undefined;
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -129,11 +130,11 @@ export default function EditPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center">
+    <div className="min-h-screen w-full grid grid-cols-[1fr] items-center">
       <div className="w-full p-8 relative">
         <div className="flex items-center mb-6">
           <Button
-            onClick={() => redirect(`/project-hub`)}
+            onClick={() => router.back()}
             variant="ghost"
             size="icon"
             className="mr-2"
@@ -143,13 +144,14 @@ export default function EditPage() {
           <h1 className="text-2xl font-bold flex-1">Edit project details</h1>
           <div className="flex justify-end gap-4 pt-4">
             <Button
-              onClick={() => redirect(`/project-hub`)}
+              onClick={() => router.back()}
               variant="outline"
               type="button"
             >
               Cancel
             </Button>
             <Button
+              loading={form.formState.isSubmitting}
               type="submit"
               className="px-8"
               onClick={form.handleSubmit(onSubmit)}
@@ -367,6 +369,7 @@ export default function EditPage() {
           </form>
         </Form>
       </div>
+      {/* <div className="bg-white h-full "></div> */}
     </div>
   );
 }
