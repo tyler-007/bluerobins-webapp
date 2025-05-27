@@ -42,17 +42,8 @@ type FormValues = z.infer<typeof formSchema>;
 const defaultValues: FormValues = {
   id: 0,
   sessionDescriptions: Array(sessionCount).fill(""),
-  tools: [
-    { title: "SAM Platform + SAM Paper", url: "" },
-    { title: "Python", url: "" },
-    { title: "Kaggle brain tumor dataset", url: "" },
-    { title: "Jupyter Notebooks", url: "" },
-  ],
-  prereqs: [
-    { title: "CNN basics", url: "" },
-    { title: "Image data handling", url: "" },
-    { title: "Python programming", url: "" },
-  ],
+  tools: [],
+  prereqs: [],
 };
 
 const getValues = (project: any) => {

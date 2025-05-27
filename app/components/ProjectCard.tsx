@@ -122,7 +122,7 @@ export default function ProjectCard({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 w-[30%] max-w-sm flex flex-col justify-between ">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between ">
       <div>
         <h2 className="text-2xl font-bold mb-1">{title}</h2>
 

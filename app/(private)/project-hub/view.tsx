@@ -1,21 +1,38 @@
+"use client";
 import Image from "next/image";
 import logo from "../home/mascot.png";
 
 import ProjectCard from "@/app/components/ProjectCard";
 import dayjs from "dayjs";
-export default async function SearchPage(props: {
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+
+export default async function ProjectHubView(props: {
   projects: any[];
   isMentor: boolean;
+  hideHeader?: boolean;
 }) {
   const isMentor = props.isMentor;
+  const router = useRouter();
 
   return (
     <>
       <div className="flex flex-col gap-4 w-full p-6">
-        <div className="flex flex-row gap-4 items-center">
-          <Image src={logo} alt="logo" width={48} height={48} />
-          <h1 className="text-2xl font-bold ">Find your perfect mentor</h1>
-        </div>
+        {!props.hideHeader && (
+          <div className="flex flex-row gap-4 items-center">
+            <Image src={logo} alt="logo" width={48} height={48} />
+            <h1 className="text-2xl font-bold ">Project Hub</h1>
+            {isMentor && (
+              <Button
+                loadOnClick
+                variant="outline"
+                onClick={() => router.push("/project-hub/create")}
+              >
+                Create New
+              </Button>
+            )}
+          </div>
+        )}
         <div className="flex flex-wrap gap-4">
           {props.projects.map((project) => (
             <ProjectCard
@@ -43,48 +60,6 @@ export default async function SearchPage(props: {
               prerequisites={project.prerequisites}
             />
           ))}
-          {/* <ProjectCard
-            isMentor={isMentor}
-            title="Data Science Project"
-            description="Explore how artificial intelligence is transforming learning experiences…"
-            tags={["Data science", "8 weeks"]}
-            duration="8 weeks"
-            sessions={8}
-            time="4:00 PM"
-            day="Tuesdays"
-            startDate="May 14"
-            endDate="June 10"
-            spotsLeft={1}
-            price={839}
-          />
-          <ProjectCard
-            isMentor={isMentor}
-            title="Data Science Project"
-            description="Explore how artificial intelligence is transforming learning experiences…"
-            tags={["Data science", "8 weeks"]}
-            duration="8 weeks"
-            sessions={8}
-            time="4:00 PM"
-            day="Tuesdays"
-            startDate="May 14"
-            endDate="June 10"
-            spotsLeft={1}
-            price={839}
-          />
-          <ProjectCard
-            isMentor={isMentor}
-            title="Data Science Project"
-            description="Explore how artificial intelligence is transforming learning experiences…"
-            tags={["Data science", "8 weeks"]}
-            duration="8 weeks"
-            sessions={8}
-            time="4:00 PM"
-            day="Tuesdays"
-            startDate="May 14"
-            endDate="June 10"
-            spotsLeft={1}
-            price={839}
-          /> */}
         </div>
       </div>
       {/* <div className="flex min-w-80 relative flex-col  p-5 gap-5  ">
