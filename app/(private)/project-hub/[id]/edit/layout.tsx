@@ -16,7 +16,7 @@ export default async function ProjectLayout({
   params,
 }: Readonly<{
   children: React.ReactNode;
-  params: { id: string };
+  params: any;
 }>) {
   const layoutData = await fetchLayoutData(params.id);
   console.log("Layout Data", layoutData);
