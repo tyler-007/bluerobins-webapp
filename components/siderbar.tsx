@@ -82,7 +82,7 @@ export default function Sidebar() {
             }}
             key={option.href}
             className={cn(
-              "cursor-pointer flex flex-row gap-4 pl-7 items-center h-14 text-[#fff3]",
+              "cursor-pointer flex flex-row gap-4 pl-7 items-center h-14 text-[#ffff]",
               isActive && "bg-[#2953BE]",
               isActive && "text-white"
             )}
