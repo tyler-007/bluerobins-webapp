@@ -60,8 +60,11 @@ const config = {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
-        chatGreen: {
-          DEFAULT: "#D9FDD3",
+        chatBlue: {
+          DEFAULT: "#BCE9FF8A",
+        },
+        chatOrange: {
+          DEFAULT: "#FFE3BC8C",
         },
         card: {
           DEFAULT: "hsl(var(--card))",

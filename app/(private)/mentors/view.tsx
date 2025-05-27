@@ -10,7 +10,11 @@ import { Button } from "@/components/ui/button";
 import { ChatView } from "@/views/ChatView/index";
 import { BookingFlow } from "@/views/BookingFlow/index";
 import { GoogleMeetButton } from "@/components/GoogleMeetButton";
+import { useUser } from "@/app/hooks/useUser";
+
 const MentorCard = ({ mentor }: { mentor: any }) => {
+  const { data: user } = useUser();
+  const userId = user?.id ?? "";
   return (
     <div className="flex flex-1 bg-white rounded-2xl border  border-gray-200 ">
       <div className="flex-1 grid grid-cols-[auto_auto_1fr] gap-x-4 gap-y-1 p-6 auto-rows-max">
@@ -42,7 +46,12 @@ const MentorCard = ({ mentor }: { mentor: any }) => {
         )}
         <div className="flex-1"></div>
         <BookingFlow mentor={mentor} />
-        <ChatView name={``} mentorId={mentor.id} />
+        <ChatView
+          name={``}
+          mentorId={mentor.id}
+          senderId={userId}
+          receiverId={mentor.id}
+        />
         {/* <Button variant="mutedOutline">View profile</Button> */}
         {/* <GoogleMeetButton /> */}
       </div>

@@ -10,6 +10,9 @@ import { useProfile } from "@/app/hooks/useProfile";
 import ScheduleItem from "./ScheduleItem";
 import StudentOnboarding from "./StudentOnboarding";
 import MentorProfileEdit from "./MentorProfileEdit";
+import { Button } from "@/components/ui/button";
+import ProjectHubView from "../project-hub/view";
+import ProjectCard from "@/app/components/ProjectCard";
 const ExploreItem = ({
   title,
   description,
@@ -58,13 +61,14 @@ const TimeSlots = ({
     <>
       <span>{day}</span>
       {!availability?.length ? (
-        <span>Unavailable</span>
+        <span className="text-sm text-gray-500">Unavailable</span>
       ) : (
         (availability ?? []).map((item: any, index: number) => (
           <>
             {index > 0 && <div />}
             <span>
-              {item.start} - {item.end}
+              {dayjs(`2024-01-01T${item.start}`).format("h:mm A")} -{" "}
+              {dayjs(`2024-01-01T${item.end}`).format("h:mm A")}
             </span>
           </>
         ))
@@ -90,36 +94,31 @@ export default async function HomePage() {
   const filterKey = isMentor ? "for" : "by";
 
   const profileKey = isMentor ? "mentor_profiles" : "student_profiles";
-  const userKey = isMentor ? "user_id" : "id";
 
-  console.log("PROFILE KEY:", profileKey, userKey, user.id);
+  console.log("PROFILE KEY:", profileKey, user.id);
 
-  const [profileResult, bookingsResult, bookingConfigResult] =
+  const [profileResult, bookingsResult, projectsResult] =
     await Promise.allSettled([
-      supabase.from(profileKey).select("*").eq(userKey, user.id).single(),
+      supabase.from(profileKey).select("*").eq("id", user.id).single(),
       supabase
         .from("bookings")
         .select("*")
         .gte("start_time", dayjs().format("YYYY-MM-DDTHH:mm:ssZ"))
         .order("start_time", { ascending: true })
         .eq(filterKey, user.id),
-      supabase
-        .from("booking_configs")
-        .select("*")
-        .eq("user_id", user.id)
-        .single(),
+      supabase.from("projects").select("*").eq("mentor_user", user.id),
     ]);
 
   const profile =
     profileResult.status === "fulfilled" ? profileResult.value.data : null;
   const myBookings =
     bookingsResult.status === "fulfilled" ? bookingsResult.value.data : [];
-  const bookingConfig =
-    bookingConfigResult.status === "fulfilled"
-      ? bookingConfigResult.value.data
-      : null;
+  const projects =
+    projectsResult.status === "fulfilled" ? projectsResult.value.data : [];
 
-  const availability = bookingConfig?.availability;
+  // const availability = bookingConfig?.availability;
+  const availability = profile?.availability;
+  console.log("PROFILE:", profile);
 
   return (
     <div className="flex flex-row flex-1">
@@ -134,20 +133,66 @@ export default async function HomePage() {
           </h1>
         </div>
         <div className="flex flex-row gap-4 mt-7 items-center justify-between">
-          <span>Upcoming Schedules</span>
-          <span>See All</span>
+          <span className="text-2xl font-bold">Upcoming Schedules</span>
+          {!!myBookings?.length && <span>See All</span>}
         </div>
         <div className="flex flex-row flex-wrap gap-4">
-          {myBookings?.map((booking) => (
-            <ScheduleItem
-              key={booking.id}
-              mentorId={booking.for}
-              eventLink={booking.event_link}
-              userType={userType}
-              studentId={booking.by}
-              description="Research product discussion"
-              time={dayjs(booking.start_time).format("h:mm A")}
-              date={dayjs(booking.start_time).format("DD MMM YYYY")}
+          {myBookings?.length ? (
+            myBookings?.map((booking) => (
+              <ScheduleItem
+                key={booking.id}
+                mentorId={booking.for}
+                eventLink={booking.event_link}
+                userType={userType}
+                studentId={booking.by}
+                description="Research product discussion"
+                time={dayjs(`2024-01-01T${booking.start_time}`).format(
+                  "h:mm A"
+                )}
+                date={dayjs(`2024-01-01T${booking.start_time}`).format(
+                  "DD MMM YYYY"
+                )}
+              />
+            ))
+          ) : (
+            <div className="flex flex-1 items-center justify-center p-6 border-dashed border-blue-500 border-2 rounded-2xl">
+              <span>No upcoming schedules</span>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-row gap-4 mt-7 items-center justify-between">
+          <span className="text-2xl font-bold">Project Hubs</span>
+          <a href="/project-hub/create">
+            <Button loadOnClick variant="outline">
+              Create New
+            </Button>
+          </a>
+        </div>
+        <div className="flex flex-wrap gap-4">
+          {projects?.map((project) => (
+            <ProjectCard
+              key={project.id}
+              package_id={project.id}
+              mentor_user={project.mentor_user}
+              isMentor={isMentor}
+              title={project.title}
+              description={project.description}
+              tags={project.categories}
+              duration={`${project.sessions_count} weeks`}
+              sessions={project.sessions_count}
+              time={dayjs(project.session_time).format("hh:mm A")}
+              day={project.session_day}
+              startDate={dayjs(project.start_date).format("MMM D, YYYY")}
+              endDate={dayjs(project.start_date)
+                .add(project.sessions_count, "week")
+                .format("MMM D, YYYY")}
+              spotsLeft={
+                isMentor ? project.spots : project.spots - project.filled_spots
+              }
+              price={isMentor ? project.cost_price : project.selling_price}
+              agenda={project.agenda}
+              tools={project.tools}
+              prerequisites={project.prerequisites}
             />
           ))}
         </div>
@@ -179,21 +224,21 @@ export default async function HomePage() {
           {isMentor && (
             <>
               <span className="text-lg font-bold">Timings</span>
-              <div className="grid grid-cols-[auto_1fr] gap-2 gap-y-1">
-                <TimeSlots availability={availability?.sunday} day="Sunday" />
-                <TimeSlots availability={availability?.monday} day="Monday" />
-                <TimeSlots availability={availability?.tuesday} day="Tuesday" />
+              <div className="grid grid-cols-[auto_1fr] gap-2 gap-y-1 items-center">
+                <TimeSlots availability={availability?.Sunday} day="Sunday" />
+                <TimeSlots availability={availability?.Monday} day="Monday" />
+                <TimeSlots availability={availability?.Tuesday} day="Tuesday" />
                 <TimeSlots
-                  availability={availability?.wednesday}
+                  availability={availability?.Wednesday}
                   day="Wednesday"
                 />
                 <TimeSlots
-                  availability={availability?.thursday}
+                  availability={availability?.Thursday}
                   day="Thursday"
                 />
-                <TimeSlots availability={availability?.friday} day="Friday" />
+                <TimeSlots availability={availability?.Friday} day="Friday" />
                 <TimeSlots
-                  availability={availability?.saturday}
+                  availability={availability?.Saturday}
                   day="Saturday"
                 />
               </div>

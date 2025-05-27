@@ -27,6 +27,7 @@ import { createClient } from "@/utils/supabase/client";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import dayjs from "dayjs";
 import { useUser } from "@/app/hooks/useUser";
+import { useRouter } from "next/navigation";
 
 const SELLING_PRICE_COST_MAP = {
   "8": {
@@ -84,6 +85,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function CreatePage() {
   const supabase = createClient();
+  const router = useRouter();
   const { data: user } = useUser();
   const userId = user?.id;
   const form = useForm<FormValues>({
@@ -167,24 +169,32 @@ export default function CreatePage() {
       mentor_user: userId,
     });
     console.log("SUBMITTED", data, error);
-    // const sessionDescriptionsArray = sessionDescriptions.split("\n");
-    console.log("SUBMITTED", values);
-    // Handle form submission
+    router.replace("/project-hub");
   };
 
   return (
-    <div className="min-h-screen w-[60%] flex flex-col items-center">
+    <div className="min-h-screen w-full grid grid-cols-[1fr_300px] items-center">
       <div className="w-full p-8 relative">
         <div className="flex items-center mb-6">
-          <Button variant="ghost" size="icon" className="mr-2">
+          <Button
+            onClick={() => router.back()}
+            variant="ghost"
+            size="icon"
+            className="mr-2"
+          >
             <ArrowLeft className="w-6 h-6" />
           </Button>
           <h1 className="text-2xl font-bold flex-1">Create project</h1>
           <div className="flex justify-end gap-4 pt-4">
-            <Button variant="outline" type="button">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => router.back()}
+            >
               Cancel
             </Button>
             <Button
+              loading={form.formState.isSubmitting}
               type="submit"
               className="px-8"
               onClick={form.handleSubmit(onSubmit)}
@@ -538,6 +548,44 @@ export default function CreatePage() {
             </div>
           </form>
         </Form>
+      </div>
+      <div className="bg-white h-full flex flex-col p-6 pt-12">
+        <h1 className="text-2xl font-bold">Sample project</h1>
+
+        <h2 className="text-xl mt-8">Project title</h2>
+        <span className="text-gray-500 mt-2">AI in education</span>
+
+        <h2 className="text-xl mt-[72px]">Project category</h2>
+        <span className="text-gray-500 mt-2">AI, Healthcare</span>
+
+        <h2 className="text-xl mt-[72px]">Project description</h2>
+        <span className="text-gray-500 mt-2">
+          Explore how artificial intelligence is transforming learning
+          experiences, personalizing education.
+        </span>
+
+        <h2 className="text-xl mt-16">Number of sessions</h2>
+        <span className="text-gray-500 mt-2">8 sessions</span>
+
+        <h2 className="text-xl mt-4">Available spots</h2>
+        <span className="text-gray-500 mt-2">10 spots</span>
+        <h2 className="text-xl mt-4">Start Date</h2>
+        <span className="text-gray-500 mt-2">10 spots</span>
+        <h2 className="text-xl mt-4">Day of the week</h2>
+        <span className="text-gray-500 mt-2">10 spots</span>
+        <h2 className="text-xl mt-4">Time</h2>
+        <span className="text-gray-500 mt-2">10 spots</span>
+        <h2 className="text-xl mt-16">Session Descriptions</h2>
+        <div className="flex flex-col gap-7">
+          <span className="text-gray-500 mt-6">Introduction to session 1</span>
+          <span className="text-gray-500">Introduction to session 2</span>
+          <span className="text-gray-500">Introduction to session 3</span>
+          <span className="text-gray-500">Introduction to session 4</span>
+          <span className="text-gray-500">Introduction to session 5</span>
+          <span className="text-gray-500">Introduction to session 6</span>
+          <span className="text-gray-500">Introduction to session 7</span>
+          <span className="text-gray-500">Introduction to session 8</span>
+        </div>
       </div>
     </div>
   );

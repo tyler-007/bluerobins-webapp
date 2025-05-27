@@ -46,17 +46,21 @@ export default async function ChatsPage({
   }, {});
 
   return (
-    <div className="flex flex-row flex-1">
-      <div className="flex w-96 flex-col bg-light border-l-2 border-gray-200 p-5 gap-5">
+    <div className="flex flex-col flex-1">
+      <div
+        className="flex items-center justify-between h-20 pl-10 bg-[#EBF8FF] border-b-2 border-[#DDD];
+"
+      >
         <h2 className="text-3xl font-bold">Previous Chats</h2>
-        <ChatList
-          myChannels={channelMembers}
-          lastMessageObject={lastMessageObject}
-        />
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-5">
-        {/* <ChatScreen channel_id={"WDdRBT_9EiA"} /> */}
-        {children}
+      <div className="flex flex-row flex-1 bg-[#EEF2FB]">
+        <div className="flex flex-[2] flex-col bg-light border-r-2 border-[#DDD]">
+          <ChatList
+            myChannels={channelMembers}
+            lastMessageObject={lastMessageObject}
+          />
+        </div>
+        <div className="flex flex-[3] flex-col">{children}</div>
       </div>
     </div>
   );

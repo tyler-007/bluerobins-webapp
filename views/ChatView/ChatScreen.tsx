@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, MoreVertical, Paperclip, Mic, Send } from "lucide-react";
@@ -15,7 +15,10 @@ import { useUser } from "@/app/hooks/useUser";
 interface ChatScreenProps {
   channel_id: string;
   userId?: string;
+  senderId: string;
+  receiverId: string;
   onBack?: () => void;
+  receiver: any;
 }
 
 const formatMessageDate = (date: Date) => {
@@ -28,8 +31,13 @@ const formatMessageDate = (date: Date) => {
   }
 };
 
-export default function ChatScreen({ channel_id, onBack }: ChatScreenProps) {
-  const chat = chats[0];
+export default function ChatScreen({
+  channel_id,
+  senderId,
+  receiverId,
+  onBack,
+  receiver,
+}: ChatScreenProps) {
   const supabase = createClient();
   const channelMessages = supabase.channel(`channel_messages_${channel_id}`);
   const [newMessage, setNewMessage] = useState("");
@@ -54,7 +62,8 @@ export default function ChatScreen({ channel_id, onBack }: ChatScreenProps) {
       .insert({
         channel_id,
         message: newMessage,
-        from_user: userId,
+        from_user: senderId,
+        to_user: receiverId,
       })
       .select()
       .then((res) => {});
@@ -77,6 +86,9 @@ export default function ChatScreen({ channel_id, onBack }: ChatScreenProps) {
       setMessages((prev) => [...prev, payload.new]);
     }
   };
+
+  console.log("User", user);
+  const myAvatar = user?.user_metadata.avatar_url;
 
   useEffect(() => {
     try {
@@ -113,8 +125,13 @@ export default function ChatScreen({ channel_id, onBack }: ChatScreenProps) {
 
   const messagesToShow = [...(oldMessages ?? []), ...messages];
 
+  console.log("messagesToShow", receiver, myAvatar);
+
   return (
     <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between p-4 h-20 ">
+        <span className="text-2xl font-bold">{receiver.name}</span>
+      </div>
       {/* Messages */}
       <div
         className="flex-1 overflow-y-auto p-4"
@@ -138,18 +155,27 @@ export default function ChatScreen({ channel_id, onBack }: ChatScreenProps) {
                   justifyContent:
                     message.from_user === userId ? "flex-end" : "flex-start",
                 }}
-                className={`mb-2 flex`}
+                className={`mb-2 flex gap-2`}
               >
-                <div
+                <img
+                  src={
+                    message.from_user === userId ? myAvatar : receiver.avatar
+                  }
+                  className="w-10 h-10 bg-red-300 rounded-full"
                   style={{
-                    backgroundColor:
-                      message.from_user === userId ? "#D9FDD3" : "#fff",
+                    order: message.from_user === userId ? 1 : 0,
                   }}
-                  className={`min-w-[40%] max-w-[70%] px-3 py-2 rounded-lg ${
+                />
+
+                <div
+                  className={`min-w-[40%] max-w-[70%] px-3 py-2 rounded-2xl ${
                     message.from_user === userId
-                      ? "bg-chatGreen rounded-tr-none"
-                      : "bg-white rounded-tl-none"
+                      ? "bg-chatBlue rounded-tr-none"
+                      : "bg-chatOrange rounded-tl-none"
                   }`}
+                  style={{
+                    order: message.from_user === userId ? 0 : 1,
+                  }}
                 >
                   <p className="text-sm">{message.message}</p>
                   <p className="text-right text-xs text-gray-500 mt-1">

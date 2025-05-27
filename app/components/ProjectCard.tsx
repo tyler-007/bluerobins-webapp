@@ -4,12 +4,10 @@ import { Calendar, Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Chip from "@/components/chip";
 import ProjectDetailsButton from "@/app/(private)/project-hub/ProjectDetailsButton";
-import { toast } from "@/components/ui/use-toast";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { useState } from "react";
 import dayjs from "dayjs";
-import { createCalendarEvent } from "@/lib/actions";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 interface ProjectCardProps {
   package_id: number;
@@ -52,6 +50,7 @@ export default function ProjectCard({
 }: ProjectCardProps) {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [navigating, setNavigating] = useState(false);
+  const router = useRouter();
   const bookSlotAPI = async (
     order: any,
     mentor_user: string,
@@ -118,11 +117,11 @@ export default function ProjectCard({
 
   const onEdit = () => {
     setNavigating(true);
-    redirect(`/project-hub/${package_id}/edit`);
+    router.push(`/project-hub/${package_id}/edit`);
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 w-[30%] max-w-sm flex flex-col justify-between ">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between ">
       <div>
         <h2 className="text-2xl font-bold mb-1">{title}</h2>
 

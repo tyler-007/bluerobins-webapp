@@ -1,7 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -77,7 +82,7 @@ export default function MentorProfileEdit({
   const onSubmit = async (data: FormValues) => {
     try {
       const { name, ...payload } = data;
-
+      console.log("PAYLOAD:", payload);
       const { data: updatedProfile, error: profileError } = await supabase
         .from("profiles")
         .update({
@@ -104,6 +109,7 @@ export default function MentorProfileEdit({
           id: userId,
           ...payload,
         });
+      console.log("UPDATED MENTOR PROFILE:", updatedMentorProfile, error);
 
       toast({
         title: "Success",
@@ -142,6 +148,7 @@ export default function MentorProfileEdit({
           "outline-none p-0 transition-all duration-300 min-w-screen max-w-none sm:max-w-none w-screen bg-[#EBF5FF]"
         )}
       >
+        <SheetTitle className="hidden">Edit Profile</SheetTitle>
         <div className="flex flex-col h-full">
           {/* Header - full width */}
           <div className="w-full border-b p-4">
