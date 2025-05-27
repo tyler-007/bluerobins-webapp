@@ -27,6 +27,7 @@ import { createClient } from "@/utils/supabase/client";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import dayjs from "dayjs";
 import { useUser } from "@/app/hooks/useUser";
+import { useRouter } from "next/navigation";
 
 const SELLING_PRICE_COST_MAP = {
   "8": {
@@ -84,6 +85,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function CreatePage() {
   const supabase = createClient();
+  const router = useRouter();
   const { data: user } = useUser();
   const userId = user?.id;
   const form = useForm<FormValues>({
@@ -167,24 +169,32 @@ export default function CreatePage() {
       mentor_user: userId,
     });
     console.log("SUBMITTED", data, error);
-    // const sessionDescriptionsArray = sessionDescriptions.split("\n");
-    console.log("SUBMITTED", values);
-    // Handle form submission
+    router.replace("/project-hub");
   };
 
   return (
-    <div className="min-h-screen w-[60%] flex flex-col items-center">
+    <div className="min-h-screen w-full grid grid-cols-[1fr_300px] items-center">
       <div className="w-full p-8 relative">
         <div className="flex items-center mb-6">
-          <Button variant="ghost" size="icon" className="mr-2">
+          <Button
+            onClick={() => router.back()}
+            variant="ghost"
+            size="icon"
+            className="mr-2"
+          >
             <ArrowLeft className="w-6 h-6" />
           </Button>
           <h1 className="text-2xl font-bold flex-1">Create project</h1>
           <div className="flex justify-end gap-4 pt-4">
-            <Button variant="outline" type="button">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => router.back()}
+            >
               Cancel
             </Button>
             <Button
+              loading={form.formState.isSubmitting}
               type="submit"
               className="px-8"
               onClick={form.handleSubmit(onSubmit)}
@@ -539,6 +549,7 @@ export default function CreatePage() {
           </form>
         </Form>
       </div>
+      <div className="bg-white h-full "></div>
     </div>
   );
 }

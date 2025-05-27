@@ -10,6 +10,7 @@ import { useProfile } from "@/app/hooks/useProfile";
 import ScheduleItem from "./ScheduleItem";
 import StudentOnboarding from "./StudentOnboarding";
 import MentorProfileEdit from "./MentorProfileEdit";
+import { Button } from "@/components/ui/button";
 const ExploreItem = ({
   title,
   description,
@@ -58,13 +59,14 @@ const TimeSlots = ({
     <>
       <span>{day}</span>
       {!availability?.length ? (
-        <span>Unavailable</span>
+        <span className="text-sm text-gray-500">Unavailable</span>
       ) : (
         (availability ?? []).map((item: any, index: number) => (
           <>
             {index > 0 && <div />}
             <span>
-              {item.start} - {item.end}
+              {dayjs(`2024-01-01T${item.start}`).format("h:mm A")} -{" "}
+              {dayjs(`2024-01-01T${item.end}`).format("h:mm A")}
             </span>
           </>
         ))
@@ -90,13 +92,12 @@ export default async function HomePage() {
   const filterKey = isMentor ? "for" : "by";
 
   const profileKey = isMentor ? "mentor_profiles" : "student_profiles";
-  const userKey = isMentor ? "user_id" : "id";
 
-  console.log("PROFILE KEY:", profileKey, userKey, user.id);
+  console.log("PROFILE KEY:", profileKey, user.id);
 
   const [profileResult, bookingsResult, bookingConfigResult] =
     await Promise.allSettled([
-      supabase.from(profileKey).select("*").eq(userKey, user.id).single(),
+      supabase.from(profileKey).select("*").eq("id", user.id).single(),
       supabase
         .from("bookings")
         .select("*")
@@ -119,7 +120,9 @@ export default async function HomePage() {
       ? bookingConfigResult.value.data
       : null;
 
-  const availability = bookingConfig?.availability;
+  // const availability = bookingConfig?.availability;
+  const availability = profile?.availability;
+  console.log("PROFILE:", profile);
 
   return (
     <div className="flex flex-row flex-1">
@@ -135,21 +138,39 @@ export default async function HomePage() {
         </div>
         <div className="flex flex-row gap-4 mt-7 items-center justify-between">
           <span>Upcoming Schedules</span>
-          <span>See All</span>
+          {!!myBookings?.length && <span>See All</span>}
         </div>
         <div className="flex flex-row flex-wrap gap-4">
-          {myBookings?.map((booking) => (
-            <ScheduleItem
-              key={booking.id}
-              mentorId={booking.for}
-              eventLink={booking.event_link}
-              userType={userType}
-              studentId={booking.by}
-              description="Research product discussion"
-              time={dayjs(booking.start_time).format("h:mm A")}
-              date={dayjs(booking.start_time).format("DD MMM YYYY")}
-            />
-          ))}
+          {myBookings?.length ? (
+            myBookings?.map((booking) => (
+              <ScheduleItem
+                key={booking.id}
+                mentorId={booking.for}
+                eventLink={booking.event_link}
+                userType={userType}
+                studentId={booking.by}
+                description="Research product discussion"
+                time={dayjs(`2024-01-01T${booking.start_time}`).format(
+                  "h:mm A"
+                )}
+                date={dayjs(`2024-01-01T${booking.start_time}`).format(
+                  "DD MMM YYYY"
+                )}
+              />
+            ))
+          ) : (
+            <div className="flex flex-1 items-center justify-center p-6 border-dashed border-blue-500 border-2 rounded-2xl">
+              <span>No upcoming schedules</span>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-row gap-4 mt-7 items-center justify-between">
+          <span>Project Hubs</span>
+          <a href="/project-hub/create">
+            <Button loadOnClick variant="outline">
+              Create New
+            </Button>
+          </a>
         </div>
       </div>
       <div className="flex w-96 flex-col bg-light border-l-2 border-gray-200 p-5 gap-5  ">
@@ -179,21 +200,21 @@ export default async function HomePage() {
           {isMentor && (
             <>
               <span className="text-lg font-bold">Timings</span>
-              <div className="grid grid-cols-[auto_1fr] gap-2 gap-y-1">
-                <TimeSlots availability={availability?.sunday} day="Sunday" />
-                <TimeSlots availability={availability?.monday} day="Monday" />
-                <TimeSlots availability={availability?.tuesday} day="Tuesday" />
+              <div className="grid grid-cols-[auto_1fr] gap-2 gap-y-1 items-center">
+                <TimeSlots availability={availability?.Sunday} day="Sunday" />
+                <TimeSlots availability={availability?.Monday} day="Monday" />
+                <TimeSlots availability={availability?.Tuesday} day="Tuesday" />
                 <TimeSlots
-                  availability={availability?.wednesday}
+                  availability={availability?.Wednesday}
                   day="Wednesday"
                 />
                 <TimeSlots
-                  availability={availability?.thursday}
+                  availability={availability?.Thursday}
                   day="Thursday"
                 />
-                <TimeSlots availability={availability?.friday} day="Friday" />
+                <TimeSlots availability={availability?.Friday} day="Friday" />
                 <TimeSlots
-                  availability={availability?.saturday}
+                  availability={availability?.Saturday}
                   day="Saturday"
                 />
               </div>

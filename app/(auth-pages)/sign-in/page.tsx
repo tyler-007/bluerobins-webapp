@@ -131,7 +131,7 @@ export default function Login() {
             <span className="mx-4 text-gray-400">or</span>
             <div className="flex-grow h-px bg-gray-200" />
           </div>
-          {/* <button
+          <button
             className="flex items-center justify-center w-full bg-gray-100 rounded-full py-3 text-lg font-medium text-gray-700 hover:bg-gray-200 transition border border-gray-200"
             disabled={!userType}
           >
@@ -142,14 +142,19 @@ export default function Login() {
               height={24}
               className="mr-4"
             />
-            Continue with gmail
-          </button> */}
+            Continue with Google
+          </button>
           {/* Show OneTapComponent only when userType is set */}
           {userType && <OneTapComponent userType={userType} />}
           {/* Show Google Auth Popup Button for testing */}
           {/* {userType && (
             <div className="w-full mt-4">
-              <GoogleAuthPopupButton />
+              <GoogleAuthPopupButton
+                userType={userType}
+                onSuccess={(response: any) => {
+                  console.log("login success", response);
+                }}
+              />
             </div>
           )} */}
         </div>

@@ -34,6 +34,7 @@ export function AvailabilityStep({ form }: AvailabilityStepProps) {
                   <Input
                     type="number"
                     {...field}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     min={1}
                     placeholder="Enter hours per week"
@@ -56,6 +57,7 @@ export function AvailabilityStep({ form }: AvailabilityStepProps) {
                   <Input
                     type="number"
                     {...field}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     min={1}
                     placeholder="Enter hourly rate"
