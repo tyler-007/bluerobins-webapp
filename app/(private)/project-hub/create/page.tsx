@@ -549,7 +549,44 @@ export default function CreatePage() {
           </form>
         </Form>
       </div>
-      <div className="bg-white h-full "></div>
+      <div className="bg-white h-full flex flex-col p-6 pt-12">
+        <h1 className="text-2xl font-bold">Sample project</h1>
+
+        <h2 className="text-xl mt-8">Project title</h2>
+        <span className="text-gray-500 mt-2">AI in education</span>
+
+        <h2 className="text-xl mt-[72px]">Project category</h2>
+        <span className="text-gray-500 mt-2">AI, Healthcare</span>
+
+        <h2 className="text-xl mt-[72px]">Project description</h2>
+        <span className="text-gray-500 mt-2">
+          Explore how artificial intelligence is transforming learning
+          experiences, personalizing education.
+        </span>
+
+        <h2 className="text-xl mt-16">Number of sessions</h2>
+        <span className="text-gray-500 mt-2">8 sessions</span>
+
+        <h2 className="text-xl mt-4">Available spots</h2>
+        <span className="text-gray-500 mt-2">10 spots</span>
+        <h2 className="text-xl mt-4">Start Date</h2>
+        <span className="text-gray-500 mt-2">10 spots</span>
+        <h2 className="text-xl mt-4">Day of the week</h2>
+        <span className="text-gray-500 mt-2">10 spots</span>
+        <h2 className="text-xl mt-4">Time</h2>
+        <span className="text-gray-500 mt-2">10 spots</span>
+        <h2 className="text-xl mt-16">Session Descriptions</h2>
+        <div className="flex flex-col gap-7">
+          <span className="text-gray-500 mt-6">Introduction to session 1</span>
+          <span className="text-gray-500">Introduction to session 2</span>
+          <span className="text-gray-500">Introduction to session 3</span>
+          <span className="text-gray-500">Introduction to session 4</span>
+          <span className="text-gray-500">Introduction to session 5</span>
+          <span className="text-gray-500">Introduction to session 6</span>
+          <span className="text-gray-500">Introduction to session 7</span>
+          <span className="text-gray-500">Introduction to session 8</span>
+        </div>
+      </div>
     </div>
   );
 }

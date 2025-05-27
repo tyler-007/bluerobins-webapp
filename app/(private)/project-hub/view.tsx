@@ -28,7 +28,7 @@ export default async function ProjectHubView(props: {
                 variant="outline"
                 onClick={() => router.push("/project-hub/create")}
               >
-                Create New
+                Create New Project
               </Button>
             )}
           </div>

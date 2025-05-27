@@ -71,6 +71,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         onClick={(e) => {
           if (loadOnClick) {
+            console.log("loadOnClick");
             setLoading(true);
           }
           if (props.onClick) {
