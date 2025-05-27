@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 export default async function ProjectHubView(props: {
-  projects: any[];
+  projects: any;
   isMentor: boolean;
   hideHeader?: boolean;
 }) {
@@ -34,7 +34,7 @@ export default async function ProjectHubView(props: {
           </div>
         )}
         <div className="flex flex-wrap gap-4">
-          {props.projects.map((project) => (
+          {props.projects.map((project: any) => (
             <ProjectCard
               key={project.id}
               package_id={project.id}
