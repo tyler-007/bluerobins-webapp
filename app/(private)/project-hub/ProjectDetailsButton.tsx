@@ -18,6 +18,7 @@ export default function ProjectDetailsButton({
   project: {
     title: string;
     description: string;
+    tags: string[];
     sessions: number;
     startDate: string;
     endDate: string;

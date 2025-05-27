@@ -16,7 +16,7 @@ interface ChatScreenProps {
   channel_id: string;
   userId?: string;
   senderId: string;
-  receiverId: string;
+  receiverId?: string;
   onBack?: () => void;
   receiver: any;
 }

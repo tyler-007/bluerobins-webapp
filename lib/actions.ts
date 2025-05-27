@@ -149,8 +149,7 @@ ${recorderInstructions}
     if (response.data.conferenceData?.conferenceId) {
       meetLink =
         response.data.conferenceData.entryPoints?.find(
-          (ep: { entryPointType: string; uri: string }) =>
-            ep.entryPointType === "video"
+          (ep: any) => ep.entryPointType === "video"
         )?.uri || "";
     }
 
@@ -168,7 +167,7 @@ Join with Google Meet: ${meetLink}
         console.log("About to patch event:");
         // Update the event with the enhanced description and conference settings
         // IMPORTANT: Explicitly set guestsCanSeeOtherGuests to false again
-        await calendar.events.patch({
+        await calendar?.events?.patch?.({
           calendarId: "primary",
           eventId: response.data.id,
           requestBody: {
@@ -177,12 +176,12 @@ Join with Google Meet: ${meetLink}
             conferenceData: {
               conferenceId: response.data.conferenceData?.conferenceId,
               // Configure the most permissive conference settings
-              conferenceProperties: {
-                allowedConferenceSolutionTypes: ["hangoutsMeet"],
-                allowExternalInvitees: true,
-                autoCreateMeetingEnabled: true,
-                createMeetingWithoutHost: true,
-              },
+              // conferenceProperties: {
+              //   allowedConferenceSolutionTypes: ["hangoutsMeet"],
+              //   allowExternalInvitees: true,
+              //   autoCreateMeetingEnabled: true,
+              //   createMeetingWithoutHost: true,
+              // },
             },
           },
           conferenceDataVersion: 1,

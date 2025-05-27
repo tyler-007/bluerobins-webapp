@@ -29,6 +29,22 @@ export const ChatView = ({
   const { data: user } = useUser();
   const userId = user?.id;
   const [channel_id, setChannelId] = useState("");
+  const [receiver, setReceiver] = useState<any>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const fetchReceiver = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", receiverId)
+        .single();
+      setReceiver(data);
+    };
+    if (receiverId) {
+      fetchReceiver();
+    }
+  }, [receiverId]);
 
   const onOpenChange = async (open: boolean) => {
     if (open) {
@@ -52,13 +68,14 @@ export const ChatView = ({
         {/* <SheetTitle className="px-4 flex items-center -mt-3 pb-3">
           Personal Chat
         </SheetTitle> */}
-        {channel_id && userId && (
+        {channel_id && userId && receiver && (
           <ChatScreen
             channel_id={channel_id}
             userId={userId}
             senderId={senderId}
             receiverId={receiverId}
             onBack={() => {}}
+            receiver={receiver}
           />
         )}
         {/* <div className="h-[16px]">
