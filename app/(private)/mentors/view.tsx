@@ -1,3 +1,5 @@
+"use client";
+
 import { Search, GraduationCap, Filter, BookOpen, Video } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import MentorItem from "@/components/MentorItem";

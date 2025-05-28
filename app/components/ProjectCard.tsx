@@ -8,6 +8,7 @@ import { PaymentDialog } from "@/components/PaymentDialog";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { redirect, useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface ProjectCardProps {
   package_id: number;
@@ -16,6 +17,7 @@ interface ProjectCardProps {
   tags: string[];
   duration: string;
   sessions: number;
+  mentor: { name: string; avatar: string };
   time: string;
   day: string;
   startDate: string;
@@ -36,6 +38,7 @@ export default function ProjectCard({
   tags,
   duration,
   isMentor,
+  mentor,
   sessions,
   time,
   mentor_user,
@@ -51,6 +54,7 @@ export default function ProjectCard({
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [navigating, setNavigating] = useState(false);
   const router = useRouter();
+  console.log("NAME:", mentor);
   const bookSlotAPI = async (
     order: any,
     mentor_user: string,
@@ -82,7 +86,7 @@ export default function ProjectCard({
     });
   };
 
-  const onBuyPackage = async (order: any) => {
+  const onBuyPackage = async () => {
     setNavigating(true);
     setShowPaymentDialog(true);
     console.log("Buy Packagessss:");
@@ -112,7 +116,7 @@ export default function ProjectCard({
 
     const res = await Promise.all(bookingsAPI);
     console.log("Bookings API", res);
-    setShowPaymentDialog(false);
+    // setShowPaymentDialog(false);
   };
 
   const onEdit = () => {
@@ -122,7 +126,7 @@ export default function ProjectCard({
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between ">
-      <div>
+      <div className="flex flex-col flex-1">
         <h2 className="text-2xl font-bold mb-1">{title}</h2>
 
         <p className="text-gray-500 mb-3 text-base leading-snug line-clamp-2">
@@ -160,6 +164,21 @@ export default function ProjectCard({
             {startDate} to {endDate}
           </span>
         </div>
+        <div className="flex flex-1" />
+        <div className="flex flex-col bg-blue-200 p-3 pt-2 my-2 rounded-xl gap-1">
+          <span className="text-black">Mentor</span>
+          <div className="flex flex-row items-center gap-2">
+            <Image
+              src={mentor?.avatar}
+              alt="mentor"
+              width={32}
+              height={32}
+              className="rounded-full"
+            />
+            <span className="text-primary">{mentor?.name}</span>
+          </div>
+        </div>
+
         {!spotsLeft ? null : isMentor ? (
           <div className="flex items-center  gap-2 font-medium">
             <Users className="w-5 h-5" />
@@ -199,10 +218,12 @@ export default function ProjectCard({
               Buy Package
             </Button>
             <ProjectDetailsButton
+              onBuyPackage={onBuyPackage}
               project={{
                 title,
                 description,
                 tags,
+                mentor,
                 sessions,
                 startDate,
                 endDate,

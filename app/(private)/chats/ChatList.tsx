@@ -68,9 +68,6 @@ export default function ChatList({
           </div>
         </Link>
       ))}
-      <div className="flex flex-1 m-4 items-center justify-center p-6 border-dashed border-blue-500 border-2 rounded-2xl">
-        <span>No messages yet</span>
-      </div>
     </div>
   );
 }

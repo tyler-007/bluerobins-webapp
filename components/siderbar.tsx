@@ -20,11 +20,11 @@ const options = [
     icon: House,
     href: "/home",
   },
-  {
-    label: "Find Mentors",
-    icon: Users,
-    href: "/mentors",
-  },
+  // {
+  //   label: "Find Mentors",
+  //   icon: Users,
+  //   href: "/mentors",
+  // },
   {
     label: "Chats",
     icon: MessageCircle,

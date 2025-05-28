@@ -30,7 +30,7 @@ const ScheduleItem = ({
   // const { data: user } = useUser();
 
   return (
-    <div className="flex flex-col flex-1 gap-1 bg-white max-w-max rounded-2xl border border-gray-200 p-6 pt-4">
+    <div className="flex flex-col flex-1 gap-1 bg-white max-w-max rounded-2xl border border-gray-200 p-6 pt-4 min-w-[330px]">
       <div className="flex flex-row gap-4 items-center justify-between">
         <span className="text-sm text-black">{date}</span>
         <span className="bg-[#f0f0f0] rounded-full px-4 py-1 text-sm">

@@ -118,7 +118,7 @@ export default async function HomePage() {
 
   // const availability = bookingConfig?.availability;
   const availability = profile?.availability;
-  console.log("PROFILE:", profile);
+  console.log("myBookings:", myBookings);
 
   return (
     <div className="flex flex-row flex-1">
@@ -134,7 +134,7 @@ export default async function HomePage() {
         </div>
         <div className="flex flex-row gap-4 mt-7 items-center justify-between">
           <span className="text-2xl font-bold">Upcoming Schedules</span>
-          {!!myBookings?.length && <span>See All</span>}
+          {/* {!!myBookings?.length && <span>See All</span>} */}
         </div>
         <div className="flex flex-row flex-wrap gap-4">
           {myBookings?.length ? (
@@ -146,12 +146,8 @@ export default async function HomePage() {
                 userType={userType}
                 studentId={booking.by}
                 description="Research product discussion"
-                time={dayjs(`2024-01-01T${booking.start_time}`).format(
-                  "h:mm A"
-                )}
-                date={dayjs(`2024-01-01T${booking.start_time}`).format(
-                  "DD MMM YYYY"
-                )}
+                time={dayjs(booking.start_time).format("h:mm A")}
+                date={dayjs(booking.start_time).format("DD MMM YYYY")}
               />
             ))
           ) : (
@@ -160,92 +156,104 @@ export default async function HomePage() {
             </div>
           )}
         </div>
-        <div className="flex flex-row gap-4 mt-7 items-center justify-between">
-          <span className="text-2xl font-bold">Project Hubs</span>
-          <a href="/project-hub/create">
-            <Button loadOnClick variant="outline">
-              Create New
-            </Button>
-          </a>
-        </div>
-        <div className="flex flex-wrap gap-4">
-          {projects?.map((project) => (
-            <ProjectCard
-              key={project.id}
-              package_id={project.id}
-              mentor_user={project.mentor_user}
-              isMentor={isMentor}
-              title={project.title}
-              description={project.description}
-              tags={project.categories}
-              duration={`${project.sessions_count} weeks`}
-              sessions={project.sessions_count}
-              time={dayjs(project.session_time).format("hh:mm A")}
-              day={project.session_day}
-              startDate={dayjs(project.start_date).format("MMM D, YYYY")}
-              endDate={dayjs(project.start_date)
-                .add(project.sessions_count, "week")
-                .format("MMM D, YYYY")}
-              spotsLeft={
-                isMentor ? project.spots : project.spots - project.filled_spots
-              }
-              price={isMentor ? project.cost_price : project.selling_price}
-              agenda={project.agenda}
-              tools={project.tools}
-              prerequisites={project.prerequisites}
-            />
-          ))}
-        </div>
-      </div>
-      <div className="flex w-96 flex-col bg-light border-l-2 border-gray-200 p-5 gap-5  ">
-        <div className="bg-white rounded-2xl p-6 border border-gray-200">
-          <div className="flex flex-row gap-4 items-center">
-            <div className="flex h-14 w-14 rounded-full bg-[#B1D1FA] items-center justify-center">
-              <User className="w-8 h-8 text-primary" />
+        {isMentor && (
+          <>
+            <div className="flex flex-row gap-4 mt-7 items-center justify-between">
+              <span className="text-2xl font-bold">Project Hubs</span>
+              <a href="/project-hub/create">
+                <Button loadOnClick variant="outline">
+                  Create New
+                </Button>
+              </a>
             </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-lg font-bold">
-                {user?.user_metadata?.full_name}
-              </span>
-              {isMentor ? (
-                <MentorProfileEdit
-                  profile={profile}
-                  email={user?.email ?? ""}
-                  name={user?.user_metadata?.full_name}
-                  userId={user.id}
+            <div className="flex flex-wrap gap-4">
+              {projects?.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  package_id={project.id}
+                  mentor_user={project.mentor_user}
+                  mentor={project.mentor}
+                  isMentor={isMentor}
+                  title={project.title}
+                  description={project.description}
+                  tags={project.categories}
+                  duration={`${project.sessions_count} weeks`}
+                  sessions={project.sessions_count}
+                  time={dayjs(project.session_time).format("hh:mm A")}
+                  day={project.session_day}
+                  startDate={dayjs(project.start_date).format("MMM D, YYYY")}
+                  endDate={dayjs(project.start_date)
+                    .add(project.sessions_count, "week")
+                    .format("MMM D, YYYY")}
+                  spotsLeft={
+                    isMentor
+                      ? project.spots
+                      : project.spots - project.filled_spots
+                  }
+                  price={isMentor ? project.cost_price : project.selling_price}
+                  agenda={project.agenda}
+                  tools={project.tools}
+                  prerequisites={project.prerequisites}
                 />
-              ) : (
-                <StudentOnboarding profile={profile} userId={user.id} />
-              )}
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+      {isMentor && (
+        <div className="flex w-96 flex-col bg-light border-l-2 border-gray-200 p-5 gap-5  ">
+          <div className="bg-white rounded-2xl p-6 border border-gray-200">
+            <div className="flex flex-row gap-4 items-center">
+              <div className="flex h-14 w-14 rounded-full bg-[#B1D1FA] items-center justify-center">
+                <User className="w-8 h-8 text-primary" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-lg font-bold">
+                  {user?.user_metadata?.full_name}
+                </span>
+                {isMentor ? (
+                  <MentorProfileEdit
+                    profile={profile}
+                    email={user?.email ?? ""}
+                    name={user?.user_metadata?.full_name}
+                    userId={user.id}
+                  />
+                ) : (
+                  <StudentOnboarding profile={profile} userId={user.id} />
+                )}
+              </div>
             </div>
           </div>
+          <div className="bg-white rounded-2xl flex-1 border border-gray-200 p-3">
+            {isMentor && (
+              <>
+                <span className="text-lg font-bold">Timings</span>
+                <div className="grid grid-cols-[auto_1fr] gap-2 gap-y-1 items-center">
+                  <TimeSlots availability={availability?.Sunday} day="Sunday" />
+                  <TimeSlots availability={availability?.Monday} day="Monday" />
+                  <TimeSlots
+                    availability={availability?.Tuesday}
+                    day="Tuesday"
+                  />
+                  <TimeSlots
+                    availability={availability?.Wednesday}
+                    day="Wednesday"
+                  />
+                  <TimeSlots
+                    availability={availability?.Thursday}
+                    day="Thursday"
+                  />
+                  <TimeSlots availability={availability?.Friday} day="Friday" />
+                  <TimeSlots
+                    availability={availability?.Saturday}
+                    day="Saturday"
+                  />
+                </div>
+              </>
+            )}
+          </div>
         </div>
-        <div className="bg-white rounded-2xl flex-1 border border-gray-200 p-3">
-          {isMentor && (
-            <>
-              <span className="text-lg font-bold">Timings</span>
-              <div className="grid grid-cols-[auto_1fr] gap-2 gap-y-1 items-center">
-                <TimeSlots availability={availability?.Sunday} day="Sunday" />
-                <TimeSlots availability={availability?.Monday} day="Monday" />
-                <TimeSlots availability={availability?.Tuesday} day="Tuesday" />
-                <TimeSlots
-                  availability={availability?.Wednesday}
-                  day="Wednesday"
-                />
-                <TimeSlots
-                  availability={availability?.Thursday}
-                  day="Thursday"
-                />
-                <TimeSlots availability={availability?.Friday} day="Friday" />
-                <TimeSlots
-                  availability={availability?.Saturday}
-                  day="Saturday"
-                />
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

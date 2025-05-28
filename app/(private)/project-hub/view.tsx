@@ -7,13 +7,15 @@ import dayjs from "dayjs";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
-export default async function ProjectHubView(props: {
+export default function ProjectHubView(props: {
   projects: any;
   isMentor: boolean;
   hideHeader?: boolean;
 }) {
   const isMentor = props.isMentor;
   const router = useRouter();
+
+  console.log("PROJECTS:", props.projects);
 
   return (
     <>
@@ -42,6 +44,7 @@ export default async function ProjectHubView(props: {
               isMentor={isMentor}
               title={project.title}
               description={project.description}
+              mentor={project.mentor}
               tags={project.categories}
               duration={`${project.sessions_count} weeks`}
               sessions={project.sessions_count}
@@ -62,9 +65,6 @@ export default async function ProjectHubView(props: {
           ))}
         </div>
       </div>
-      {/* <div className="flex min-w-80 relative flex-col  p-5 gap-5  ">
-        <div className="bg-white fixed top-4 right-6 w-72 bottom-4  rounded-2xl p-6 border border-gray-200"></div>
-      </div> */}
     </>
   );
 }
