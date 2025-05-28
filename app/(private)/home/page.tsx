@@ -200,6 +200,7 @@ export default async function HomePage() {
           </>
         )}
       </div>
+      {!isMentor && <StudentOnboarding profile={profile} userId={user.id} />}
       {isMentor && (
         <div className="flex w-96 flex-col bg-light border-l-2 border-gray-200 p-5 gap-5  ">
           <div className="bg-white rounded-2xl p-6 border border-gray-200">
@@ -224,6 +225,7 @@ export default async function HomePage() {
               </div>
             </div>
           </div>
+
           <div className="bg-white rounded-2xl flex-1 border border-gray-200 p-3">
             {isMentor && (
               <>
