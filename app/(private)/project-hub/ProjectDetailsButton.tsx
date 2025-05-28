@@ -11,16 +11,20 @@ import { useToast } from "@/components/ui/use-toast";
 import { createClient } from "@/utils/supabase/client";
 import { Clock, Calendar, Link as LinkIcon, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 
 export default function ProjectDetailsButton({
+  onBuyPackage,
   project,
 }: {
+  onBuyPackage: () => Promise<void>;
   project: {
     title: string;
     description: string;
     tags: string[];
     sessions: number;
     startDate: string;
+    mentor: { name: string; avatar: string };
     endDate: string;
     time: string;
     day: string;
@@ -50,22 +54,17 @@ export default function ProjectDetailsButton({
       <SheetContent
         side="right"
         className={cn(
-          "outline-none p-0 transition-all duration-300 min-w-screen max-w-none sm:max-w-none w-[30vw] bg-white"
+          "outline-none p-0 transition-all duration-300 min-w-screen max-w-none sm:max-w-none w-[30vw] bg-white overflow-y-auto"
         )}
       >
         <div className="flex flex-col h-full">
-          <div className="w-full flex border-b p-4 items-center justify-between">
+          <div className="w-full flex border-b p-4 items-center justify-between sticky top-0 bg-white">
             <h1 className="text-2xl font-bold">Project Details</h1>
-            <Button
-              className="mr-6"
-              onClick={() => {
-                console.log("Buy Package");
-              }}
-            >
+            <Button className="mr-6" onClick={onBuyPackage}>
               Buy Package
             </Button>
           </div>
-          <div className="grid gap-4 p-4">
+          <div className="grid gap-4 p-8">
             <h2 className="text-xl font-bold">{project.title}</h2>
             <div className="text-lg -mt-3">
               {/* Time duration :{" "} */}
@@ -76,6 +75,19 @@ export default function ProjectDetailsButton({
             <p className="text-base text-gray-500 -mt-3">
               {project.description}
             </p>
+            <div className="flex flex-col bg-blue-200 p-3 pt-2 my-2 rounded-xl gap-1">
+              <span className="text-black">Mentor</span>
+              <div className="flex flex-row items-center gap-2">
+                <Image
+                  src={project.mentor?.avatar}
+                  alt="mentor"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
+                <span className="text-primary">{project.mentor?.name}</span>
+              </div>
+            </div>
             <div className="grid grid-cols-2 text-lg">
               <div className="flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-blue-500" />
