@@ -117,7 +117,7 @@ export default function MentorProfileEdit({
         .eq("id", userId);
       console.log("UPDATED PROFILE:", updatedProfile, profileError);
 
-      const availability = data.availability.reduce((acc: any, curr: any) => {
+      const availability = data?.availability?.reduce((acc: any, curr: any) => {
         acc[curr.day] = [];
         if (curr.enabled)
           acc[curr.day].push({

@@ -159,6 +159,7 @@ export function ProfileStep({ form }: ProfileStepProps) {
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value ?? ""}
                       placeholder="e.g. https://www.linkedin.com/in/your-profile"
                     />
                   </FormControl>

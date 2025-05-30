@@ -84,7 +84,7 @@ export function AvailabilityStep({ form }: AvailabilityStepProps) {
                       <Checkbox
                         checked={day.enabled}
                         onCheckedChange={(checked) => {
-                          const newValue = [...field.value];
+                          const newValue = [...(field.value ?? [])];
                           newValue[index] = {
                             ...day,
                             enabled: checked as boolean,
@@ -102,7 +102,7 @@ export function AvailabilityStep({ form }: AvailabilityStepProps) {
                           type="time"
                           value={day.start_time}
                           onChange={(e) => {
-                            const newValue = [...field.value];
+                            const newValue = [...(field.value ?? [])];
                             newValue[index] = {
                               ...day,
                               start_time: e.target.value,
@@ -118,7 +118,7 @@ export function AvailabilityStep({ form }: AvailabilityStepProps) {
                           type="time"
                           value={day.end_time}
                           onChange={(e) => {
-                            const newValue = [...field.value];
+                            const newValue = [...(field.value ?? [])];
                             newValue[index] = {
                               ...day,
                               end_time: e.target.value,
