@@ -19,7 +19,7 @@ export const formSchema = z.object({
     }),
   institution: z.string().min(1, { message: "Institution is required" }),
   major: z.string().min(1, { message: "Major is required" }),
-  linkedin_url: z.string().min(1, { message: "LinkedIn URL is required" }),
+  linkedin_url: z.string().trim().url().optional().nullable(),
   bio: z.string().min(1, { message: "Bio is required" }),
   hours_per_week: z
     .number()
@@ -29,14 +29,16 @@ export const formSchema = z.object({
     .number()
     .min(1, { message: "Hourly rate is required" })
     .nullable(),
-  availability: z.array(
-    z.object({
-      day: z.string(),
-      start_time: z.string(),
-      end_time: z.string(),
-      enabled: z.boolean(),
-    })
-  ),
+  availability: z
+    .array(
+      z.object({
+        day: z.string(),
+        start_time: z.string().optional(),
+        end_time: z.string().optional(),
+        enabled: z.boolean(),
+      })
+    )
+    .optional(),
   expertise: z
     .array(z.string().min(1))
     .min(1, { message: "Mentoring areas are required" }),

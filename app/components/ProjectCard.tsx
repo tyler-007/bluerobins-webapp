@@ -9,6 +9,7 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import { redirect, useRouter } from "next/navigation";
 import Image from "next/image";
+import { PricingInfoDialog } from "@/components/PricingInfoDialog";
 
 interface ProjectCardProps {
   package_id: number;
@@ -168,13 +169,15 @@ export default function ProjectCard({
         <div className="flex flex-col bg-blue-200 p-3 pt-2 my-2 rounded-xl gap-1">
           <span className="text-black">Mentor</span>
           <div className="flex flex-row items-center gap-2">
-            <Image
-              src={mentor?.avatar}
-              alt="mentor"
-              width={32}
-              height={32}
-              className="rounded-full"
-            />
+            {mentor?.avatar && (
+              <Image
+                src={mentor?.avatar}
+                alt="mentor"
+                width={32}
+                height={32}
+                className="rounded-full"
+              />
+            )}
             <span className="text-primary">{mentor?.name}</span>
           </div>
         </div>
@@ -186,7 +189,11 @@ export default function ProjectCard({
               {spotsLeft} Student{spotsLeft === 1 ? "" : "s"}
             </span>
             <div className="flex-1"></div>
-            <span className="text-gray-500 text-sm">Price: ${price}</span>
+            <PricingInfoDialog
+              sessionCount={sessions}
+              triggerText="View Pricing Info"
+            />
+            {/* <span className="text-gray-500 text-sm">Price: ${price}</span> */}
           </div>
         ) : (
           <div className="flex items-center  gap-2 text-green-600 font-medium">
@@ -237,6 +244,17 @@ export default function ProjectCard({
           </>
         )}
         <PaymentDialog
+          summary={
+            <div className="flex flex-col gap-2">
+              <span className="text-lg">
+                You are about to pay
+                <br />
+                <b>${price}</b> for {title} <b>({sessions} sessions)</b>
+                <br />
+                with <b>{mentor?.name}</b>
+              </span>
+            </div>
+          }
           open={showPaymentDialog}
           onOpenChange={setShowPaymentDialog}
           amount={price}

@@ -29,7 +29,7 @@ export default function StudentProfileEdit({
 }) {
   const supabase = createClient();
   profile = profile || {};
-  const [show, setShow] = useState(!profile.institution_name);
+  const [show, setShow] = useState(!profile.onboarded);
   const { toast } = useToast();
   // console.log("PRAO:", profile);
   const values = profile
@@ -57,6 +57,7 @@ export default function StudentProfileEdit({
     try {
       const { error } = await supabase.from("student_profiles").upsert({
         id: userId,
+        onboarded: true,
         student_type: data.major
           ? "undergrad"
           : [6, 7, 8].some((grade) => data.grade.includes(grade.toString()))

@@ -78,7 +78,7 @@ export function AvailabilityStep({ form }: AvailabilityStepProps) {
                 Select your available time slots for each day
               </FormDescription>
               <div className="space-y-2">
-                {field.value.map((day, index) => (
+                {field.value?.map((day, index) => (
                   <div key={day.day} className="flex items-center gap-4">
                     <FormControl>
                       <Checkbox

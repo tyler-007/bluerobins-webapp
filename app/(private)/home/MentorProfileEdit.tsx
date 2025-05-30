@@ -27,6 +27,32 @@ import { ProfileStep } from "./components/mentor-profile/ProfileStep";
 import { Stepper } from "./components/mentor-profile/Stepper";
 
 const getValues = (profile: any, defaultValues: FormValues, props: any) => {
+  const days = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const availability = !!profile.availability
+    ? days.map((day) => {
+        const slots = profile.availability[day];
+        const base = {
+          day,
+          start_time: "",
+          end_time: "",
+          enabled: !!slots?.length,
+        } as any;
+        if ((slots as any[])?.[0]?.start)
+          base.start_time = (slots as any[])?.[0]?.start;
+        if ((slots as any[])?.[0]?.end)
+          base.end_time = (slots as any[])?.[0]?.end;
+        return base;
+      })
+    : defaultValues.availability;
+
   const payload = {
     name: profile?.name ?? profile.name ?? props.name ?? defaultValues.name,
     phone_number: profile.phone_number ?? defaultValues.phone_number,
@@ -42,7 +68,7 @@ const getValues = (profile: any, defaultValues: FormValues, props: any) => {
     bio: profile.bio ?? defaultValues.bio,
     hours_per_week: profile.hours_per_week ?? defaultValues.hours_per_week,
     hourly_rate: profile.hourly_rate ?? defaultValues.hourly_rate,
-    availability: profile.availability ?? defaultValues.availability,
+    availability: availability,
     expertise: profile.expertise ?? defaultValues.expertise,
     marketing_title: profile.marketing_title ?? defaultValues.marketing_title,
     photo_url: profile.photo_url ?? defaultValues.photo_url,
@@ -63,7 +89,7 @@ export default function MentorProfileEdit({
 }) {
   const supabase = createClient();
   profile = profile || {};
-  const [open, setOpen] = useState(!profile.photo_url);
+  const [open, setOpen] = useState(!profile.onboarded);
   const { toast } = useToast();
   const values = profile
     ? getValues(profile, defaultValues, { name })
@@ -107,6 +133,7 @@ export default function MentorProfileEdit({
         .from("mentor_profiles")
         .upsert({
           id: userId,
+          onboarded: true,
           ...payload,
         });
       console.log("UPDATED MENTOR PROFILE:", updatedMentorProfile, error);
@@ -154,21 +181,6 @@ export default function MentorProfileEdit({
           <div className="w-full border-b p-4">
             <Stepper currentStep={step} steps={steps} />
           </div>
-
-          {/* Progress bar - full width */}
-          {/* <div className="w-full">
-            <div className="mx-auto max-w-[640px] px-4 flex gap-1">
-              {steps.map((_, idx) => (
-                <div
-                  key={idx}
-                  className={cn(
-                    "h-1 flex-1 rounded-full",
-                    idx === step ? "bg-blue-500" : "bg-blue-100"
-                  )}
-                />
-              ))}
-            </div>
-          </div> */}
 
           {/* Main content */}
           <div className="flex-1 overflow-auto">
