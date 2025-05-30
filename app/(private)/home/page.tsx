@@ -122,7 +122,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-row flex-1">
-      <div className="flex flex-1 flex-col gap-2 p-5">
+      <div className="flex flex-1 flex-col gap-2 p-5 overflow-y-auto">
         <div className="flex flex-row gap-4 items-center">
           <Image src={logo} alt="logo" width={48} height={48} />
           <h1 className="text-2xl font-bold ">
@@ -138,18 +138,21 @@ export default async function HomePage() {
         </div>
         <div className="flex flex-row flex-wrap gap-4">
           {myBookings?.length ? (
-            myBookings?.map((booking) => (
-              <ScheduleItem
-                key={booking.id}
-                mentorId={booking.for}
-                eventLink={booking.event_link}
-                userType={userType}
-                studentId={booking.by}
-                description="Research product discussion"
-                time={dayjs(booking.start_time).format("h:mm A")}
-                date={dayjs(booking.start_time).format("DD MMM YYYY")}
-              />
-            ))
+            myBookings
+              .slice(0, 4)
+              .map((booking) => (
+                <ScheduleItem
+                  key={booking.id}
+                  mentorId={booking.for}
+                  eventLink={booking.event_link}
+                  userType={userType}
+                  studentId={booking.by}
+                  title={booking.title}
+                  description={booking.description}
+                  time={dayjs(booking.start_time).format("h:mm A")}
+                  date={dayjs(booking.start_time).format("DD MMM YYYY")}
+                />
+              ))
           ) : (
             <div className="flex flex-1 items-center justify-center p-6 border-dashed border-blue-500 border-2 rounded-2xl">
               <span>No upcoming schedules</span>

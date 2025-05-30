@@ -102,7 +102,7 @@ export function ProfileStep({ form }: ProfileStepProps) {
                       <label
                         htmlFor="photo-upload"
                         className={cn(
-                          " w-32 h-32 rounded-xl border-2 border-dashed border-gray-300",
+                          "min-w-32 min-h-32 h-full aspect-square rounded-xl border-2 border-dashed border-gray-300",
                           "flex items-center justify-center cursor-pointer",
                           "hover:border-gray-400 transition-colors",
                           "relative overflow-hidden"
@@ -128,19 +128,23 @@ export function ProfileStep({ form }: ProfileStepProps) {
               )}
             />
           </div>
-          <div className="flex flex-col justify-between md:col-span-2">
+          <div className="flex flex-col justify-between md:col-span-2 gap-4">
             <FormField
               control={form.control}
               name="marketing_title"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Marketing Title</FormLabel>
+                  <FormDescription className="text-sm !-mt-1">
+                    This will be displayed on your profile page.
+                  </FormDescription>
                   <FormControl>
                     <Input
                       {...field}
                       placeholder="e.g. Award-winning Science Mentor"
                     />
                   </FormControl>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -188,7 +192,7 @@ export function ProfileStep({ form }: ProfileStepProps) {
             <FormItem>
               <FormLabel>Mentoring Areas</FormLabel>
               <FormDescription>
-                Add tags (e.g. Physics, Math, Robotics)
+                Add tags (e.g. Physics, Robotics, Counselling, Essay Writing)
               </FormDescription>
               <FormControl>
                 <TagInput

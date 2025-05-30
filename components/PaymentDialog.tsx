@@ -79,8 +79,8 @@ export const PaymentDialog = ({
               learning with your mentor.
             </span>
             <span className="text-[#000000CF] text-lg">
-              A confirmation email with all the session details has been sent to
-              your registered email.
+              You will receive invites to the sessions in your registered email
+              shortly.
             </span>
             <Button variant="outline" onClick={_onCancel}>
               Continue to Dashboard

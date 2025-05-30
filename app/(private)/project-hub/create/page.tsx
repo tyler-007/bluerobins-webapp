@@ -321,14 +321,14 @@ export default function CreatePage() {
                       <Input
                         type="number"
                         min={1}
-                        max={10}
+                        max={3}
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
                       />
                     </FormControl>
                     <FormMessage />
                     <div className="text-gray-400 text-sm mt-1">
-                      How many students can join this project? (1-10)
+                      How many students can join this project? (1-3)
                     </div>
                   </FormItem>
                 )}

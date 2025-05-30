@@ -8,6 +8,7 @@ import {
   MessageCircle,
   Calendar,
   BookOpen,
+  HelpCircle,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -92,10 +93,18 @@ export default function Sidebar() {
           </div>
         );
       })}
-      <div className="mt-auto mb-8">
+      <div className="mt-auto mb-8 ">
+        <a
+          href="mailto:support@bluerobins.com"
+          target="_blank"
+          className="flex flex-row gap-4 pl-7 items-center h-14 text-[#fffA] hover:text-white w-full"
+        >
+          <HelpCircle className="text-2xl font-bold" />
+          <span className="text-lg font-medium">Support</span>
+        </a>
         <button
           onClick={handleLogout}
-          className="flex flex-row gap-4 pl-7 items-center h-14 text-[#fff3] hover:text-white w-full"
+          className="flex flex-row gap-4 pl-7 items-center h-14 text-[#fffA] hover:text-white w-full"
         >
           <LogOut className="text-2xl font-bold" />
           <span className="text-lg font-medium">Logout</span>

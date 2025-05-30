@@ -37,10 +37,15 @@ const ScheduleItem = ({
           {time}
         </span>
       </div>
-      <span className="text-lg font-bold mt-2">
-        {title ?? `Meeting with ${profile?.name ?? "Mentor"}`}
-      </span>
-      {/* <span className="text-sm text-gray-500">{description}</span> */}
+      <span className="text-lg font-bold">{title ?? `One on One Meeting`}</span>
+      {description && (
+        <span className="text-sm text-gray-500">{description}</span>
+      )}
+      {profile?.name && (
+        <span className="text-sm text-gray-500">
+          with {profile?.name ?? "Mentor"}
+        </span>
+      )}
       <div className="flex flex-row flex-1 gap-4 items-center mt-4">
         <ChatView
           name={`s_${studentId}:m_${mentorId}`}
@@ -55,7 +60,7 @@ const ScheduleItem = ({
               className="flex flex-row gap-2 items-center justify-center"
             >
               <Video className="w-5 h-5" />
-              <span>Join Meeting</span>
+              <span>Join </span>
             </Link>
           </button>
         ) : (
