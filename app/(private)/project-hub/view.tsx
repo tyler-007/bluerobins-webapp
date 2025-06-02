@@ -42,6 +42,7 @@ export default function ProjectHubView(props: {
               key={project.id}
               package_id={project.id}
               mentor_user={project.mentor_user}
+              spots={project.spots}
               isMentor={isMentor}
               title={project.title}
               description={project.description}

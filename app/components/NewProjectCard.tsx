@@ -34,6 +34,7 @@ interface ProjectCardProps {
   endDate: string;
   mentor_user: string;
   spotsLeft: number;
+  spots: number;
   price: number;
   agenda: { description: string }[];
   tools: { title: string; url: string }[];
@@ -56,6 +57,7 @@ export default function NewProjectCard({
   startDate,
   endDate,
   spotsLeft,
+  spots,
   price,
   agenda,
   tools,
@@ -153,11 +155,16 @@ export default function NewProjectCard({
 
         <div className="grid grid-cols-[auto_1fr] gap-2 mt-2 mb-4">
           <Hash className="w-5 h-5" strokeWidth={1.5} />
-          <span className="text-base"> 12 Sessions </span>
+          <span className="text-base"> {sessions} Sessions </span>
           <Clock className="w-5 h-5" strokeWidth={1.5} />
-          <span className="text-base"> Every Monday 4:00 PM</span>{" "}
+          <span className="text-base">
+            Every {day} {time}
+          </span>{" "}
           <Calendar className="w-5 h-5" strokeWidth={1.5} />
-          <span className="text-base">From 10th June to 9th August</span>
+          <span className="text-base">
+            {dayjs(startDate).format("DD MMM")} to{" "}
+            {dayjs(endDate).format("DD MMM")}
+          </span>
         </div>
         <p className="text-gray-500 mb-3 max-h-12 line-clamp-2 text-sm leading-snug ">
           <span>{description}</span>
@@ -194,7 +201,7 @@ export default function NewProjectCard({
       <div className="flex items-center bg-[#f0f7fa] p-3 pt-2 rounded-lg gap-2">
         <Users className="w-4 h-4" />
         <span className="text-black text-base font-normal flex-1">
-          3/4 Enrolled
+          {spots - spotsLeft} / {spots} Enrolled
         </span>
         {/* <Button variant="default" size="sm" className="text-sm rounded-md">
           Invite
@@ -213,68 +220,6 @@ export default function NewProjectCard({
           <span className="text-base">Edit</span>
         </Button>
       </div>
-      {/* <span className="text-base text-blue-500 text-center">
-        View Pricing Info
-      </span> */}
-      {/* <div className="border-t pt-4 mt-2 flex flex-col gap-2">
-        {!isMentor && (
-          <div className="flex items-center justify-between">
-            <span className="text-lg">Price:</span>
-            <span className="text-2xl font-bold">${price}</span>
-          </div>
-        )}
-        {isMentor ? (
-          <Button
-            loading={navigating}
-            className="w-full mt-2 text-lg py-6"
-            onClick={onEdit}
-          >
-            Edit Details
-          </Button>
-        ) : (
-          <>
-            <Button className="w-full mt-2 text-lg py-6" onClick={onBuyPackage}>
-              Buy Package
-            </Button>
-            <ProjectDetailsButton
-              onBuyPackage={onBuyPackage}
-              project={{
-                title,
-                description,
-                tags,
-                mentor,
-                sessions,
-                startDate,
-                endDate,
-                time,
-                day,
-                agenda,
-                tools,
-                prerequisites,
-              }}
-            />
-          </>
-        )}
-        <PaymentDialog
-          summary={
-            <div className="flex flex-col gap-2">
-              <span className="text-lg">
-                You are about to pay
-                <br />
-                <b>${price}</b> for {title} <b>({sessions} sessions)</b>
-                <br />
-                with <b>{mentor?.name}</b>
-              </span>
-            </div>
-          }
-          open={showPaymentDialog}
-          onOpenChange={setShowPaymentDialog}
-          amount={price}
-          onSuccess={handlePaymentSuccess}
-          onError={handlePaymentError}
-          onCancel={handlePaymentCancel}
-        />
-      </div> */}
     </div>
   );
 }
