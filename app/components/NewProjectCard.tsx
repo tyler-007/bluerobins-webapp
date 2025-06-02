@@ -152,7 +152,7 @@ export default function NewProjectCard({
           </Button>
         </div>
 
-        <div className="flex gap-2 mb-2">
+        <div className="flex flex-wrap gap-2 mb-2">
           {tags.map((tag) => (
             <Badge
               className="text-sm rounded border-blue-500 text-blue-500 bg-[#f0f7fa]"
