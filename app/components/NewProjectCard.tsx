@@ -164,14 +164,14 @@ export default function NewProjectCard({
           ))}
         </div>
 
-        <div className="grid grid-cols-[auto_1fr] gap-2 mt-2 mb-4">
-          <Hash className="w-5 h-5" strokeWidth={1.5} />
-          <span className="text-base"> {sessions} Sessions </span>
-          <Clock className="w-5 h-5" strokeWidth={1.5} />
+        <div className="grid grid-cols-[auto_1fr] gap-2 items-center mt-2 mb-4">
+          <Hash className="w-4 h-4" />
+          <span className="text-base "> {sessions} Sessions </span>
+          <Clock className="w-4 h-4" />
           <span className="text-base">
             Every {day} {time}
           </span>{" "}
-          <Calendar className="w-5 h-5" strokeWidth={1.5} />
+          <Calendar className="w-4 h-4" />
           <span className="text-base">
             {dayjs(startDate).format("DD MMM")} to{" "}
             {dayjs(endDate).format("DD MMM")}
