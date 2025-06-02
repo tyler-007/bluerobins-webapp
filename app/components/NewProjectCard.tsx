@@ -140,7 +140,17 @@ export default function NewProjectCard({
   return (
     <div className="relative bg-white rounded-xl shadow-sm border border-gray-200 p-6 pb-2 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between ">
       <div className="flex flex-col flex-1">
-        <h2 className="text-2xl font-bold mb-1">{title}</h2>
+        <div className="flex">
+          <h2 className="text-2xl font-bold mb-1 flex-1">{title}</h2>
+          <Button
+            onClick={onEdit}
+            variant="ghost"
+            className="text-blue-500 flex -mt-1"
+          >
+            <Edit3 className="w-3 h-3 mr-1" />
+            <span className="text-sm">Edit</span>
+          </Button>
+        </div>
 
         <div className="flex gap-2 mb-2">
           {tags.map((tag) => (
@@ -224,6 +234,7 @@ export default function NewProjectCard({
           Invite
         </Button> */}
           </div>
+          {/* <div className="flex justify-between"> */}
           <PricingInfoDialog
             sessionCount={sessions}
             triggerText="View Pricing Info"
@@ -231,6 +242,7 @@ export default function NewProjectCard({
               className: "text-blue-500",
             }}
           />
+          {/* </div> */}
         </>
       )}
       {!isMentor && (
@@ -267,7 +279,7 @@ export default function NewProjectCard({
         </>
       )}
 
-      {isMentor && (
+      {/* {isMentor && (
         <div className="absolute top-5  right-5">
           <Button
             onClick={onEdit}
@@ -278,7 +290,7 @@ export default function NewProjectCard({
             <span className="text-base">Edit</span>
           </Button>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
