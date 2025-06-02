@@ -63,15 +63,15 @@ export const PricingInfoDialog = ({
               </div>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg">
-              <div className="font-semibold mb-2">Commission Structure</div>
+              <div className="font-semibold mb-2">Fee Structure</div>
               <ul className="list-disc pl-5 space-y-1 text-sm">
                 <li>
-                  <span className="font-medium">1st student:</span> 23%
-                  commission taken by platform
+                  <span className="font-medium">1st student:</span> 23% platform
+                  fees
                 </li>
                 <li>
                   <span className="font-medium">2nd student onwards:</span> 50%
-                  commission taken by platform
+                  platform fees
                 </li>
               </ul>
             </div>
@@ -81,7 +81,7 @@ export const PricingInfoDialog = ({
                 <thead>
                   <tr className="text-left">
                     <th className="p-1">Student</th>
-                    <th className="p-1">Commission</th>
+                    <th className="p-1">Platform Fees</th>
                     <th className="p-1">Mentor Receives</th>
                   </tr>
                 </thead>
@@ -100,7 +100,7 @@ export const PricingInfoDialog = ({
               </table>
             </div>
             <div className="text-xs text-gray-500 text-center">
-              Mentor earnings are calculated after commission is deducted from
+              Mentor earnings are calculated after platform fee is deducted from
               the student payment.
             </div>
           </div>

@@ -89,7 +89,7 @@ export default function Sidebar() {
             )}
           >
             <option.icon className="text-2xl font-bold" />
-            <span className="text-lg font-medium">{option.label}</span>
+            <h3 className="text-xl font-medium">{option.label}</h3>
           </div>
         );
       })}
@@ -100,14 +100,14 @@ export default function Sidebar() {
           className="flex flex-row gap-4 pl-7 items-center h-14 text-[#fffA] hover:text-white w-full"
         >
           <HelpCircle className="text-2xl font-bold" />
-          <span className="text-lg font-medium">Support</span>
+          <h3 className="text-xl font-medium">Support</h3>
         </a>
         <button
           onClick={handleLogout}
           className="flex flex-row gap-4 pl-7 items-center h-14 text-[#fffA] hover:text-white w-full"
         >
           <LogOut className="text-2xl font-bold" />
-          <span className="text-lg font-medium">Logout</span>
+          <h3 className="text-xl font-medium">Logout</h3>
         </button>
       </div>
     </div>

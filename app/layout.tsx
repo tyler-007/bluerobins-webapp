@@ -2,7 +2,7 @@ import { EnvVarWarning } from "@/components/env-var-warning";
 import HeaderAuth from "@/components/header-auth";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/utils/supabase/check-env-vars";
-import { Nunito } from "next/font/google";
+import { Nunito, Lora } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import Link from "next/link";
 import "./globals.css";
@@ -24,6 +24,11 @@ const nunitoSans = Nunito({
   subsets: ["latin"],
 });
 
+const lora = Lora({
+  display: "swap",
+  subsets: ["latin"],
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,6 +36,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={nunitoSans.className} suppressHydrationWarning>
+      <head>
+        <style>{`
+          h1, h2, h3 {
+            font-family: ${lora.style.fontFamily};
+          }
+        `}</style>
+      </head>
       <body className="bg-background text-foreground">
         <ReactQueryProvider>
           <ThemeProvider

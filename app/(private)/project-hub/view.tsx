@@ -2,7 +2,8 @@
 import Image from "next/image";
 import logo from "../home/mascot.png";
 
-import ProjectCard from "@/app/components/ProjectCard";
+// import ProjectCard from "@/app/components/ProjectCard";
+import NewProjectCard from "@/app/components/NewProjectCard";
 import dayjs from "dayjs";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -37,7 +38,7 @@ export default function ProjectHubView(props: {
         )}
         <div className="flex flex-wrap gap-4">
           {props.projects.map((project: any) => (
-            <ProjectCard
+            <NewProjectCard
               key={project.id}
               package_id={project.id}
               mentor_user={project.mentor_user}
