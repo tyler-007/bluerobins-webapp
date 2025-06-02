@@ -47,7 +47,11 @@ export default function ProjectDetailsButton({
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetTrigger asChild>
-        <Button onClick={() => setOpen(true)} variant="outline">
+        <Button
+          onClick={() => setOpen(true)}
+          variant="ghost"
+          className="text-blue-500"
+        >
           View Details
         </Button>
       </SheetTrigger>

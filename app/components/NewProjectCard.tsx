@@ -3,6 +3,7 @@
 import {
   Calendar,
   Clock,
+  DollarSign,
   Edit,
   Edit2Icon,
   Edit3,
@@ -165,10 +166,25 @@ export default function NewProjectCard({
             {dayjs(startDate).format("DD MMM")} to{" "}
             {dayjs(endDate).format("DD MMM")}
           </span>
+          {!isMentor && (
+            <>
+              <Users className="w-5 h-5" strokeWidth={1.5} />
+              <span className="text-base">{mentor.name}</span>
+              <div> </div>
+              {/* <Button variant="ghost" size="sm" className="text-blue-500">
+                View Details
+              </Button> */}
+              <span className="text-blue-500 text-sm cursor-pointer hover:text-black transition-all duration-300 ">
+                Chat with mentor
+              </span>
+            </>
+          )}
         </div>
-        <p className="text-gray-500 mb-3 max-h-12 line-clamp-2 text-sm leading-snug ">
-          <span>{description}</span>
-        </p>
+        <div className="flex flex-1 items-end">
+          <p className="text-gray-500 mb-3 max-h-12 line-clamp-2 text-sm leading-snug ">
+            <span>{description}</span>
+          </p>
+        </div>
 
         {/* <div className="grid grid-cols-2">
           <div className="flex items-center gap-2">
@@ -196,30 +212,73 @@ export default function NewProjectCard({
             {startDate} to {endDate}
           </span>
         </div> */}
-        <div className="flex flex-1" />
       </div>
-      <div className="flex items-center bg-[#f0f7fa] p-3 pt-2 rounded-lg gap-2">
-        <Users className="w-4 h-4" />
-        <span className="text-black text-base font-normal flex-1">
-          {spots - spotsLeft} / {spots} Enrolled
-        </span>
-        {/* <Button variant="default" size="sm" className="text-sm rounded-md">
+      {isMentor && (
+        <>
+          <div className="flex items-center bg-[#f0f7fa] p-3 pt-2 rounded-lg gap-2">
+            <Users className="w-4 h-4" />
+            <span className="text-black text-base font-normal flex-1">
+              {spots - spotsLeft} / {spots} Enrolled
+            </span>
+            {/* <Button variant="default" size="sm" className="text-sm rounded-md">
           Invite
         </Button> */}
-      </div>
-      <PricingInfoDialog
-        sessionCount={sessions}
-        triggerText="View Pricing Info"
-        buttonProps={{
-          className: "text-blue-500",
-        }}
-      />
-      <div className="absolute top-5  right-5">
-        <Button onClick={onEdit} variant="ghost" className="text-blue-500 flex">
-          <Edit3 className="w-4 h-4 mr-1" />
-          <span className="text-base">Edit</span>
-        </Button>
-      </div>
+          </div>
+          <PricingInfoDialog
+            sessionCount={sessions}
+            triggerText="View Pricing Info"
+            buttonProps={{
+              className: "text-blue-500",
+            }}
+          />
+        </>
+      )}
+      {!isMentor && (
+        <>
+          <div className="flex items-center bg-[#f0f7fa] p-3 pt-2 rounded-lg gap-0">
+            <DollarSign className="w-5 h-5" />
+            <span className="text-black text-lg flex-1 mt-px">{price}</span>
+            <Button
+              variant="default"
+              size="sm"
+              className="text-sm rounded-md"
+              onClick={onBuyPackage}
+            >
+              Book Now
+            </Button>
+          </div>
+          <ProjectDetailsButton
+            onBuyPackage={onBuyPackage}
+            project={{
+              title,
+              description,
+              tags,
+              mentor,
+              sessions,
+              startDate,
+              endDate,
+              time,
+              day,
+              agenda,
+              tools,
+              prerequisites,
+            }}
+          />
+        </>
+      )}
+
+      {isMentor && (
+        <div className="absolute top-5  right-5">
+          <Button
+            onClick={onEdit}
+            variant="ghost"
+            className="text-blue-500 flex"
+          >
+            <Edit3 className="w-4 h-4 mr-1" />
+            <span className="text-base">Edit</span>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
