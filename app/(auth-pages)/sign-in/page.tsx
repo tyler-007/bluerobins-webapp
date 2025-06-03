@@ -161,11 +161,11 @@ export default function Login() {
               Mentor
             </button>
           </div>
-          <div className="w-full flex items-center mb-6">
+          {/* <div className="w-full flex items-center mb-6">
             <div className="flex-grow h-px bg-gray-200" />
             <span className="mx-4 text-gray-400">or</span>
             <div className="flex-grow h-px bg-gray-200" />
-          </div>
+          </div> */}
           <button
             onClick={() => {
               console.log("clicked");
