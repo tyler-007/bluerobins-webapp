@@ -21,12 +21,12 @@ export async function GET(request: Request) {
 
     if (!code) {
       console.error("No code provided in callback");
-      return NextResponse.redirect(`${origin}/sign-in`);
+      return NextResponse.redirect(`${origin}/`);
     }
 
     if (!userType) {
       console.error("No user type provided in callback");
-      return NextResponse.redirect(`${origin}/sign-in`);
+      return NextResponse.redirect(`${origin}/`);
     }
 
     const supabase = await createClient();
@@ -37,7 +37,7 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error("Error exchanging code for session:", error);
-      return NextResponse.redirect(`${origin}/sign-in`);
+      return NextResponse.redirect(`${origin}/`);
     }
 
     if (session) {
@@ -51,7 +51,7 @@ export async function GET(request: Request) {
 
       if (updateError) {
         console.error("Error updating user metadata:", updateError);
-        return NextResponse.redirect(`${origin}/sign-in`);
+        return NextResponse.redirect(`${origin}/`);
       }
 
       console.log("Successfully updated user type:", userType);
@@ -65,6 +65,6 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/home`);
   } catch (error) {
     console.error("Callback error:", error);
-    return NextResponse.redirect(`${origin}/sign-in`);
+    return NextResponse.redirect(`${origin}/`);
   }
 }

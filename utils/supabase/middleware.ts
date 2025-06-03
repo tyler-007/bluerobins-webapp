@@ -62,7 +62,7 @@ export const updateSession = async (request: NextRequest) => {
 
     // Redirect to sign-in if not authenticated and trying to access protected route
     if (!OPEN_ROUTES.includes(request.nextUrl.pathname) && !user) {
-      return NextResponse.redirect(new URL("/sign-in", request.url));
+      return NextResponse.redirect(new URL("/", request.url));
     }
 
     return response;
