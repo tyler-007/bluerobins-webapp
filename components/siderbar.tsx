@@ -63,7 +63,7 @@ export default function Sidebar() {
   const [selected, setSelected] = useState<string>(pathname);
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/sign-in");
+    router.push("/");
   };
 
   const { data: user } = useUser();
