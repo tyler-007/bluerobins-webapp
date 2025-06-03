@@ -31,6 +31,9 @@ export default function StudentProfileEdit({
   profile = profile || {};
   const [show, setShow] = useState(!profile.onboarded);
   const { toast } = useToast();
+  const [checkboxChecked, setCheckboxChecked] = useState(false);
+  const [termsClicked, setTermsClicked] = useState(false);
+  const [privacyClicked, setPrivacyClicked] = useState(false);
   // console.log("PRAO:", profile);
   const values = profile
     ? {
@@ -159,11 +162,53 @@ export default function StudentProfileEdit({
                 {isUndergrad && <MajorField control={form.control} />}
 
                 <div className="flex-1" />
-                <div className="flex flex-row gap-2">
+                <div className="flex flex-row gap-2 mt-4">
+                  <div className="flex flex-row gap-2 items-center justify-center">
+                    <input
+                      type="checkbox"
+                      checked={checkboxChecked}
+                      onChange={(e) => setCheckboxChecked(e.target.checked)}
+                    />
+                    <span>
+                      I agree to the{" "}
+                      <a
+                        target="_blank"
+                        href="/terms"
+                        className="text-blue-500 underline"
+                        onClick={() => setTermsClicked(true)}
+                      >
+                        Terms of Service
+                      </a>{" "}
+                      and{" "}
+                      <a
+                        target="_blank"
+                        href="/privacy"
+                        className="text-blue-500 underline"
+                        onClick={() => setPrivacyClicked(true)}
+                      >
+                        Privacy Policy
+                      </a>
+                    </span>
+                  </div>
                   <Button
+                    onClick={() => {
+                      if (
+                        !checkboxChecked ||
+                        !termsClicked ||
+                        !privacyClicked
+                      ) {
+                        toast({
+                          title: "Requirements Not Met",
+                          description:
+                            "Please check the box and click both Terms of Service and Privacy Policy links before saving.",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      form.handleSubmit(onSubmit)();
+                    }}
                     loading={form.formState.isSubmitting}
-                    type="submit"
-                    className="mt-4"
+                    type="button"
                   >
                     Save Changes
                   </Button>

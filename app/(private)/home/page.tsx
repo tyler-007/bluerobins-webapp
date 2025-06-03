@@ -12,7 +12,7 @@ import StudentOnboarding from "./StudentOnboarding";
 import MentorProfileEdit from "./MentorProfileEdit";
 import { Button } from "@/components/ui/button";
 import ProjectHubView from "../project-hub/view";
-import ProjectCard from "@/app/components/ProjectCard";
+import ProjectCard from "@/app/components/NewProjectCard";
 const ExploreItem = ({
   title,
   description,
@@ -80,7 +80,10 @@ const TimeSlots = ({
 
 export default async function HomePage() {
   const supabase = await createClient();
-
+  const {
+    data: { session: initialSession },
+  } = await supabase.auth.getSession();
+  console.log("DATa:", initialSession);
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -180,6 +183,7 @@ export default async function HomePage() {
                   title={project.title}
                   description={project.description}
                   tags={project.categories}
+                  spots={project.spots}
                   duration={`${project.sessions_count} weeks`}
                   sessions={project.sessions_count}
                   time={dayjs(project.session_time).format("hh:mm A")}
@@ -217,6 +221,8 @@ export default async function HomePage() {
                 </span>
                 {isMentor ? (
                   <MentorProfileEdit
+                    triggerText="Edit Profile"
+                    initialStep={0}
                     profile={profile}
                     email={user?.email ?? ""}
                     name={user?.user_metadata?.full_name}
@@ -229,10 +235,21 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl flex-1 border border-gray-200 p-3">
+          <div className="bg-white rounded-2xl flex flex-col flex-1 border border-gray-200 p-3">
             {isMentor && (
               <>
-                <span className="text-lg font-bold">Timings</span>
+                <div className="flex flex-row gap-4 items-center justify-between">
+                  <span className="text-lg font-bold">Timings</span>
+                  <MentorProfileEdit
+                    triggerText="Edit Timings"
+                    initialStep={2}
+                    triggerClassName="-mt-0 -ml-0 justify-end"
+                    profile={profile}
+                    email={user?.email ?? ""}
+                    name={user?.user_metadata?.full_name}
+                    userId={user.id}
+                  />
+                </div>
                 <div className="grid grid-cols-[auto_1fr] gap-2 gap-y-1 items-center">
                   <TimeSlots availability={availability?.Sunday} day="Sunday" />
                   <TimeSlots availability={availability?.Monday} day="Monday" />

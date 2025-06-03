@@ -81,16 +81,25 @@ export default function MentorProfileEdit({
   userId,
   name,
   email,
+  triggerText,
+  initialStep,
+  triggerClassName,
 }: {
+  initialStep: number;
   profile: any;
+  triggerText: string;
   userId: string;
   name: string;
   email: string;
+  triggerClassName?: string;
 }) {
   const supabase = createClient();
   profile = profile || {};
   const [open, setOpen] = useState(!profile.onboarded);
   const { toast } = useToast();
+  const [checkboxChecked, setCheckboxChecked] = useState(false);
+  const [termsClicked, setTermsClicked] = useState(false);
+  const [privacyClicked, setPrivacyClicked] = useState(false);
   const values = profile
     ? getValues(profile, defaultValues, { name })
     : undefined;
@@ -99,7 +108,7 @@ export default function MentorProfileEdit({
     defaultValues,
     values,
   });
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(initialStep);
 
   const onClose = (open: boolean) => {
     setOpen(open);
@@ -164,9 +173,9 @@ export default function MentorProfileEdit({
         <Button
           onClick={() => setOpen(true)}
           variant="ghost"
-          className="w-full justify-start -ml-4 -mt-3"
+          className={cn("w-full justify-start -ml-4 -mt-3", triggerClassName)}
         >
-          Edit Profile
+          {triggerText}
         </Button>
       </SheetTrigger>
       <SheetContent
@@ -204,6 +213,33 @@ export default function MentorProfileEdit({
           {/* Footer - full width */}
           <div className="w-full border-t bg-white p-4">
             <div className="flex gap-2 justify-end">
+              <div className="flex flex-row gap-2 items-center">
+                <input
+                  type="checkbox"
+                  checked={checkboxChecked}
+                  onChange={(e) => setCheckboxChecked(e.target.checked)}
+                />
+                <span>
+                  I agree to the{" "}
+                  <a
+                    target="_blank"
+                    href="/terms"
+                    className="text-blue-500 underline"
+                    onClick={() => setTermsClicked(true)}
+                  >
+                    Terms of Service
+                  </a>{" "}
+                  and{" "}
+                  <a
+                    target="_blank"
+                    href="/privacy"
+                    className="text-blue-500 underline"
+                    onClick={() => setPrivacyClicked(true)}
+                  >
+                    Privacy Policy
+                  </a>
+                </span>
+              </div>
               {step > 0 && (
                 <Button
                   type="button"
@@ -227,7 +263,18 @@ export default function MentorProfileEdit({
                 </Button>
               ) : (
                 <Button
-                  onClick={form.handleSubmit(onSubmit)}
+                  onClick={() => {
+                    if (!checkboxChecked || !termsClicked || !privacyClicked) {
+                      toast({
+                        title: "Requirements Not Met",
+                        description:
+                          "Please check the box and click both Terms of Service and Privacy Policy links before saving.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    form.handleSubmit(onSubmit)();
+                  }}
                   loading={form.formState.isSubmitting}
                   type="button"
                 >
