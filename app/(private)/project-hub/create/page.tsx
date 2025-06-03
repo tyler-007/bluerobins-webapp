@@ -568,13 +568,13 @@ export default function CreatePage() {
         <span className="text-gray-500 mt-2">8 sessions</span>
 
         <h2 className="text-xl mt-4">Available spots</h2>
-        <span className="text-gray-500 mt-2">10 spots</span>
+        <span className="text-gray-500 mt-2">2 spots</span>
         <h2 className="text-xl mt-4">Start Date</h2>
-        <span className="text-gray-500 mt-2">10 spots</span>
+        <span className="text-gray-500 mt-2">10/06/2025</span>
         <h2 className="text-xl mt-4">Day of the week</h2>
-        <span className="text-gray-500 mt-2">10 spots</span>
+        <span className="text-gray-500 mt-2">Monday</span>
         <h2 className="text-xl mt-4">Time</h2>
-        <span className="text-gray-500 mt-2">10 spots</span>
+        <span className="text-gray-500 mt-2">10:00 AM</span>
         <h2 className="text-xl mt-16">Session Descriptions</h2>
         <div className="flex flex-col gap-7">
           <span className="text-gray-500 mt-6">Introduction to session 1</span>

@@ -5,6 +5,9 @@ import OneTapComponent from "@/components/google-one-tap";
 import Image from "next/image";
 import GoogleAuthPopupButton from "@/components/GoogleAuthPopupButton";
 import GoogleLogo from "@/app/Google.png";
+import { toast } from "@/components/ui/use-toast";
+import { createClient } from "@/utils/supabase/client";
+
 const carouselSlides = [
   {
     image: "/sign-in-img.png",
@@ -38,10 +41,42 @@ export default function Login() {
   const [userType, setUserType] = useState<
     "student" | "parent" | "mentor" | undefined
   >();
+  const supabase = createClient();
   const total = carouselSlides.length;
   const slide = carouselSlides[current];
 
   const goTo = (idx: number) => setCurrent((idx + total) % total);
+
+  const onGoogleSignIn = async () => {
+    if (!userType) {
+      toast({
+        title: "Please select a user type",
+        description:
+          "Choose whether you're a student or mentor before signing in.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?user_type=${userType}`,
+          skipBrowserRedirect: false,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.error("OAuth error:", error);
+      toast({
+        title: "Google Sign In Failed",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-row bg-[#7B7B7B] w-screen">
@@ -132,8 +167,11 @@ export default function Login() {
             <div className="flex-grow h-px bg-gray-200" />
           </div>
           <button
+            onClick={() => {
+              console.log("clicked");
+              onGoogleSignIn();
+            }}
             className="flex items-center justify-center w-full bg-gray-100 rounded-full py-3 text-lg font-medium text-gray-700 hover:bg-gray-200 transition border border-gray-200"
-            disabled={!userType}
           >
             <Image
               src={GoogleLogo}
@@ -145,7 +183,7 @@ export default function Login() {
             Continue with Google
           </button>
           {/* Show OneTapComponent only when userType is set */}
-          {userType && <OneTapComponent userType={userType} />}
+          {/* {userType && <OneTapComponent userType={userType} />} */}
           {/* Show Google Auth Popup Button for testing */}
           {/* {userType && (
             <div className="w-full mt-4">
