@@ -56,7 +56,7 @@ const mentorOptions = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ verified }: { verified: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -73,26 +73,27 @@ export default function Sidebar() {
   return (
     <div className="w-[332px] flex flex-col bg-secondary h-screen">
       <div className="h-20"></div>
-      {finalOptions.map((option) => {
-        const isActive = selected.startsWith(option.href);
-        return (
-          <div
-            onClick={() => {
-              setSelected(option.href);
-              router.push(option.href);
-            }}
-            key={option.href}
-            className={cn(
-              "cursor-pointer flex flex-row gap-4 pl-7 items-center h-14 text-[#ffff]",
-              isActive && "bg-[#2953BE]",
-              isActive && "text-white"
-            )}
-          >
-            <option.icon className="text-2xl font-bold" />
-            <h3 className="text-xl font-medium">{option.label}</h3>
-          </div>
-        );
-      })}
+      {verified &&
+        finalOptions.map((option) => {
+          const isActive = selected.startsWith(option.href);
+          return (
+            <div
+              onClick={() => {
+                setSelected(option.href);
+                router.push(option.href);
+              }}
+              key={option.href}
+              className={cn(
+                "cursor-pointer flex flex-row gap-4 pl-7 items-center h-14 text-[#ffff]",
+                isActive && "bg-[#2953BE]",
+                isActive && "text-white"
+              )}
+            >
+              <option.icon className="text-2xl font-bold" />
+              <h3 className="text-xl font-medium">{option.label}</h3>
+            </div>
+          );
+        })}
       <div className="mt-auto mb-8 ">
         <a
           href="mailto:support@bluerobins.com"

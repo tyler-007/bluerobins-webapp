@@ -421,7 +421,9 @@ export default function CreatePage() {
                 Write a description for each sessions
               </label>
               <div className="space-y-3">
-                {Array.from({ length: 8 }).map((_, i) => (
+                {Array.from({
+                  length: parseInt(form.watch("sessions") ?? 8),
+                }).map((_, i) => (
                   <FormField
                     key={i}
                     control={form.control}
@@ -577,14 +579,16 @@ export default function CreatePage() {
         <span className="text-gray-500 mt-2">10:00 AM</span>
         <h2 className="text-xl mt-16">Session Descriptions</h2>
         <div className="flex flex-col gap-7">
-          <span className="text-gray-500 mt-6">Introduction to session 1</span>
-          <span className="text-gray-500">Introduction to session 2</span>
-          <span className="text-gray-500">Introduction to session 3</span>
-          <span className="text-gray-500">Introduction to session 4</span>
-          <span className="text-gray-500">Introduction to session 5</span>
-          <span className="text-gray-500">Introduction to session 6</span>
-          <span className="text-gray-500">Introduction to session 7</span>
-          <span className="text-gray-500">Introduction to session 8</span>
+          <span className="text-gray-500 mt-6">
+            Introduction to Brain Anatomy & Medical Imaging
+          </span>
+          <span className="text-gray-500">Python & Jupyter Notebooks</span>
+          <span className="text-gray-500">Image Data & Preprocessing</span>
+          <span className="text-gray-500">Data Exploration & Labeling</span>
+          <span className="text-gray-500">Machine Learning Basics</span>
+          <span className="text-gray-500">Building a Simple Classifier</span>
+          <span className="text-gray-500">Model Evaluation & Improvement</span>
+          <span className="text-gray-500">Final Project & Presentation</span>
         </div>
       </div>
     </div>

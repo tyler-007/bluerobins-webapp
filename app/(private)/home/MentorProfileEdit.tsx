@@ -8,7 +8,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -167,6 +167,11 @@ export default function MentorProfileEdit({
     form.clearErrors(fieldName);
   };
 
+  const hideTerms = useMemo(() => {
+    const onboarded = window?.localStorage?.getItem("mentor_onboarded");
+    return profile.onboarded || onboarded;
+  }, [profile.onboarded]);
+
   return (
     <Sheet open={open} onOpenChange={onClose} modal={false}>
       <SheetTrigger asChild>
@@ -213,33 +218,35 @@ export default function MentorProfileEdit({
           {/* Footer - full width */}
           <div className="w-full border-t bg-white p-4">
             <div className="flex gap-2 justify-end">
-              <div className="flex flex-row gap-2 items-center">
-                <input
-                  type="checkbox"
-                  checked={checkboxChecked}
-                  onChange={(e) => setCheckboxChecked(e.target.checked)}
-                />
-                <span>
-                  I agree to the{" "}
-                  <a
-                    target="_blank"
-                    href="/terms"
-                    className="text-blue-500 underline"
-                    onClick={() => setTermsClicked(true)}
-                  >
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a
-                    target="_blank"
-                    href="/privacy"
-                    className="text-blue-500 underline"
-                    onClick={() => setPrivacyClicked(true)}
-                  >
-                    Privacy Policy
-                  </a>
-                </span>
-              </div>
+              {!hideTerms && (
+                <div className="flex flex-row gap-2 items-center">
+                  <input
+                    type="checkbox"
+                    checked={checkboxChecked}
+                    onChange={(e) => setCheckboxChecked(e.target.checked)}
+                  />
+                  <span>
+                    I agree to the{" "}
+                    <a
+                      target="_blank"
+                      href="/terms"
+                      className="text-blue-500 underline"
+                      onClick={() => setTermsClicked(true)}
+                    >
+                      Terms of Service
+                    </a>{" "}
+                    and{" "}
+                    <a
+                      target="_blank"
+                      href="/privacy"
+                      className="text-blue-500 underline"
+                      onClick={() => setPrivacyClicked(true)}
+                    >
+                      Privacy Policy
+                    </a>
+                  </span>
+                </div>
+              )}
               {step > 0 && (
                 <Button
                   type="button"
@@ -273,6 +280,7 @@ export default function MentorProfileEdit({
                       });
                       return;
                     }
+                    window?.localStorage?.setItem("mentor_onboarded", "true");
                     form.handleSubmit(onSubmit)();
                   }}
                   loading={form.formState.isSubmitting}
