@@ -40,6 +40,7 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}/`);
     }
 
+    console.log("Session:", session);
     if (session) {
       console.log("Updating user metadata with type:", userType);
       // Update the user's metadata with their type
