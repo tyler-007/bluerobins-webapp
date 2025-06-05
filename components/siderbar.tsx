@@ -97,7 +97,7 @@ export default function Sidebar({ verified }: { verified: boolean }) {
         })}
       <div className="mt-auto mb-8 ">
         <a
-          href="mailto:support@bluerobins.com"
+          href="https://mail.google.com/mail/?view=cm&fs=1&to=support@bluerobins.com"
           target="_blank"
           className="flex flex-row gap-4 pl-7 items-center h-14 text-[#fffA] hover:text-white w-full"
         >
