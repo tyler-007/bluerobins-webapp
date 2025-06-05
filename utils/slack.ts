@@ -14,13 +14,7 @@ export async function sendSlackNotification(
   }
 
   try {
-    // Use node-fetch in server environment, window.fetch in client environment
-    const fetchFn =
-      typeof window === "undefined"
-        ? (await import("node-fetch")).default
-        : window.fetch;
-
-    const response = await fetchFn(webhookUrl, {
+    const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
