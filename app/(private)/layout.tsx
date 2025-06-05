@@ -16,7 +16,7 @@ export default async function PrivateLayout({
     .single();
 
   const isStudent = !profile;
-  const verified = isStudent || profile?.verified;
+  const verified = profile?.verified;
   return (
     <div className="flex flex-row min-h-screen max-h-screen overflow-hidden">
       <Sidebar verified={verified} />
