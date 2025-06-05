@@ -57,6 +57,11 @@ export default function Login() {
       return;
     }
 
+    console.log(
+      "REDIRECT:",
+      `${window.location.origin}/auth/callback?user_type=${userType}`
+    );
+
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
