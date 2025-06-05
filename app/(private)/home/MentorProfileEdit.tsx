@@ -117,7 +117,8 @@ export default function MentorProfileEdit({
   const [step, setStep] = useState(initialStep);
 
   const onClose = (open: boolean) => {
-    const newOpen = !window?.localStorage?.getItem("mentor_onboarded");
+    const newOpen =
+      isOnboarding && !window?.localStorage?.getItem("mentor_onboarded");
     setOpen(newOpen || open);
   };
 
