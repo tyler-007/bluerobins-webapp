@@ -25,6 +25,7 @@ import { MentorTypeStep } from "./components/mentor-profile/MentorTypeStep";
 import { AvailabilityStep } from "./components/mentor-profile/AvailabilityStep";
 import { ProfileStep } from "./components/mentor-profile/ProfileStep";
 import { Stepper } from "./components/mentor-profile/Stepper";
+import { sendSlackNotification } from "@/utils/slack";
 
 const getValues = (profile: any, defaultValues: FormValues, props: any) => {
   const days = [
@@ -114,6 +115,11 @@ export default function MentorProfileEdit({
     setOpen(open);
   };
 
+  const hideTerms = useMemo(() => {
+    const onboarded = window?.localStorage?.getItem("mentor_onboarded");
+    return profile.onboarded || onboarded;
+  }, [profile.onboarded]);
+
   const onSubmit = async (data: FormValues) => {
     try {
       const { name, ...payload } = data;
@@ -145,6 +151,13 @@ export default function MentorProfileEdit({
           onboarded: true,
           ...payload,
         });
+
+      if (!hideTerms) {
+        await sendSlackNotification(
+          `New mentor profile created: ${userId}. ${name} ${payload?.phone_number}. ${JSON.stringify(updatedMentorProfile)}`
+        );
+      }
+
       console.log("UPDATED MENTOR PROFILE:", updatedMentorProfile, error);
 
       toast({
@@ -166,11 +179,6 @@ export default function MentorProfileEdit({
   const clearFieldError = (fieldName: keyof FormValues) => {
     form.clearErrors(fieldName);
   };
-
-  const hideTerms = useMemo(() => {
-    const onboarded = window?.localStorage?.getItem("mentor_onboarded");
-    return profile.onboarded || onboarded;
-  }, [profile.onboarded]);
 
   return (
     <Sheet open={open} onOpenChange={onClose} modal={false}>
