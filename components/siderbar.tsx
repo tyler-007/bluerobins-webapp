@@ -62,6 +62,7 @@ export default function Sidebar({ verified }: { verified: boolean }) {
   const supabase = createClient();
   const [selected, setSelected] = useState<string>(pathname);
   const handleLogout = async () => {
+    window?.localStorage?.removeItem("mentor_onboarded");
     await supabase.auth.signOut();
     router.push("/");
   };

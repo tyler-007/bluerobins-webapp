@@ -128,7 +128,7 @@ export default function ProjectCard({
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between ">
       <div className="flex flex-col flex-1">
-        <h2 className="text-2xl font-bold mb-1">{title}</h2>
+        <h2 className="text-xl font-bold mb-1">{title}</h2>
 
         <p className="text-gray-500 mb-3 text-base leading-snug line-clamp-2">
           <span>{description}</span>

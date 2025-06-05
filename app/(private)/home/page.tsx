@@ -126,8 +126,8 @@ export default async function HomePage() {
           Thanks for signing up as a mentor!
         </h3>
         <p className="text-xl text-gray-500 text-center">
-          We’re reviewing your details and will notify you once your profile is
-          verified and your portal access is activated.
+          We’re reviewing your details and will notify you once <br />
+          your profile is verified and your portal access is activated.
         </p>
 
         <MentorProfileEdit

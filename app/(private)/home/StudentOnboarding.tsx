@@ -113,6 +113,7 @@ export default function StudentProfileEdit({
   }
 
   const handleLogout = async () => {
+    window?.localStorage?.removeItem("mentor_onboarded");
     await supabase.auth.signOut();
     router.push("/");
   };
