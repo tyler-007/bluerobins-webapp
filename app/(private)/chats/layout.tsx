@@ -90,7 +90,7 @@ export default async function ChatsPage({
           )}
           <div className="w-full max-w-md mx-auto divide-y border-[#DDD] border-b">
             <a
-              href="mailto:support@bluerobins.com"
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=support@bluerobins.com"
               target="_blank"
               className="flex items-center px-4 py-3 gap-2 hover:bg-[#E0E6F6] transition"
             >
