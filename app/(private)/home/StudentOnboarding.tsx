@@ -63,6 +63,7 @@ export default function StudentProfileEdit({
       const { error } = await supabase.from("student_profiles").upsert({
         id: userId,
         onboarded: true,
+        verified: true,
         student_type: data.major
           ? "undergrad"
           : [6, 7, 8].some((grade) => data.grade.includes(grade.toString()))
