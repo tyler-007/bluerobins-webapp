@@ -121,7 +121,26 @@ export default async function HomePage() {
 
   // const availability = bookingConfig?.availability;
   const availability = profile?.availability;
-  console.log("myBookings:", myBookings);
+
+  if (!profile.verified && isMentor) {
+    return (
+      <div className="flex flex-col flex-1 min-h-screen  gap-4 items-center justify-center">
+        <h3 className="text-3xl">
+          Please wait for your profile to be verified.
+        </h3>
+
+        <MentorProfileEdit
+          triggerText="Verify Profile"
+          initialStep={0}
+          profile={profile}
+          email={user?.email ?? ""}
+          name={user?.user_metadata?.full_name}
+          triggerClassName="opacity-0"
+          userId={user.id}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-row flex-1">
@@ -219,18 +238,15 @@ export default async function HomePage() {
                 <span className="text-lg font-bold">
                   {user?.user_metadata?.full_name}
                 </span>
-                {isMentor ? (
-                  <MentorProfileEdit
-                    triggerText="Edit Profile"
-                    initialStep={0}
-                    profile={profile}
-                    email={user?.email ?? ""}
-                    name={user?.user_metadata?.full_name}
-                    userId={user.id}
-                  />
-                ) : (
-                  <StudentOnboarding profile={profile} userId={user.id} />
-                )}
+
+                <MentorProfileEdit
+                  triggerText="Edit Profile"
+                  initialStep={0}
+                  profile={profile}
+                  email={user?.email ?? ""}
+                  name={user?.user_metadata?.full_name}
+                  userId={user.id}
+                />
               </div>
             </div>
           </div>

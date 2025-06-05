@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import mascot from "./mascot.png";
 import { useForm } from "react-hook-form";
@@ -100,7 +100,11 @@ export default function StudentProfileEdit({
     setDefaultCountry();
   }, [form]);
 
-  // console.log("SHOW:", show);
+  const hideTerms = useMemo(() => {
+    const onboarded = window?.localStorage?.getItem("student_onboarded");
+    return profile.onboarded || onboarded;
+  }, [profile.onboarded]);
+
   if (!show) {
     return null;
   }
@@ -163,33 +167,35 @@ export default function StudentProfileEdit({
 
                 <div className="flex-1" />
                 <div className="flex flex-row gap-2 mt-4">
-                  <div className="flex flex-row gap-2 items-center justify-center">
-                    <input
-                      type="checkbox"
-                      checked={checkboxChecked}
-                      onChange={(e) => setCheckboxChecked(e.target.checked)}
-                    />
-                    <span>
-                      I agree to the{" "}
-                      <a
-                        target="_blank"
-                        href="/terms"
-                        className="text-blue-500 underline"
-                        onClick={() => setTermsClicked(true)}
-                      >
-                        Terms of Service
-                      </a>{" "}
-                      and{" "}
-                      <a
-                        target="_blank"
-                        href="/privacy"
-                        className="text-blue-500 underline"
-                        onClick={() => setPrivacyClicked(true)}
-                      >
-                        Privacy Policy
-                      </a>
-                    </span>
-                  </div>
+                  {!hideTerms && (
+                    <div className="flex flex-row gap-2 items-center justify-center">
+                      <input
+                        type="checkbox"
+                        checked={checkboxChecked}
+                        onChange={(e) => setCheckboxChecked(e.target.checked)}
+                      />
+                      <span>
+                        I agree to the{" "}
+                        <a
+                          target="_blank"
+                          href="/terms"
+                          className="text-blue-500 underline"
+                          onClick={() => setTermsClicked(true)}
+                        >
+                          Terms of Service
+                        </a>{" "}
+                        and{" "}
+                        <a
+                          target="_blank"
+                          href="/privacy"
+                          className="text-blue-500 underline"
+                          onClick={() => setPrivacyClicked(true)}
+                        >
+                          Privacy Policy
+                        </a>
+                      </span>
+                    </div>
+                  )}
                   <Button
                     onClick={() => {
                       if (
@@ -205,6 +211,10 @@ export default function StudentProfileEdit({
                         });
                         return;
                       }
+                      window?.localStorage?.setItem(
+                        "student_onboarded",
+                        "true"
+                      );
                       form.handleSubmit(onSubmit)();
                     }}
                     loading={form.formState.isSubmitting}

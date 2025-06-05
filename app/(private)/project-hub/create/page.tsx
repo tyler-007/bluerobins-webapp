@@ -132,6 +132,25 @@ export default function CreatePage() {
     name: "prereqs",
   });
 
+  // Add effect to update day of week when date changes
+  React.useEffect(() => {
+    const startDate = form.watch("startDate");
+    if (startDate) {
+      const date = new Date(startDate);
+      const days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+      const dayOfWeek = days[date.getDay()];
+      form.setValue("dayOfWeek", dayOfWeek);
+    }
+  }, [form.watch("startDate")]);
+
   const onSubmit = async (values: FormValues) => {
     const {
       title,
@@ -367,28 +386,12 @@ export default function CreatePage() {
                     <FormLabel className="font-semibold text-lg">
                       Day of the week
                     </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a day" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Monday">Monday</SelectItem>
-                        <SelectItem value="Tuesday">Tuesday</SelectItem>
-                        <SelectItem value="Wednesday">Wednesday</SelectItem>
-                        <SelectItem value="Thursday">Thursday</SelectItem>
-                        <SelectItem value="Friday">Friday</SelectItem>
-                        <SelectItem value="Saturday">Saturday</SelectItem>
-                        <SelectItem value="Sunday">Sunday</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <Input {...field} disabled />
+                    </FormControl>
                     <FormMessage />
                     <div className="text-gray-400 text-sm mt-1">
-                      Which day will sessions take place?
+                      Day is automatically set based on the selected date
                     </div>
                   </FormItem>
                 )}
@@ -421,7 +424,9 @@ export default function CreatePage() {
                 Write a description for each sessions
               </label>
               <div className="space-y-3">
-                {Array.from({ length: 8 }).map((_, i) => (
+                {Array.from({
+                  length: parseInt(form.watch("sessions") ?? 8),
+                }).map((_, i) => (
                   <FormField
                     key={i}
                     control={form.control}
@@ -429,7 +434,10 @@ export default function CreatePage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input {...field} placeholder={`Session ${i + 1}`} />
+                          <Input
+                            {...field}
+                            placeholder={`Information about session ${i + 1}`}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -571,20 +579,21 @@ export default function CreatePage() {
         <span className="text-gray-500 mt-2">2 spots</span>
         <h2 className="text-xl mt-4">Start Date</h2>
         <span className="text-gray-500 mt-2">10/06/2025</span>
-        <h2 className="text-xl mt-4">Day of the week</h2>
-        <span className="text-gray-500 mt-2">Monday</span>
+
         <h2 className="text-xl mt-4">Time</h2>
         <span className="text-gray-500 mt-2">10:00 AM</span>
         <h2 className="text-xl mt-16">Session Descriptions</h2>
         <div className="flex flex-col gap-7">
-          <span className="text-gray-500 mt-6">Introduction to session 1</span>
-          <span className="text-gray-500">Introduction to session 2</span>
-          <span className="text-gray-500">Introduction to session 3</span>
-          <span className="text-gray-500">Introduction to session 4</span>
-          <span className="text-gray-500">Introduction to session 5</span>
-          <span className="text-gray-500">Introduction to session 6</span>
-          <span className="text-gray-500">Introduction to session 7</span>
-          <span className="text-gray-500">Introduction to session 8</span>
+          <span className="text-gray-500 mt-6">
+            Introduction to Brain Anatomy & Medical Imaging
+          </span>
+          <span className="text-gray-500">Python & Jupyter Notebooks</span>
+          <span className="text-gray-500">Image Data & Preprocessing</span>
+          <span className="text-gray-500">Data Exploration & Labeling</span>
+          <span className="text-gray-500">Machine Learning Basics</span>
+          <span className="text-gray-500">Building a Simple Classifier</span>
+          <span className="text-gray-500">Model Evaluation & Improvement</span>
+          <span className="text-gray-500">Final Project & Presentation</span>
         </div>
       </div>
     </div>

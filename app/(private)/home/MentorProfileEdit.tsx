@@ -8,7 +8,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -25,6 +25,7 @@ import { MentorTypeStep } from "./components/mentor-profile/MentorTypeStep";
 import { AvailabilityStep } from "./components/mentor-profile/AvailabilityStep";
 import { ProfileStep } from "./components/mentor-profile/ProfileStep";
 import { Stepper } from "./components/mentor-profile/Stepper";
+import { sendSlackNotification } from "@/utils/slack";
 
 const getValues = (profile: any, defaultValues: FormValues, props: any) => {
   const days = [
@@ -114,6 +115,11 @@ export default function MentorProfileEdit({
     setOpen(open);
   };
 
+  const hideTerms = useMemo(() => {
+    const onboarded = window?.localStorage?.getItem("mentor_onboarded");
+    return profile.onboarded || onboarded;
+  }, [profile.onboarded]);
+
   const onSubmit = async (data: FormValues) => {
     try {
       const { name, ...payload } = data;
@@ -145,6 +151,13 @@ export default function MentorProfileEdit({
           onboarded: true,
           ...payload,
         });
+
+      if (!hideTerms) {
+        await sendSlackNotification(
+          `New mentor profile created: ${userId}. ${name} ${payload?.phone_number}. ${JSON.stringify(updatedMentorProfile)}`
+        );
+      }
+
       console.log("UPDATED MENTOR PROFILE:", updatedMentorProfile, error);
 
       toast({
@@ -213,33 +226,35 @@ export default function MentorProfileEdit({
           {/* Footer - full width */}
           <div className="w-full border-t bg-white p-4">
             <div className="flex gap-2 justify-end">
-              <div className="flex flex-row gap-2 items-center">
-                <input
-                  type="checkbox"
-                  checked={checkboxChecked}
-                  onChange={(e) => setCheckboxChecked(e.target.checked)}
-                />
-                <span>
-                  I agree to the{" "}
-                  <a
-                    target="_blank"
-                    href="/terms"
-                    className="text-blue-500 underline"
-                    onClick={() => setTermsClicked(true)}
-                  >
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a
-                    target="_blank"
-                    href="/privacy"
-                    className="text-blue-500 underline"
-                    onClick={() => setPrivacyClicked(true)}
-                  >
-                    Privacy Policy
-                  </a>
-                </span>
-              </div>
+              {!hideTerms && (
+                <div className="flex flex-row gap-2 items-center">
+                  <input
+                    type="checkbox"
+                    checked={checkboxChecked}
+                    onChange={(e) => setCheckboxChecked(e.target.checked)}
+                  />
+                  <span>
+                    I agree to the{" "}
+                    <a
+                      target="_blank"
+                      href="/terms"
+                      className="text-blue-500 underline"
+                      onClick={() => setTermsClicked(true)}
+                    >
+                      Terms of Service
+                    </a>{" "}
+                    and{" "}
+                    <a
+                      target="_blank"
+                      href="/privacy"
+                      className="text-blue-500 underline"
+                      onClick={() => setPrivacyClicked(true)}
+                    >
+                      Privacy Policy
+                    </a>
+                  </span>
+                </div>
+              )}
               {step > 0 && (
                 <Button
                   type="button"
@@ -273,6 +288,7 @@ export default function MentorProfileEdit({
                       });
                       return;
                     }
+                    window?.localStorage?.setItem("mentor_onboarded", "true");
                     form.handleSubmit(onSubmit)();
                   }}
                   loading={form.formState.isSubmitting}
