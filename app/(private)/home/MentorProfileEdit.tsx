@@ -26,6 +26,7 @@ import { AvailabilityStep } from "./components/mentor-profile/AvailabilityStep";
 import { ProfileStep } from "./components/mentor-profile/ProfileStep";
 import { Stepper } from "./components/mentor-profile/Stepper";
 import { sendSlackNotification } from "@/utils/slack";
+import { sendEmail } from "@/app/actions/index";
 
 const getValues = (profile: any, defaultValues: FormValues, props: any) => {
   const days = [
@@ -153,6 +154,11 @@ export default function MentorProfileEdit({
         });
 
       if (!hideTerms) {
+        await sendEmail({
+          to: "support@bluerobins.com",
+          subject: "New Mentor Profile Created",
+          message: `New mentor profile created: ${userId}. ${name} ${payload?.phone_number}. ${JSON.stringify(updatedMentorProfile)}`,
+        });
         await sendSlackNotification(
           `New mentor profile created: ${userId}. ${name} ${payload?.phone_number}. ${JSON.stringify(updatedMentorProfile)}`
         );
@@ -174,10 +180,6 @@ export default function MentorProfileEdit({
         variant: "destructive",
       });
     }
-  };
-
-  const clearFieldError = (fieldName: keyof FormValues) => {
-    form.clearErrors(fieldName);
   };
 
   return (
