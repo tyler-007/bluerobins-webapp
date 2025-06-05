@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 import {
   defaultValues,
   formSchema,
@@ -96,6 +97,7 @@ export default function MentorProfileEdit({
   triggerClassName?: string;
 }) {
   const supabase = createClient();
+  const router = useRouter();
   profile = profile || {};
   const [open, setOpen] = useState(!profile.onboarded);
   const { toast } = useToast();
@@ -183,6 +185,11 @@ export default function MentorProfileEdit({
     }
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/");
+  };
+
   return (
     <Sheet open={open} onOpenChange={onClose} modal={false}>
       <SheetTrigger asChild>
@@ -228,7 +235,11 @@ export default function MentorProfileEdit({
 
           {/* Footer - full width */}
           <div className="w-full border-t bg-white p-4">
-            <div className="flex gap-2 justify-end">
+            <div className="flex gap-2 items-center">
+              <Button variant="outline" onClick={handleLogout}>
+                Logout
+              </Button>
+              <div className="flex-1" />
               {!hideTerms && (
                 <div className="flex flex-row gap-2 items-center">
                   <input
@@ -240,7 +251,7 @@ export default function MentorProfileEdit({
                     I agree to the{" "}
                     <a
                       target="_blank"
-                      href="/terms"
+                      href="/static/terms-and-conditions.pdf"
                       className="text-blue-500 underline"
                       onClick={() => setTermsClicked(true)}
                     >
@@ -249,7 +260,7 @@ export default function MentorProfileEdit({
                     and{" "}
                     <a
                       target="_blank"
-                      href="/privacy"
+                      href="/static/privacy-policy.pdf"
                       className="text-blue-500 underline"
                       onClick={() => setPrivacyClicked(true)}
                     >
