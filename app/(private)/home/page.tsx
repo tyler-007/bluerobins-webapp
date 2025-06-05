@@ -122,9 +122,13 @@ export default async function HomePage() {
   if (!profile?.verified && isMentor) {
     return (
       <div className="flex flex-col flex-1 min-h-screen  gap-4 items-center justify-center">
-        <h3 className="text-3xl">
-          Please wait for your profile to be verified.
+        <h3 className="text-3xl text-center">
+          Thanks for signing up as a mentor!
         </h3>
+        <p className="text-xl text-gray-500 text-center">
+          We’re reviewing your details and will notify you once your profile is
+          verified and your portal access is activated.
+        </p>
 
         <MentorProfileEdit
           triggerText="Verify Profile"
