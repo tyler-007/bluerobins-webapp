@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import OneTapComponent from "@/components/google-one-tap";
+// import OneTapComponent from "@/components/google-one-tap";
 import Image from "next/image";
-import GoogleAuthPopupButton from "@/components/GoogleAuthPopupButton";
+
 import GoogleLogo from "@/app/Google.png";
 import { toast } from "@/components/ui/use-toast";
 import { createClient } from "@/utils/supabase/client";
@@ -40,7 +40,7 @@ export default function Login() {
   const [current, setCurrent] = useState(1); // Start on the second slide
   const [userType, setUserType] = useState<
     "student" | "parent" | "mentor" | undefined
-  >();
+  >("mentor");
   const supabase = createClient();
   const total = carouselSlides.length;
   const slide = carouselSlides[current];
@@ -148,12 +148,12 @@ export default function Login() {
             Join blurobins for free as a
           </p>
           <div className="flex flex-col gap-4 w-full mb-6">
-            <button
+            {/* <button
               onClick={() => setUserType("student")}
               className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "student" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
             >
               Student
-            </button>
+            </button> */}
             <button
               onClick={() => setUserType("mentor")}
               className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "mentor" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}

@@ -117,6 +117,7 @@ export default function MentorProfileEdit({
   };
 
   const hideTerms = useMemo(() => {
+    if (typeof window === "undefined") return false;
     const onboarded = window?.localStorage?.getItem("mentor_onboarded");
     return profile.onboarded || onboarded;
   }, [profile.onboarded]);

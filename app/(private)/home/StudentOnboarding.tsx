@@ -19,6 +19,7 @@ import { InstitutionAndCountry } from "./components/InstitutionAndCountry";
 import { GradeSelector } from "./components/GradeSelector";
 import { ParentInfo } from "./components/ParentInfo";
 import { MajorField } from "./components/MajorField";
+import { useRouter } from "next/navigation";
 
 export default function StudentProfileEdit({
   profile,
@@ -34,6 +35,7 @@ export default function StudentProfileEdit({
   const [checkboxChecked, setCheckboxChecked] = useState(false);
   const [termsClicked, setTermsClicked] = useState(false);
   const [privacyClicked, setPrivacyClicked] = useState(false);
+  const router = useRouter();
   // console.log("PRAO:", profile);
   const values = profile
     ? {
@@ -101,6 +103,7 @@ export default function StudentProfileEdit({
   }, [form]);
 
   const hideTerms = useMemo(() => {
+    if (typeof window === "undefined") return false;
     const onboarded = window?.localStorage?.getItem("student_onboarded");
     return profile.onboarded || onboarded;
   }, [profile.onboarded]);
@@ -108,6 +111,11 @@ export default function StudentProfileEdit({
   if (!show) {
     return null;
   }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/");
+  };
 
   return (
     <div
@@ -133,6 +141,9 @@ export default function StudentProfileEdit({
               </p>
             </div>
           </div>
+          <Button variant="outline" onClick={handleLogout}>
+            Logout
+          </Button>
         </div>
 
         <Form {...form}>

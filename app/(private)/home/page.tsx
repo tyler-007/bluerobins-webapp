@@ -80,10 +80,7 @@ const TimeSlots = ({
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const {
-    data: { session: initialSession },
-  } = await supabase.auth.getSession();
-  console.log("DATa:", initialSession);
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -122,7 +119,7 @@ export default async function HomePage() {
   // const availability = bookingConfig?.availability;
   const availability = profile?.availability;
 
-  if (!profile.verified && isMentor) {
+  if (!profile?.verified && isMentor) {
     return (
       <div className="flex flex-col flex-1 min-h-screen  gap-4 items-center justify-center">
         <h3 className="text-3xl">
@@ -155,7 +152,7 @@ export default async function HomePage() {
           </h1>
         </div>
         <div className="flex flex-row gap-4 mt-7 items-center justify-between">
-          <span className="text-2xl font-bold">Upcoming Schedules</span>
+          <span className="text-2xl font-bold">Upcoming Sessions</span>
           {/* {!!myBookings?.length && <span>See All</span>} */}
         </div>
         <div className="flex flex-row flex-wrap gap-4">
@@ -177,7 +174,7 @@ export default async function HomePage() {
               ))
           ) : (
             <div className="flex flex-1 items-center justify-center p-6 border-dashed border-blue-500 border-2 rounded-2xl">
-              <span>No upcoming schedules</span>
+              <span>No upcoming sessions</span>
             </div>
           )}
         </div>
@@ -228,7 +225,7 @@ export default async function HomePage() {
       </div>
       {!isMentor && <StudentOnboarding profile={profile} userId={user.id} />}
       {isMentor && (
-        <div className="flex w-96 flex-col bg-light border-l-2 border-gray-200 p-5 gap-5  ">
+        <div className="flex w-[272px] flex-col bg-light border-l-2 border-gray-200 p-5 gap-5  ">
           <div className="bg-white rounded-2xl p-6 border border-gray-200">
             <div className="flex flex-row gap-4 items-center">
               <div className="flex h-14 w-14 rounded-full bg-[#B1D1FA] items-center justify-center">
