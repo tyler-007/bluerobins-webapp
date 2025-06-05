@@ -131,6 +131,7 @@ export default async function HomePage() {
         </p>
 
         <MentorProfileEdit
+          isOnboarding
           triggerText="Verify Profile"
           initialStep={0}
           profile={profile}

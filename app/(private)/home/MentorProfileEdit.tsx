@@ -82,6 +82,7 @@ const getValues = (profile: any, defaultValues: FormValues, props: any) => {
 export default function MentorProfileEdit({
   profile,
   userId,
+  isOnboarding,
   name,
   email,
   triggerText,
@@ -89,6 +90,7 @@ export default function MentorProfileEdit({
   triggerClassName,
 }: {
   initialStep: number;
+  isOnboarding?: boolean;
   profile: any;
   triggerText: string;
   userId: string;
@@ -101,9 +103,9 @@ export default function MentorProfileEdit({
   profile = profile || {};
   const [open, setOpen] = useState(!profile.onboarded);
   const { toast } = useToast();
-  const [checkboxChecked, setCheckboxChecked] = useState(false);
-  const [termsClicked, setTermsClicked] = useState(false);
-  const [privacyClicked, setPrivacyClicked] = useState(false);
+  const [checkboxChecked, setCheckboxChecked] = useState(!isOnboarding);
+  const [termsClicked, setTermsClicked] = useState(!isOnboarding);
+  const [privacyClicked, setPrivacyClicked] = useState(!isOnboarding);
   const values = profile
     ? getValues(profile, defaultValues, { name })
     : undefined;
@@ -115,7 +117,8 @@ export default function MentorProfileEdit({
   const [step, setStep] = useState(initialStep);
 
   const onClose = (open: boolean) => {
-    setOpen(open);
+    const newOpen = !window?.localStorage?.getItem("mentor_onboarded");
+    setOpen(newOpen || open);
   };
 
   const hideTerms = useMemo(() => {
