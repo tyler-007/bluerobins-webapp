@@ -72,7 +72,7 @@ export default function Sidebar({ verified }: { verified: boolean }) {
   const finalOptions = userType === "mentor" ? mentorOptions : options;
 
   return (
-    <div className="w-[272px] flex flex-col bg-secondary h-screen">
+    <div className="w-[300px] flex flex-col bg-secondary h-screen">
       <div className="h-20"></div>
       {verified &&
         finalOptions.map((option) => {
