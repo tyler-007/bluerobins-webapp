@@ -8,6 +8,7 @@ export const formSchema = z.object({
     .min(10, { message: "Phone number must be at least 10 digits" }),
   address: z.string().min(1, { message: "Address is required" }),
   state: z.string().min(1, { message: "State is required" }),
+  city: z.string().min(1, { message: "City is required" }),
   country: z.string().min(1, { message: "Country is required" }),
   mentoring_type: z.enum(["pay_as_you_go", "research_packages", "both"], {
     required_error: "Please select a mentoring type",

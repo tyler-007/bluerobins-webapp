@@ -193,7 +193,7 @@ export function ProfileStep({ form }: ProfileStepProps) {
             <FormItem>
               <FormLabel>Mentoring Areas</FormLabel>
               <FormDescription>
-                Add tags (e.g. Physics, Robotics, Counselling, Essay Writing)
+                Add tags (e.g. Physics, Robotics, Counseling, Essay Writing)
               </FormDescription>
               <FormControl>
                 <TagInput
