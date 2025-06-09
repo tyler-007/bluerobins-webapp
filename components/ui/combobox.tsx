@@ -59,14 +59,19 @@ export function Combobox({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
-        <Command>
+        <Command
+          filter={(value, search) => {
+            if (value.toLowerCase().startsWith(search.toLowerCase())) return 1;
+            return 0;
+          }}
+        >
           <CommandInput placeholder={searchPlaceholder} />
           <CommandEmpty>{emptyText}</CommandEmpty>
           <CommandGroup className="max-h-[200px] overflow-y-auto">
             {items.map((item) => (
               <CommandItem
                 key={item.value}
-                value={item.value}
+                value={item.label}
                 onSelect={() => {
                   onValueChange(item.value);
                   setOpen(false);

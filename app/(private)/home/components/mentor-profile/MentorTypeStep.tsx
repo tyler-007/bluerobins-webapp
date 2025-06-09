@@ -30,7 +30,7 @@ export function MentorTypeStep({ form }: MentorTypeStepProps) {
             name="institution"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Institution</FormLabel>
+                <FormLabel>Institution/Industry</FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="Enter your institution" />
                 </FormControl>
@@ -43,7 +43,7 @@ export function MentorTypeStep({ form }: MentorTypeStepProps) {
             name="major"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Major</FormLabel>
+                <FormLabel>Major/Area of Expertise</FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="Enter your major" />
                 </FormControl>
