@@ -61,6 +61,7 @@ const getValues = (profile: any, defaultValues: FormValues, props: any) => {
     phone_number: profile.phone_number ?? defaultValues.phone_number,
     address: profile.address ?? defaultValues.address,
     state: profile.state ?? defaultValues.state,
+    city: profile.city ?? defaultValues.city,
     country: profile.country ?? defaultValues.country,
     mentoring_type: profile.mentoring_type ?? defaultValues.mentoring_type,
     preferred_mentees:

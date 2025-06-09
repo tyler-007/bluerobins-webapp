@@ -56,6 +56,7 @@ export const defaultValues: FormValues = {
   phone_number: "",
   address: "",
   state: "",
+  city: "",
   country: "",
   mentoring_type: "pay_as_you_go",
   preferred_mentees: [],
