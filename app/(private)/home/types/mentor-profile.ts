@@ -20,7 +20,13 @@ export const formSchema = z.object({
     }),
   institution: z.string().min(1, { message: "Institution is required" }),
   major: z.string().min(1, { message: "Major is required" }),
-  linkedin_url: z.string().trim().url().optional().nullable(),
+  linkedin_url: z
+    .string()
+    .trim()
+    .refine((val) => !val || val.match(/^https?:\/\/.+/), {
+      message: "Please enter a valid URL",
+    })
+    .optional(),
   bio: z.string().min(1, { message: "Bio is required" }),
   hours_per_week: z
     .number()
