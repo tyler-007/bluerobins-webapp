@@ -299,11 +299,19 @@ export default function MentorProfileEdit({
               ) : (
                 <Button
                   onClick={() => {
-                    if (!checkboxChecked || !termsClicked || !privacyClicked) {
+                    if (!checkboxChecked) {
+                      toast({
+                        title: "Requirements Not Met",
+                        description: "Please check the box before saving.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    if (!termsClicked || !privacyClicked) {
                       toast({
                         title: "Requirements Not Met",
                         description:
-                          "Please check the box and click both Terms of Service and Privacy Policy links before saving.",
+                          "Please read both Terms of Service and Privacy Policy before saving.",
                         variant: "destructive",
                       });
                       return;

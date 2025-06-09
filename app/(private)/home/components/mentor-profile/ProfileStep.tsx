@@ -102,7 +102,7 @@ export function ProfileStep({ form }: ProfileStepProps) {
                       <label
                         htmlFor="photo-upload"
                         className={cn(
-                          "min-w-32 min-h-32 h-full aspect-square rounded-xl border-2 border-dashed border-gray-300",
+                          "min-w-32 max-w-32 min-h-32 max-h-32 h-full aspect-square rounded-xl border-2 border-dashed border-gray-300",
                           "flex items-center justify-center cursor-pointer",
                           "hover:border-gray-400 transition-colors",
                           "relative overflow-hidden"
