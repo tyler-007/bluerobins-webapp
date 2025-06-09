@@ -61,8 +61,11 @@ const formSchema = z.object({
   dayOfWeek: z.string().min(1, "Day of week is required"),
   time: z.string().min(1, "Time is required"),
   sessionDescriptions: z
-    .array(z.string().min(1, "Session description is required"))
-    .length(8, "Must have 8 sessions"),
+    .array(z.string().min(8, "Session description is required"))
+    .refine(
+      (arr) => arr.length === 8 || arr.length === 12,
+      "Must have either 8 or 12 sessions"
+    ),
   tools: z
     .array(
       z.object({
@@ -99,7 +102,7 @@ export default function CreatePage() {
       startDate: "",
       dayOfWeek: "",
       time: "",
-      sessionDescriptions: Array(8).fill(""),
+      sessionDescriptions: Array(12).fill(""),
       tools: [
         { title: "SAM Platform + SAM Paper", url: "" },
         { title: "Python", url: "" },
@@ -151,6 +154,20 @@ export default function CreatePage() {
     }
   }, [form.watch("startDate")]);
 
+  // Add effect to update session descriptions when sessions count changes
+  React.useEffect(() => {
+    const sessions = form.watch("sessions");
+    const currentDescriptions = form.getValues("sessionDescriptions");
+    const newLength = parseInt(sessions);
+
+    if (currentDescriptions.length !== newLength) {
+      const newDescriptions = Array(newLength)
+        .fill("")
+        .map((_, i) => currentDescriptions[i] || "");
+      form.setValue("sessionDescriptions", newDescriptions);
+    }
+  }, [form.watch("sessions")]);
+
   const onSubmit = async (values: FormValues) => {
     const {
       title,
@@ -191,6 +208,8 @@ export default function CreatePage() {
     router.replace("/project-hub");
   };
 
+  console.log("Errors:", form.formState.errors);
+
   return (
     <div className="min-h-screen w-full grid grid-cols-[1fr_300px] items-center">
       <div className="w-full p-8 relative">
@@ -218,7 +237,7 @@ export default function CreatePage() {
               className="px-8"
               onClick={form.handleSubmit(onSubmit)}
             >
-              Next
+              Create
             </Button>
           </div>
         </div>

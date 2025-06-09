@@ -17,7 +17,14 @@ import React, { Fragment } from "react";
 import { useLayoutData } from "../../useLayoutData";
 import { createClient } from "@/utils/supabase/client";
 import { redirect, useRouter } from "next/navigation";
-const sessionCount = 8;
+
+interface Project {
+  id: number;
+  sessions_count: number;
+  agenda: Array<{ description: string }>;
+  tools: Array<{ title: string; url: string }>;
+  prerequisites: Array<{ title: string; url: string }>;
+}
 
 const resourceSchema = z.object({
   title: z.string().min(1, "Required"),
@@ -31,8 +38,11 @@ const prereqSchema = z.object({
 const formSchema = z.object({
   id: z.number().min(1, "Project id is required"),
   sessionDescriptions: z
-    .array(z.string())
-    .length(sessionCount, `Must have ${sessionCount} sessions`),
+    .array(z.string().min(8, "Session description is required"))
+    .refine(
+      (arr) => arr.length === 8 || arr.length === 12,
+      "Must have either 8 or 12 sessions"
+    ),
   tools: z.array(resourceSchema),
   prereqs: z.array(prereqSchema),
 });
@@ -41,7 +51,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 const defaultValues: FormValues = {
   id: 0,
-  sessionDescriptions: Array(sessionCount).fill(""),
+  sessionDescriptions: Array(12).fill(""),
   tools: [
     { title: "", url: "" },
     { title: "", url: "" },
@@ -66,7 +76,7 @@ const getValues = (project: any) => {
 };
 
 export default function EditPage() {
-  const project = useLayoutData();
+  const project = useLayoutData() as Project | null;
   const router = useRouter();
   const values = project ? getValues(project) : undefined;
   const form = useForm<FormValues>({
@@ -75,6 +85,8 @@ export default function EditPage() {
     values,
     mode: "onChange",
   });
+
+  console.log("PROJECT:", project);
 
   const {
     fields: toolFields,
@@ -147,28 +159,30 @@ export default function EditPage() {
                 Write a description for each sessions
               </label>
               <div className="space-y-3 grid grid-cols-[auto_1fr] gap-4 items-center">
-                {Array.from({ length: sessionCount }).map((_, i) => (
-                  <Fragment key={i}>
-                    <span className="text-lg text-black mt-2">
-                      Session {i + 1} :
-                    </span>
-                    <FormField
-                      control={form.control}
-                      name={`sessionDescriptions.${i}`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder={`Session ${i + 1}`}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </Fragment>
-                ))}
+                {Array.from({ length: project?.sessions_count ?? 12 }).map(
+                  (_, i) => (
+                    <Fragment key={i}>
+                      <span className="text-lg text-black mt-2">
+                        Session {i + 1} :
+                      </span>
+                      <FormField
+                        control={form.control}
+                        name={`sessionDescriptions.${i}`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder={`Session ${i + 1}`}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </Fragment>
+                  )
+                )}
               </div>
             </div>
 
