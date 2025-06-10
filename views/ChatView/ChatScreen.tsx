@@ -130,7 +130,7 @@ export default function ChatScreen({
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between p-4 h-20 ">
-        <span className="text-2xl font-bold">{receiver.name}</span>
+        <h2 className="text-2xl font-bold">{receiver.name}</h2>
       </div>
       {/* Messages */}
       <div
