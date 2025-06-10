@@ -278,7 +278,25 @@ export default function NewProjectCard({
           />
         </>
       )}
-
+      <PaymentDialog
+        summary={
+          <div className="flex flex-col gap-2">
+            <span className="text-lg">
+              You are about to pay
+              <br />
+              <b>${price}</b> for {title} <b>({sessions} sessions)</b>
+              <br />
+              with <b>{mentor?.name}</b>
+            </span>
+          </div>
+        }
+        open={showPaymentDialog}
+        onOpenChange={setShowPaymentDialog}
+        amount={0.1}
+        onSuccess={handlePaymentSuccess}
+        onError={handlePaymentError}
+        onCancel={handlePaymentCancel}
+      />
       {/* {isMentor && (
         <div className="absolute top-5  right-5">
           <Button
