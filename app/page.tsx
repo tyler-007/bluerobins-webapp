@@ -162,7 +162,7 @@ export default function Login() {
           </p>
           <div className="flex flex-col gap-4 w-full mb-6">
             <button
-              // disabled
+              disabled
               onClick={() => setUserType("student")}
               className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "student" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
             >
