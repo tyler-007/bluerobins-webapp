@@ -30,6 +30,7 @@ const options = [
     label: "Chats",
     icon: MessageCircle,
     href: "/chats",
+    showCount: true,
   },
   {
     label: "Project Hub",
@@ -48,6 +49,7 @@ const mentorOptions = [
     label: "Chats",
     icon: MessageCircle,
     href: "/chats",
+    showCount: true,
   },
   {
     label: "Project Hub",
@@ -56,7 +58,13 @@ const mentorOptions = [
   },
 ];
 
-export default function Sidebar({ verified }: { verified: boolean }) {
+export default function Sidebar({
+  verified,
+  unread_messages_count,
+}: {
+  verified: boolean;
+  unread_messages_count: number;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -92,6 +100,11 @@ export default function Sidebar({ verified }: { verified: boolean }) {
             >
               <option.icon className="text-2xl font-bold" />
               <h3 className="text-xl font-medium">{option.label}</h3>
+              {option.showCount && !!unread_messages_count && (
+                <div className="ml-auto mr-4 h-6 w-6 flex items-center justify-center bg-[#2953BE] text-white text-sm rounded-full">
+                  <span className="text-sm">{unread_messages_count}</span>
+                </div>
+              )}
             </div>
           );
         })}

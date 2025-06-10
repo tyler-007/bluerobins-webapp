@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 
 export default function ProjectHubView(props: {
   projects: any;
+  userId: string;
   isMentor: boolean;
   hideHeader?: boolean;
 }) {
@@ -41,6 +42,7 @@ export default function ProjectHubView(props: {
             <NewProjectCard
               key={project.id}
               package_id={project.id}
+              userId={props.userId}
               mentor_user={project.mentor_user}
               spots={project.spots}
               isMentor={isMentor}

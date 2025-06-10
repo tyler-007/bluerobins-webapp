@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import ChatScreen from "./ChatScreen";
 import { useUser } from "@/app/hooks/useUser";
+import { cn } from "@/lib/utils";
 
 export const ChatView = ({
   id,
@@ -19,12 +20,16 @@ export const ChatView = ({
   mentorId,
   senderId,
   receiverId,
+  triggerClassName = "",
+  triggerText = "Start a chat",
 }: {
   id?: string;
+  triggerClassName?: string;
   name?: string;
   mentorId?: string;
   senderId: string;
   receiverId: string;
+  triggerText?: string;
 }) => {
   const { data: user } = useUser();
   const userId = user?.id;
@@ -59,12 +64,14 @@ export const ChatView = ({
 
   return (
     <Sheet onOpenChange={onOpenChange}>
-      <SheetTrigger>Start a chat</SheetTrigger>
+      <SheetTrigger className={cn("text-blue-500", triggerClassName)}>
+        {triggerText}
+      </SheetTrigger>
       <SheetContent side="right" className="outline-none p-0">
         {/* <SheetTitle className="px-4 flex items-center -mt-3 pb-3">
           Personal Chat
         </SheetTitle> */}
-        {channel_id && userId && receiver && (
+        {channel_id && userId && receiver ? (
           <ChatScreen
             channel_id={channel_id}
             userId={userId}
@@ -73,6 +80,10 @@ export const ChatView = ({
             onBack={() => {}}
             receiver={receiver}
           />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full">
+            <span className="text-gray-500">Loading...</span>
+          </div>
         )}
         {/* <div className="h-[16px]">
           <Button>Open</Button>

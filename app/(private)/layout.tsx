@@ -22,11 +22,21 @@ export default async function PrivateLayout({
     .eq("id", user?.id)
     .single();
 
+  const { count: unread_messages_count } = await supabase
+    .from("channel_messages")
+    .select("*", { count: "exact", head: true })
+    .eq("to_user", user?.id)
+    .is("read_by", null);
+  console.log("UNREAD MESSAGES: SB", unread_messages_count);
+
   const isStudent = !isMentor;
   const verified = isStudent || profile?.verified;
   return (
     <div className="flex flex-row min-h-screen max-h-screen overflow-hidden">
-      <Sidebar verified={verified} />
+      <Sidebar
+        verified={verified}
+        unread_messages_count={unread_messages_count ?? 0}
+      />
       <main className="flex flex-1 overflow-auto bg-gradient-primary">
         {children}
       </main>

@@ -24,5 +24,5 @@ export default async function SearchPage() {
     ? await fetcher.eq("mentor_user", user.id)
     : await fetcher;
 
-  return <View projects={projects} isMentor={isMentor} />;
+  return <View projects={projects} isMentor={isMentor} userId={user.id} />;
 }

@@ -2,8 +2,7 @@ import ChatScreen from "@/views/ChatView/ChatScreen";
 import { User } from "lucide-react";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/server";
-import Link from "next/link";
-import dayjs from "dayjs";
+
 import ChatList from "./ChatList";
 export default async function ChatsPage({
   children,
@@ -47,6 +46,18 @@ export default async function ChatsPage({
       (myChannels ?? []).map((channel) => channel.channel_id)
     );
 
+  const { data: unread_messages } = await supabase
+    .from("channel_messages")
+    .select("*")
+    .eq("to_user", userId)
+    .is("read_by", null);
+
+  // Group by channel_id use reduce
+  const unread_messages_count = unread_messages?.reduce((acc, curr) => {
+    acc[curr.channel_id] = (acc[curr.channel_id] ?? 0) + 1;
+    return acc;
+  }, {});
+
   const lastMessageObject = lastMessages?.reduce((acc, curr) => {
     acc[curr.channel_id] = curr;
     return acc;
@@ -63,6 +74,7 @@ export default async function ChatsPage({
       <div className="flex flex-row flex-1 bg-[#EEF2FB]">
         <div className="flex flex-[2] flex-col bg-light border-r-2 border-[#DDD]">
           <ChatList
+            unread_messages_count={unread_messages_count}
             myChannels={channelMembers}
             lastMessageObject={lastMessageObject}
           />

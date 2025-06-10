@@ -20,6 +20,7 @@ import { redirect, useRouter } from "next/navigation";
 import Image from "next/image";
 import { PricingInfoDialog } from "@/components/PricingInfoDialog";
 import { Badge } from "@/components/ui/badge";
+import { ChatView } from "@/views/ChatView";
 
 interface ProjectCardProps {
   package_id: number;
@@ -34,6 +35,7 @@ interface ProjectCardProps {
   startDate: string;
   endDate: string;
   mentor_user: string;
+  userId: string;
   spotsLeft: number;
   spots: number;
   price: number;
@@ -48,6 +50,7 @@ export default function NewProjectCard({
   title,
   description,
   tags,
+  userId,
   duration,
   isMentor,
   mentor,
@@ -67,7 +70,7 @@ export default function NewProjectCard({
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [navigating, setNavigating] = useState(false);
   const router = useRouter();
-  console.log("NAME:", mentor);
+  console.log("NAME:", mentor, mentor_user);
   const bookSlotAPI = async (
     order: any,
     mentor_user: string,
@@ -184,9 +187,17 @@ export default function NewProjectCard({
               {/* <Button variant="ghost" size="sm" className="text-blue-500">
                 View Details
               </Button> */}
-              <span className="text-blue-500 text-sm cursor-pointer hover:text-black transition-all duration-300 ">
+              <ChatView
+                triggerClassName="text-left text-blue-500 text-sm cursor-pointer hover:text-black transition-all duration-300 "
+                triggerText="Chat with mentor"
+                name={``}
+                mentorId={mentor_user}
+                senderId={userId}
+                receiverId={mentor_user}
+              />
+              {/* <span className="text-blue-500 text-sm cursor-pointer hover:text-black transition-all duration-300 ">
                 Chat with mentor
-              </span>
+              </span> */}
             </>
           )}
         </div>
