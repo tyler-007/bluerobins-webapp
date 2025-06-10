@@ -161,12 +161,13 @@ export default function Login() {
             Join blurobins for free as a
           </p>
           <div className="flex flex-col gap-4 w-full mb-6">
-            {/* <button
+            <button
+              disabled
               onClick={() => setUserType("student")}
               className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "student" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
             >
-              Student
-            </button> */}
+              Student (coming soon)
+            </button>
             <button
               onClick={() => setUserType("mentor")}
               className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "mentor" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
