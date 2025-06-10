@@ -196,13 +196,18 @@ export default function MentorProfileEdit({
     router.push("/");
   };
 
+  console.log("FORM ERROR:", form.formState.errors);
+
   return (
     <Sheet open={open} onOpenChange={onClose} modal={false}>
       <SheetTrigger asChild>
         <Button
           onClick={() => setOpen(true)}
           variant="ghost"
-          className={cn("w-full justify-start -ml-4 -mt-3", triggerClassName)}
+          className={cn(
+            "w-full justify-start -ml-4 -mt-3 text-blue-500",
+            triggerClassName
+          )}
         >
           {triggerText}
         </Button>

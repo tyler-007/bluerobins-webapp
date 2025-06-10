@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
       "localhost",
       "lh3.googleusercontent.com",
       "https://app-bluerobins-nu.vercel.app",
+      "zjcrwkaeulxkaprlmrbz.supabase.co",
     ],
   },
 };

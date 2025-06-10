@@ -119,6 +119,8 @@ export default async function HomePage() {
   // const availability = bookingConfig?.availability;
   const availability = profile?.availability;
 
+  console.log("PROFILE:", profile);
+
   if (!profile?.verified && isMentor) {
     return (
       <div className="flex flex-col flex-1 min-h-screen  gap-4 items-center justify-center">
@@ -233,9 +235,19 @@ export default async function HomePage() {
         <div className="flex w-[300px] flex-col bg-light border-l-2 border-gray-200 p-5 gap-5  ">
           <div className="bg-white rounded-2xl p-6 border border-gray-200">
             <div className="flex flex-row gap-4 items-center">
-              <div className="flex h-14 w-14 rounded-full bg-[#B1D1FA] items-center justify-center">
-                <User className="w-8 h-8 text-primary" />
-              </div>
+              {profile?.photo_url ? (
+                <Image
+                  src={profile?.photo_url ?? ""}
+                  alt="avatar"
+                  width={56}
+                  height={56}
+                  className="rounded-full min-w-16  object-cover"
+                />
+              ) : (
+                <div className="flex h-14 w-14 rounded-full bg-[#B1D1FA] items-center justify-center">
+                  <User className="w-8 h-8 text-primary" />
+                </div>
+              )}
               <div className="flex flex-col gap-1">
                 <span className="text-lg font-bold">
                   {user?.user_metadata?.full_name}
