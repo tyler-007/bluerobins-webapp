@@ -83,3 +83,8 @@ li,
 button {
   font-family: var(--font-nunito-sans);
 }
+
+*,
+html {
+  color-scheme: light;
+}
