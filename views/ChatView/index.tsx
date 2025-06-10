@@ -29,7 +29,7 @@ export const ChatView = ({
   mentorId?: string;
   senderId: string;
   receiverId: string;
-  triggerText?: string;
+  triggerText?: React.ReactNode;
 }) => {
   const { data: user } = useUser();
   const userId = user?.id;
@@ -64,7 +64,7 @@ export const ChatView = ({
 
   return (
     <Sheet onOpenChange={onOpenChange}>
-      <SheetTrigger className={cn("text-blue-500", triggerClassName)}>
+      <SheetTrigger className={cn(triggerClassName)}>
         {triggerText}
       </SheetTrigger>
       <SheetContent side="right" className="outline-none p-0">

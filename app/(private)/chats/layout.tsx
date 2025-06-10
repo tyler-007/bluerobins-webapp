@@ -2,8 +2,9 @@ import ChatScreen from "@/views/ChatView/ChatScreen";
 import { User } from "lucide-react";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/server";
-
 import ChatList from "./ChatList";
+import { OtherMentorChatItem } from "./OtherMentorChatItem";
+
 export default async function ChatsPage({
   children,
 }: {
@@ -82,21 +83,16 @@ export default async function ChatsPage({
             <>
               <h3 className="text-xl font-bold p-3 px-6">Other Mentors</h3>
               <div className="w-full max-w-md mx-auto divide-y border-[#DDD] border-b">
-                {otherMentors?.map((mentor) => (
-                  <div
-                    key={mentor.id}
-                    className="flex items-center px-4 py-3 gap-2 hover:bg-[#E0E6F6] transition"
-                  >
-                    <Image
-                      src={mentor.avatar}
-                      alt={mentor.name}
-                      width={32}
-                      height={32}
-                      className="rounded-full object-cover"
-                    />
-                    <h4>{mentor.name}</h4>
-                  </div>
-                ))}
+                {otherMentors
+                  ?.filter(
+                    (mentor) =>
+                      !channelMembers?.some(
+                        (channel) => channel.user_id === mentor.id
+                      )
+                  )
+                  .map((mentor) => (
+                    <OtherMentorChatItem key={mentor.id} mentor={mentor} />
+                  ))}
               </div>
             </>
           )}
