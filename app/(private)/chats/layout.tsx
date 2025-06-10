@@ -2,9 +2,9 @@ import ChatScreen from "@/views/ChatView/ChatScreen";
 import { User } from "lucide-react";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/server";
-import Link from "next/link";
-import dayjs from "dayjs";
 import ChatList from "./ChatList";
+import { OtherMentorChatItem } from "./OtherMentorChatItem";
+
 export default async function ChatsPage({
   children,
 }: {
@@ -47,6 +47,18 @@ export default async function ChatsPage({
       (myChannels ?? []).map((channel) => channel.channel_id)
     );
 
+  const { data: unread_messages } = await supabase
+    .from("channel_messages")
+    .select("*")
+    .eq("to_user", userId)
+    .is("read_by", null);
+
+  // Group by channel_id use reduce
+  const unread_messages_count = unread_messages?.reduce((acc, curr) => {
+    acc[curr.channel_id] = (acc[curr.channel_id] ?? 0) + 1;
+    return acc;
+  }, {});
+
   const lastMessageObject = lastMessages?.reduce((acc, curr) => {
     acc[curr.channel_id] = curr;
     return acc;
@@ -63,6 +75,7 @@ export default async function ChatsPage({
       <div className="flex flex-row flex-1 bg-[#EEF2FB]">
         <div className="flex flex-[2] flex-col bg-light border-r-2 border-[#DDD]">
           <ChatList
+            unread_messages_count={unread_messages_count}
             myChannels={channelMembers}
             lastMessageObject={lastMessageObject}
           />
@@ -70,21 +83,16 @@ export default async function ChatsPage({
             <>
               <h3 className="text-xl font-bold p-3 px-6">Other Mentors</h3>
               <div className="w-full max-w-md mx-auto divide-y border-[#DDD] border-b">
-                {otherMentors?.map((mentor) => (
-                  <div
-                    key={mentor.id}
-                    className="flex items-center px-4 py-3 gap-2 hover:bg-[#E0E6F6] transition"
-                  >
-                    <Image
-                      src={mentor.avatar}
-                      alt={mentor.name}
-                      width={32}
-                      height={32}
-                      className="rounded-full object-cover"
-                    />
-                    <h4>{mentor.name}</h4>
-                  </div>
-                ))}
+                {otherMentors
+                  ?.filter(
+                    (mentor) =>
+                      !channelMembers?.some(
+                        (channel) => channel.user_id === mentor.id
+                      )
+                  )
+                  .map((mentor) => (
+                    <OtherMentorChatItem key={mentor.id} mentor={mentor} />
+                  ))}
               </div>
             </>
           )}

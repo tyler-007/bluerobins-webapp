@@ -200,6 +200,7 @@ export default async function HomePage() {
                 <ProjectCard
                   key={project.id}
                   package_id={project.id}
+                  userId={user.id}
                   mentor_user={project.mentor_user}
                   mentor={project.mentor}
                   isMentor={isMentor}
