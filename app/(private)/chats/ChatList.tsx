@@ -94,7 +94,6 @@ export default function ChatList({
   const channelMessages = supabase.channel(`channel_messages_${userId}`);
 
   const handleMessage = async (payload: any) => {
-    console.log("PAYLOAD:", payload);
     const { data: unread_messages } = await supabase
       .from("channel_messages")
       .select("*")

@@ -132,7 +132,6 @@ export default function MentorProfileEdit({
   const onSubmit = async (data: FormValues) => {
     try {
       const { name, ...payload } = data;
-      console.log("PAYLOAD:", payload);
       const { data: updatedProfile, error: profileError } = await supabase
         .from("profiles")
         .update({
