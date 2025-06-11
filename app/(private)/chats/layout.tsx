@@ -74,11 +74,14 @@ export default async function ChatsPage({
       </div>
       <div className="flex flex-row flex-1 bg-[#EEF2FB]">
         <div className="flex flex-[2] flex-col bg-light border-r-2 border-[#DDD]">
-          <ChatList
-            unread_messages_count={unread_messages_count}
-            myChannels={channelMembers}
-            lastMessageObject={lastMessageObject}
-          />
+          {userId && (
+            <ChatList
+              userId={userId}
+              unread_messages_count={unread_messages_count}
+              myChannels={channelMembers}
+              lastMessageObject={lastMessageObject}
+            />
+          )}
           {!isMentor && (
             <>
               <h3 className="text-xl font-bold p-3 px-6">Other Mentors</h3>

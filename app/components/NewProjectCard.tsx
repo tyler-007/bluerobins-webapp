@@ -4,20 +4,19 @@ import {
   Calendar,
   Clock,
   DollarSign,
-  Edit,
-  Edit2Icon,
   Edit3,
   Hash,
   Users,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Chip from "@/components/chip";
+
 import ProjectDetailsButton from "@/app/(private)/project-hub/ProjectDetailsButton";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { useState } from "react";
 import dayjs from "dayjs";
-import { redirect, useRouter } from "next/navigation";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
+
 import { PricingInfoDialog } from "@/components/PricingInfoDialog";
 import { Badge } from "@/components/ui/badge";
 import { ChatView } from "@/views/ChatView";
@@ -70,7 +69,6 @@ export default function NewProjectCard({
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [navigating, setNavigating] = useState(false);
   const router = useRouter();
-  console.log("NAME:", mentor, mentor_user);
   const bookSlotAPI = async (
     order: any,
     mentor_user: string,
@@ -105,7 +103,6 @@ export default function NewProjectCard({
   const onBuyPackage = async () => {
     setNavigating(true);
     setShowPaymentDialog(true);
-    console.log("Buy Packagessss:");
   };
 
   const handlePaymentError = () => {
@@ -130,8 +127,7 @@ export default function NewProjectCard({
       );
     });
 
-    const res = await Promise.all(bookingsAPI);
-    console.log("Bookings API", res);
+    await Promise.all(bookingsAPI);
     // setShowPaymentDialog(false);
   };
 
@@ -181,8 +177,8 @@ export default function NewProjectCard({
           </span>
           {!isMentor && (
             <>
-              <Users className="w-5 h-5" strokeWidth={1.5} />
-              <span className="text-base">{mentor.name}</span>
+              <User className="w-5 h-5" strokeWidth={1.5} />
+              <span className="text-base">{mentor?.name}</span>
               <div> </div>
               {/* <Button variant="ghost" size="sm" className="text-blue-500">
                 View Details

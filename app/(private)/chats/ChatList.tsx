@@ -5,7 +5,8 @@ import Image from "next/image";
 import dayjs from "dayjs";
 import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 const ChatListItem = ({
   id,
@@ -79,13 +80,57 @@ export default function ChatList({
   myChannels,
   lastMessageObject,
   unread_messages_count,
+  userId,
 }: {
   myChannels: any;
   lastMessageObject: any;
   unread_messages_count: any;
+  userId: string;
 }) {
+  const [count, setCount] = useState(unread_messages_count);
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const supabase = createClient();
+  const channelMessages = supabase.channel(`channel_messages_${userId}`);
+
+  const handleMessage = async (payload: any) => {
+    console.log("PAYLOAD:", payload);
+    const { data: unread_messages } = await supabase
+      .from("channel_messages")
+      .select("*")
+      .eq("to_user", userId)
+      .is("read_by", null);
+
+    // Group by channel_id use reduce
+    const unread_messages_count = unread_messages?.reduce((acc, curr) => {
+      acc[curr.channel_id] = (acc[curr.channel_id] ?? 0) + 1;
+      return acc;
+    }, {});
+    setCount(unread_messages_count);
+  };
+
+  useEffect(() => {
+    try {
+      channelMessages
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "channel_messages",
+            filter: `to_user=eq.${userId}`,
+          },
+          handleMessage
+        )
+        .subscribe();
+    } catch (error) {
+      console.error("Error subscribing to channel messages", error);
+    }
+    return () => {
+      supabase.removeChannel(channelMessages);
+    };
+  }, []);
+
   return (
     <div className="w-full max-w-md mx-auto divide-y border-[#DDD] border-b">
       {myChannels.map((chat: any) => (
@@ -93,7 +138,7 @@ export default function ChatList({
           key={chat.channel_id}
           chat={chat}
           lastMessageObject={lastMessageObject}
-          unread_messages_count={unread_messages_count}
+          unread_messages_count={count}
           id={id}
         />
       ))}
