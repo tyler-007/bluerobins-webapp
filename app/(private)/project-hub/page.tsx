@@ -14,7 +14,6 @@ export default async function SearchPage() {
     return redirect("/");
   }
 
-  console.log("user", user);
   const isMentor = user.user_metadata.user_type === "mentor";
   const fetcher = supabase
     .from("projects")

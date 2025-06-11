@@ -102,7 +102,6 @@ export default function ChatScreen({
     }
   };
 
-  console.log("User", user);
   const myAvatar = user?.user_metadata.avatar_url;
 
   useEffect(() => {
