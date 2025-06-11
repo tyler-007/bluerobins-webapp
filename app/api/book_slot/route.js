@@ -21,7 +21,6 @@ export async function POST(request) {
   const { data: user } = await supabase.auth.getUser();
 
   //May be get mentor email
-  console.log("User:", user.user.email, start_time, end_time);
 
   const mentorDetails = await supabase
     .from("profiles")
