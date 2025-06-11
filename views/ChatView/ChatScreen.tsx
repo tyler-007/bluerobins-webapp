@@ -42,10 +42,25 @@ export default function ChatScreen({
   const channelMessages = supabase.channel(`channel_messages_${channel_id}`);
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [_receiver, setReceiver] = useState<any>(receiver);
 
   const { data: user } = useUser();
   const userId = user?.id ?? "";
   const { data: oldMessages } = useGetMessages(channel_id, userId);
+
+  useEffect(() => {
+    const fetchReceiver = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", receiverId)
+        .single();
+      setReceiver(data);
+    };
+    if (receiverId && !_receiver) {
+      fetchReceiver();
+    }
+  }, [receiverId]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -125,12 +140,10 @@ export default function ChatScreen({
 
   const messagesToShow = [...(oldMessages ?? []), ...messages];
 
-  console.log("messagesToShow", receiver, myAvatar);
-
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between p-4 h-20 ">
-        <h2 className="text-2xl font-bold">{receiver.name}</h2>
+        <h2 className="text-2xl font-bold">{_receiver?.name}</h2>
       </div>
       {/* Messages */}
       <div
@@ -159,7 +172,7 @@ export default function ChatScreen({
               >
                 <img
                   src={
-                    message.from_user === userId ? myAvatar : receiver.avatar
+                    message.from_user === userId ? myAvatar : _receiver?.avatar
                   }
                   className="w-10 h-10 bg-red-300 rounded-full"
                   style={{

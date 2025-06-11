@@ -17,7 +17,8 @@ export const OtherMentorChatItem = ({ mentor }: { mentor: any }) => {
     setIsLoading(true);
     try {
       const name = `s_${userId}:m_${mentor.id}`;
-      const channel_id = await useGetChannelId(name);
+      const channel_id = await useGetChannelId(undefined, name);
+      //   console.log("channel_id", channel_id);
       //   const channel_id = "lPDGpN5xo3c";
 
       router.push(`/chats/${channel_id}`);
