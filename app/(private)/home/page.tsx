@@ -106,7 +106,9 @@ export default async function HomePage() {
         .gte("start_time", dayjs().format("YYYY-MM-DDTHH:mm:ssZ"))
         .order("start_time", { ascending: true })
         .eq(filterKey, user.id),
-      supabase.from("projects").select("*").eq("mentor_user", user.id),
+      isMentor
+        ? supabase.from("projects").select("*").eq("mentor_user", user.id)
+        : supabase.from("projects").select("*, mentor:profiles(*)"),
     ]);
 
   const profile =
@@ -119,7 +121,7 @@ export default async function HomePage() {
   // const availability = bookingConfig?.availability;
   const availability = profile?.availability;
 
-  console.log("PROFILE:", profile);
+  const projectLimit = isMentor ? undefined : 5;
 
   if (!profile?.verified && isMentor) {
     return (
@@ -185,18 +187,24 @@ export default async function HomePage() {
             </div>
           )}
         </div>
-        {isMentor && (
-          <>
-            <div className="flex flex-row gap-4 mt-7 items-center justify-between">
-              <span className="text-2xl font-bold">Project Hubs</span>
+
+        <>
+          <div className="flex flex-row gap-4 mt-7 items-center justify-between">
+            <span className="text-2xl font-bold">
+              {isMentor ? "Project Hubs" : "Recommended Projects"}
+            </span>
+            {isMentor && (
               <a href="/project-hub/create">
                 <Button loadOnClick variant="outline">
                   Create New
                 </Button>
               </a>
-            </div>
-            <div className="flex flex-wrap gap-4">
-              {projects?.map((project) => (
+            )}
+          </div>
+          <div className="flex flex-wrap gap-4">
+            {(projects ?? [])
+              .slice(0, projectLimit)
+              ?.map((project) => (
                 <ProjectCard
                   key={project.id}
                   package_id={project.id}
@@ -227,9 +235,8 @@ export default async function HomePage() {
                   prerequisites={project.prerequisites}
                 />
               ))}
-            </div>
-          </>
-        )}
+          </div>
+        </>
       </div>
       {!isMentor && <StudentOnboarding profile={profile} userId={user.id} />}
       {isMentor && (

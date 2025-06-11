@@ -65,6 +65,7 @@ export default function Sidebar({
   verified: boolean;
   unread_messages_count: number;
 }) {
+  const [hideCount, setHideCount] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -88,6 +89,9 @@ export default function Sidebar({
           return (
             <div
               onClick={() => {
+                if (option.showCount && !!unread_messages_count) {
+                  setHideCount(true);
+                }
                 setSelected(option.href);
                 router.push(option.href);
               }}
@@ -100,7 +104,7 @@ export default function Sidebar({
             >
               <option.icon className="text-2xl font-bold" />
               <h3 className="text-xl font-medium">{option.label}</h3>
-              {option.showCount && !!unread_messages_count && (
+              {!hideCount && option.showCount && !!unread_messages_count && (
                 <div className="ml-auto mr-4 h-6 w-6 flex items-center justify-center bg-[#2953BE] text-white text-sm rounded-full">
                   <span className="text-sm">{unread_messages_count}</span>
                 </div>
