@@ -191,7 +191,7 @@ export default function StudentProfileEdit({
                         I agree to the{" "}
                         <a
                           target="_blank"
-                          href="/terms"
+                          href="/static/terms-and-conditions.pdf"
                           className="text-blue-500 underline"
                           onClick={() => setTermsClicked(true)}
                         >
@@ -200,7 +200,7 @@ export default function StudentProfileEdit({
                         and{" "}
                         <a
                           target="_blank"
-                          href="/privacy"
+                          href="/static/privacy-policy.pdf"
                           className="text-blue-500 underline"
                           onClick={() => setPrivacyClicked(true)}
                         >
