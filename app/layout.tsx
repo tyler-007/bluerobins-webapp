@@ -10,6 +10,8 @@ import "./globals.css";
 import { ReactQueryProvider } from "./react-query-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { MobileRestriction } from "@/components/mobile-restriction";
+// import { loadSearchParams } from "./searchParams";
+import { Suspense } from "react";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -54,10 +56,11 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <MobileRestriction>
-                <main className="min-h-screen flex flex-col items-center">
-                  <div className="flex-1 w-full flex flex-col items-center">
-                    {/* <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
+              <Suspense>
+                <MobileRestriction>
+                  <main className="min-h-screen flex flex-col items-center">
+                    <div className="flex-1 w-full flex flex-col items-center">
+                      {/* <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
                     <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
                       <div className="flex gap-5 items-center font-semibold">
                         <Link href={"/"}>BlueRobins</Link>
@@ -65,13 +68,14 @@ export default function RootLayout({
                       {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
                     </div>
                   </nav> */}
-                    {/* <div className="flex flex-col gap-20 w-full max-w-5xl p-5"> */}
-                    <div className="flex flex-col gap-20 w-full">
-                      {children}
+                      {/* <div className="flex flex-col gap-20 w-full max-w-5xl p-5"> */}
+                      <div className="flex flex-col gap-20 w-full">
+                        {children}
+                      </div>
                     </div>
-                  </div>
-                </main>
-              </MobileRestriction>
+                  </main>
+                </MobileRestriction>
+              </Suspense>
               <Toaster />
             </ThemeProvider>
           </ReactQueryProvider>
