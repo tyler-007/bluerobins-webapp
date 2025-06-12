@@ -21,6 +21,7 @@ import { PricingInfoDialog } from "@/components/PricingInfoDialog";
 import { Badge } from "@/components/ui/badge";
 import { ChatView } from "@/views/ChatView";
 import { parseAsBoolean, useQueryState } from "nuqs";
+import Link from "next/link";
 
 interface ProjectCardProps {
   package_id: number;
@@ -183,7 +184,7 @@ export default function NewProjectCard({
           {!isMentor && (
             <>
               <User className="w-5 h-5" strokeWidth={1.5} />
-              <span className="text-base">{mentor?.name}</span>
+              <Link href={`/mentor/${mentor_user}`}>{mentor?.name}</Link>
               <div> </div>
               {/* <Button variant="ghost" size="sm" className="text-blue-500">
                 View Details

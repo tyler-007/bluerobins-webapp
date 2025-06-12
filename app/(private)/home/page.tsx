@@ -13,6 +13,7 @@ import MentorProfileEdit from "./MentorProfileEdit";
 import { Button } from "@/components/ui/button";
 import ProjectHubView from "../project-hub/view";
 import ProjectCard from "@/app/components/NewProjectCard";
+import { TimeSlots } from "./TimeSlotItem";
 const ExploreItem = ({
   title,
   description,
@@ -47,34 +48,6 @@ const ExploreItem = ({
         <span>{buttonLabel}</span>
       </button>
     </div>
-  );
-};
-
-const TimeSlots = ({
-  availability,
-  day,
-}: {
-  availability: any;
-  day: string;
-}) => {
-  return (
-    <>
-      <span>{day}</span>
-      {!availability?.length ? (
-        <span className="text-sm text-gray-500">Unavailable</span>
-      ) : (
-        (availability ?? []).map((item: any, index: number) => (
-          <>
-            {index > 0 && <div />}
-            <span>
-              {dayjs(`2024-01-01T${item.start}`).format("h:mm A")} -{" "}
-              {dayjs(`2024-01-01T${item.end}`).format("h:mm A")}
-            </span>
-          </>
-        ))
-      )}
-      <div className="flex col-span-2 h-1"></div>
-    </>
   );
 };
 
