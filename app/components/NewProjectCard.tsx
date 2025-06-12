@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { PricingInfoDialog } from "@/components/PricingInfoDialog";
 import { Badge } from "@/components/ui/badge";
 import { ChatView } from "@/views/ChatView";
+import { parseAsBoolean, useQueryState } from "nuqs";
 
 interface ProjectCardProps {
   package_id: number;
@@ -67,6 +68,10 @@ export default function NewProjectCard({
   prerequisites,
 }: ProjectCardProps) {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [isTesting, _] = useQueryState(
+    "test",
+    parseAsBoolean.withDefault(false)
+  );
   const [navigating, setNavigating] = useState(false);
   const router = useRouter();
   const bookSlotAPI = async (
@@ -299,7 +304,7 @@ export default function NewProjectCard({
         }
         open={showPaymentDialog}
         onOpenChange={setShowPaymentDialog}
-        amount={0.1}
+        amount={isTesting ? 0.1 : price}
         onSuccess={handlePaymentSuccess}
         onError={handlePaymentError}
         onCancel={handlePaymentCancel}

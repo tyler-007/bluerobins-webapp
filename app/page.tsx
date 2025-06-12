@@ -5,6 +5,7 @@ import Image from "next/image";
 import GoogleLogo from "@/app/Google.png";
 import { toast } from "@/components/ui/use-toast";
 import { createClient } from "@/utils/supabase/client";
+import { parseAsBoolean, useQueryState } from "nuqs";
 // import OneTapComponent from "@/components/google-one-tap";
 
 const carouselSlides = [
@@ -43,6 +44,12 @@ export default function Login() {
   const supabase = createClient();
   const total = carouselSlides.length;
   const slide = carouselSlides[current];
+  const [isTesting, _] = useQueryState(
+    "test",
+    parseAsBoolean.withDefault(false)
+  );
+
+  console.log("IS TESTING:", isTesting);
 
   const goTo = (idx: number) => setCurrent((idx + total) % total);
 
@@ -162,11 +169,11 @@ export default function Login() {
           </p>
           <div className="flex flex-col gap-4 w-full mb-6">
             <button
-              disabled
+              disabled={!isTesting}
               onClick={() => setUserType("student")}
               className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "student" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
             >
-              Student (coming soon)
+              Student {!isTesting ? "(coming soon)" : ""}
             </button>
             <button
               onClick={() => setUserType("mentor")}
@@ -196,19 +203,6 @@ export default function Login() {
             />
             Continue with Google
           </button>
-          {/* Show OneTapComponent only when userType is set */}
-          {/* {userType && <OneTapComponent userType={userType} />} */}
-          {/* Show Google Auth Popup Button for testing */}
-          {/* {userType && (
-            <div className="w-full mt-4">
-              <GoogleAuthPopupButton
-                userType={userType}
-                onSuccess={(response: any) => {
-                  console.log("login success", response);
-                }}
-              />
-            </div>
-          )} */}
         </div>
       </div>
     </div>
