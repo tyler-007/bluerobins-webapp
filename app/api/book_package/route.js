@@ -1,9 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
-import { createAdminClient } from "@/utils/supabase/admin";
 import dayjs from "dayjs";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { createCalendarEvent } from "@/lib/actions";
 export async function POST(request) {
   const supabase = await createClient();
@@ -33,6 +30,15 @@ export async function POST(request) {
       status: false,
       message: "No spots available",
     });
+  }
+
+  if (projectData) {
+    await supabase
+      .from("projects")
+      .update({
+        filled_spots: (projectData.data.filled_spots ?? 0) + 1,
+      })
+      .eq("id", project_id);
   }
 
   //May be get mentor email
@@ -94,17 +100,6 @@ export async function POST(request) {
   }
 
   console.log("PROJECT_ID:", project_id);
-
-  if (projectData) {
-    const { data: updatedData, error: updateError } = await supabase
-      .from("projects")
-      .update({
-        filled_spots: (projectData.data.filled_spots ?? 0) + 1,
-      })
-      .eq("id", project_id);
-    console.log("UPDATED DATA:", updatedData);
-    console.log("UPDATE ERROR:", updateError);
-  }
 
   return NextResponse.json({
     status: true,

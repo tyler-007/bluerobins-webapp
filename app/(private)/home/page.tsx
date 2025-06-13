@@ -80,8 +80,8 @@ export default async function HomePage() {
         .order("start_time", { ascending: true })
         .eq(filterKey, user.id),
       isMentor
-        ? supabase.from("projects").select("*").eq("mentor_user", user.id)
-        : supabase.from("projects").select("*, mentor:profiles(*)"),
+        ? supabase.from("projects").select("id").eq("mentor_user", user.id)
+        : supabase.from("projects").select("id"),
     ]);
 
   const profile =
@@ -180,32 +180,9 @@ export default async function HomePage() {
               ?.map((project) => (
                 <ProjectCard
                   key={project.id}
-                  package_id={project.id}
                   userId={user.id}
-                  mentor_user={project.mentor_user}
-                  mentor={project.mentor}
                   isMentor={isMentor}
-                  title={project.title}
-                  description={project.description}
-                  tags={project.categories}
-                  spots={project.spots}
-                  duration={`${project.sessions_count} weeks`}
-                  sessions={project.sessions_count}
-                  time={dayjs(project.session_time).format("hh:mm A")}
-                  day={project.session_day}
-                  startDate={dayjs(project.start_date).format("MMM D, YYYY")}
-                  endDate={dayjs(project.start_date)
-                    .add(project.sessions_count, "week")
-                    .format("MMM D, YYYY")}
-                  spotsLeft={
-                    isMentor
-                      ? project.spots
-                      : project.spots - project.filled_spots
-                  }
-                  price={isMentor ? project.cost_price : project.selling_price}
-                  agenda={project.agenda}
-                  tools={project.tools}
-                  prerequisites={project.prerequisites}
+                  package_id={project.id}
                 />
               ))}
           </div>
