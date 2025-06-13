@@ -3,6 +3,7 @@
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { parseAsBoolean, useQueryState } from "nuqs";
 
 interface PayPalPaymentProps {
   amount: number;
@@ -17,13 +18,16 @@ export const PayPalPayment = ({
   onError,
   onCancel,
 }: PayPalPaymentProps) => {
+  const [test] = useQueryState("test_p", parseAsBoolean);
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
 
   return (
     <PayPalScriptProvider
       options={{
-        clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!,
+        clientId: test
+          ? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID_TEST!
+          : process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!,
         currency: "USD",
       }}
     >

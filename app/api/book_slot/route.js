@@ -79,7 +79,7 @@ export async function POST(request) {
   if (project_id) {
     const data = await supabase
       .from("projects")
-      .select("*")
+      .select("filled_spots")
       .eq("id", project_id)
       .single();
 
@@ -87,7 +87,7 @@ export async function POST(request) {
       await supabase
         .from("projects")
         .update({
-          filled_slots: (data.filled_slots ?? 0) + 1,
+          filled_spots: (data.filled_spots ?? 0) + 1,
         })
         .eq("id", project_id);
 
