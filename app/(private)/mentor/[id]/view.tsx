@@ -8,7 +8,7 @@ import { Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { TimeSlots } from "@/app/(private)/home/TimeSlotItem";
-import ProjectCard from "@/app/components/ProjectCard";
+import ProjectCard from "@/app/components/NewProjectCard";
 import dayjs from "dayjs";
 
 export default function MentorView({
@@ -100,34 +100,17 @@ export default function MentorView({
             </div>
           </div>
         </div>
-        <div className="flex flex-row gap-4 mt-7 items-center justify-between"></div>
+        {/* <div className="flex flex-row gap-4 mt-7 items-center justify-between"></div>
         <div className="flex flex-wrap gap-4">
           {(projects ?? [])?.map((project) => (
             <ProjectCard
               key={project.id}
               package_id={project.id}
-              mentor_user={project.mentor_user}
-              mentor={project.mentor}
+              userId={userId ?? ""}
               isMentor={true}
-              title={project.title}
-              description={project.description}
-              tags={project.categories}
-              duration={`${project.sessions_count} weeks`}
-              sessions={project.sessions_count}
-              time={dayjs(project.session_time).format("hh:mm A")}
-              day={project.session_day}
-              startDate={dayjs(project.start_date).format("MMM D, YYYY")}
-              endDate={dayjs(project.start_date)
-                .add(project.sessions_count, "week")
-                .format("MMM D, YYYY")}
-              spotsLeft={project.spots - project.filled_spots}
-              price={project.selling_price}
-              agenda={project.agenda}
-              tools={project.tools}
-              prerequisites={project.prerequisites}
             />
           ))}
-        </div>
+        </div> */}
       </div>
 
       <div className="bg-[#EDF1FB] p-8 pl-6">

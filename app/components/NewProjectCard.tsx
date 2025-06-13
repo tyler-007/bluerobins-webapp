@@ -22,53 +22,58 @@ import { PricingInfoDialog } from "@/components/PricingInfoDialog";
 import { Badge } from "@/components/ui/badge";
 import { ChatView } from "@/views/ChatView";
 import { parseAsBoolean, useQueryState } from "nuqs";
+import { useShape, getShapeStream } from "@electric-sql/react";
 import Link from "next/link";
 
-interface ProjectCardProps {
+import { getProjectShape, type ProjectProps } from "@/app/shapes/project";
+import { getUserProfile, type UserProfileProps } from "@/app/shapes/profile";
+type ProjectCardProps = {
   package_id: number;
-  title: string;
-  description: string;
-  tags: string[];
-  duration: string;
-  sessions: number;
-  mentor: { name: string; avatar: string };
-  time: string;
-  day: string;
-  startDate: string;
-  endDate: string;
-  mentor_user: string;
   userId: string;
-  spotsLeft: number;
-  spots: number;
-  price: number;
-  agenda: { description: string }[];
-  tools: { title: string; url: string }[];
-  prerequisites: { title: string; url: string }[];
   isMentor?: boolean;
-}
+};
 
 export default function NewProjectCard({
   package_id,
-  title,
-  description,
-  tags,
   userId,
-  duration,
   isMentor,
-  mentor,
-  sessions,
-  time,
-  mentor_user,
-  day,
-  startDate,
-  endDate,
-  spotsLeft,
-  spots,
-  price,
-  agenda,
-  tools,
-  prerequisites,
 }: ProjectCardProps) {
+  const { data, isLoading } = package_id
+    ? useShape<ProjectProps>(getProjectShape(package_id))
+    : { data: [], isLoading: false };
+
+  const projectDetails = data[0];
+  const {
+    agenda,
+    categories: tags = [],
+    cost_price,
+    selling_price,
+    title,
+    mentor_user,
+    description,
+    filled_spots,
+    prerequisites,
+    session_day,
+    session_time,
+    session_count,
+    spots,
+    start_date,
+    tools,
+  } = projectDetails ?? {};
+
+  const { data: mentorData, isLoading: mentorLoading } =
+    useShape<UserProfileProps>(getUserProfile(mentor_user));
+  const mentor = mentorData[0];
+
+  const spotsLeft = spots - filled_spots;
+  const price = isMentor ? cost_price : selling_price;
+  const time = dayjs(session_time).format("hh:mm A");
+  const startDate = dayjs(start_date).format("MMM D, YYYY");
+  // day={project.session_day}
+  const endDate = dayjs(start_date)
+    .add(session_count, "week")
+    .format("MMM D, YYYY");
+
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [isTesting, _] = useQueryState(
     "test",
@@ -113,8 +118,6 @@ export default function NewProjectCard({
   };
 
   const handlePaymentSuccess = async (order: any) => {
-    const session_count = sessions;
-
     await bookSlotAPI(
       order,
       package_id,
@@ -129,6 +132,12 @@ export default function NewProjectCard({
     setNavigating(true);
     router.push(`/project-hub/${package_id}/edit`);
   };
+
+  if (!projectDetails) {
+    return (
+      <div className="relative min-h-[300px] bg-white rounded-xl shadow-sm border border-gray-200 p-6 pb-2 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between "></div>
+    );
+  }
 
   return (
     <div className="relative bg-white rounded-xl shadow-sm border border-gray-200 p-6 pb-2 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between ">
@@ -159,10 +168,10 @@ export default function NewProjectCard({
 
         <div className="grid grid-cols-[auto_1fr] gap-2 items-center mt-2 mb-4">
           <Hash className="w-4 h-4" />
-          <span className="text-base "> {sessions} Sessions </span>
+          <span className="text-base "> {session_count} Sessions </span>
           <Clock className="w-4 h-4" />
           <span className="text-base">
-            Every {day} {time}
+            Every {session_day} {time}
           </span>{" "}
           <Calendar className="w-4 h-4" />
           <span className="text-base">
@@ -210,7 +219,7 @@ export default function NewProjectCard({
           </div>
           {/* <div className="flex justify-between"> */}
           <PricingInfoDialog
-            sessionCount={sessions}
+            sessionCount={session_count}
             triggerText="View Pricing Info"
             buttonProps={{
               className: "text-blue-500",
@@ -248,11 +257,11 @@ export default function NewProjectCard({
               description,
               tags,
               mentor,
-              sessions,
+              sessions: session_count,
               startDate,
               endDate,
-              time,
-              day,
+              time: session_time,
+              day: session_day,
               agenda,
               tools,
               prerequisites,
@@ -266,7 +275,7 @@ export default function NewProjectCard({
             <span className="text-lg">
               You are about to pay
               <br />
-              <b>${price}</b> for {title} <b>({sessions} sessions)</b>
+              <b>${price}</b> for {title} <b>({session_count} sessions)</b>
               <br />
               with <b>{mentor?.name}</b>
             </span>
