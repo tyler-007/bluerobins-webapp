@@ -43,28 +43,7 @@ export default function ProjectHubView(props: {
               key={project.id}
               package_id={project.id}
               userId={props.userId}
-              mentor_user={project.mentor_user}
-              spots={project.spots}
               isMentor={isMentor}
-              title={project.title}
-              description={project.description}
-              mentor={project.mentor}
-              tags={project.categories}
-              duration={`${project.sessions_count} weeks`}
-              sessions={project.sessions_count}
-              time={dayjs(project.session_time).format("hh:mm A")}
-              day={project.session_day}
-              startDate={dayjs(project.start_date).format("MMM D, YYYY")}
-              endDate={dayjs(project.start_date)
-                .add(project.sessions_count, "week")
-                .format("MMM D, YYYY")}
-              spotsLeft={
-                isMentor ? project.spots : project.spots - project.filled_spots
-              }
-              price={isMentor ? project.cost_price : project.selling_price}
-              agenda={project.agenda}
-              tools={project.tools}
-              prerequisites={project.prerequisites}
             />
           ))}
         </div>
