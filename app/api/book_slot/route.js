@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import dayjs from "dayjs";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { createCalendarEvent } from "@/lib/actions";
 export async function POST(request) {
   const supabase = await createClient();

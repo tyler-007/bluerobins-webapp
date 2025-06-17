@@ -144,14 +144,15 @@ export default async function HomePage() {
               .map((booking) => (
                 <ScheduleItem
                   key={booking.id}
+                  bookingId={booking.id}
                   mentorId={booking.for}
+                  eventId={booking.event_id}
                   eventLink={booking.event_link}
                   userType={userType}
                   studentId={booking.by}
                   title={booking.title}
                   description={booking.description}
-                  time={dayjs(booking.start_time).format("h:mm A")}
-                  date={dayjs(booking.start_time).format("DD MMM YYYY")}
+                  start_time={booking.start_time}
                 />
               ))
           ) : (
