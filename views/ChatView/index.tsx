@@ -64,7 +64,7 @@ export const ChatView = ({
 
   return (
     <Sheet onOpenChange={onOpenChange}>
-      <SheetTrigger className={cn(triggerClassName)}>
+      <SheetTrigger className={cn("text-blue-500", triggerClassName)}>
         {triggerText}
       </SheetTrigger>
       <SheetContent side="right" className="outline-none p-0">

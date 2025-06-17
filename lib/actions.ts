@@ -21,6 +21,13 @@ type EventResult = {
   meetLink?: string;
 };
 
+type EventUpdateInput = {
+  eventId: string;
+  startDateTime: string;
+  endDateTime: string;
+  host?: string;
+};
+
 // Add utility function for delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -59,6 +66,11 @@ async function retryWithBackoff<T>(
       }
     }
   }
+}
+
+function isValidISODateTime(dateTime: string): boolean {
+  const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/;
+  return isoRegex.test(dateTime);
 }
 
 export async function createCalendarEvent(
@@ -218,6 +230,132 @@ ${recorderInstructions}
       });
       throw error;
     }
+  } catch (error) {
+    // Provide more detailed error information
+    let errorMessage = "Unknown error occurred";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+
+      // Check for specific Google API errors
+      const googleError = (error as any).response?.data?.error;
+      if (googleError) {
+        errorMessage = `Google API Error: ${googleError.message || googleError.status}`;
+
+        // Log detailed error for debugging
+        console.error(
+          "Detailed Google API Error:",
+          JSON.stringify(googleError, null, 2)
+        );
+      }
+    }
+
+    return {
+      success: false,
+      error: errorMessage,
+    };
+  }
+}
+
+export async function updateEvent(
+  eventData: EventUpdateInput
+): Promise<EventResult> {
+  try {
+    console.log("Updating calendar event with data:", {
+      eventId: eventData.eventId,
+      startDateTime: eventData.startDateTime,
+      endDateTime: eventData.endDateTime,
+    });
+
+    // Parse the service account credentials from environment variable
+    const credentials = JSON.parse(
+      process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS || "{}"
+    );
+
+    if (!credentials.client_email || !credentials.private_key) {
+      throw new Error("Invalid service account credentials");
+    }
+
+    // The host will be either specified host, delegated email, or service account email
+    const hostEmail =
+      eventData.host || credentials.delegated_email || credentials.client_email;
+    console.log("Using host email:", hostEmail);
+
+    // Create a JWT client using the service account impersonating the host
+    const jwtClient = new JWT({
+      email: credentials.client_email,
+      key: credentials.private_key,
+      scopes: ["https://www.googleapis.com/auth/calendar"],
+      subject: hostEmail, // Impersonate the host
+    });
+
+    console.log("About to authorize jwtClient");
+    try {
+      // Authorize the client
+      const auth = await jwtClient.authorize();
+      console.log("JWT Authorization successful");
+    } catch (authError: any) {
+      console.error("JWT Authorization failed:", {
+        error: authError.message,
+        code: authError.code,
+        status: authError.status,
+        details: authError.response?.data,
+      });
+      throw authError;
+    }
+
+    // Create a Google Calendar API client
+    console.log("About to initialize calendar");
+    const calendar = google.calendar({ version: "v3", auth: jwtClient });
+
+    // First, get the current event to preserve its details
+    const currentEvent = await retryWithBackoff(async () => {
+      const response = await calendar.events.get({
+        calendarId: "primary",
+        eventId: eventData.eventId,
+      });
+      return response.data;
+    });
+
+    // Extract the Meet link if it exists
+    let meetLink = "";
+    if (currentEvent.conferenceData?.conferenceId) {
+      meetLink =
+        currentEvent.conferenceData.entryPoints?.find(
+          (ep: any) => ep.entryPointType === "video"
+        )?.uri || "";
+    }
+
+    // Try a minimal update first - just the start and end times
+    const minimalUpdate = {
+      start: {
+        dateTime: eventData.startDateTime,
+        timeZone: "UTC",
+      },
+      end: {
+        dateTime: eventData.endDateTime,
+        timeZone: "UTC",
+      },
+    };
+
+    console.log("Attempting minimal update with:", minimalUpdate);
+
+    // Update the event with retry logic
+    const response = await retryWithBackoff(async () => {
+      return await calendar.events.patch({
+        calendarId: "primary",
+        eventId: eventData.eventId,
+        requestBody: minimalUpdate,
+        sendUpdates: "all",
+      });
+    });
+
+    console.log("Event updated successfully:", response.data.id);
+
+    return {
+      success: true,
+      eventId: response.data.id,
+      meetLink: meetLink,
+    };
   } catch (error) {
     // Provide more detailed error information
     let errorMessage = "Unknown error occurred";
