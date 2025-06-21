@@ -181,6 +181,7 @@ export default async function HomePage() {
               ?.map((project) => (
                 <ProjectCard
                   key={project.id}
+                  hideFilled
                   userId={user.id}
                   isMentor={isMentor}
                   package_id={project.id}

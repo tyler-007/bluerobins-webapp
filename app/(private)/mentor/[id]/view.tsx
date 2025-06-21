@@ -47,7 +47,7 @@ export default function MentorView({
           <div className="p-4 py-3  flex flex-col flex-shrink-0 rounded-2xl bg-white/80 gap-2">
             <h3 className="text-xl font-bold">About</h3>
             <div className="h-px bg-blue-200 -mx-4"></div>
-            <p className="text-sm text-gray-500">{profile.bio}</p>
+            <p className="text-sm text-gray-500">{profile?.bio}</p>
           </div>
           <div className="p-4 py-3  flex flex-col flex-shrink-0 rounded-2xl bg-white/80 gap-2">
             <h3 className="text-xl font-bold">Areas Of Expertise</h3>

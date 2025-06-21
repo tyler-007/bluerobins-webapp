@@ -44,12 +44,6 @@ export default function Login() {
   const supabase = createClient();
   const total = carouselSlides.length;
   const slide = carouselSlides[current];
-  const [isTesting, _] = useQueryState(
-    "test",
-    parseAsBoolean.withDefault(false)
-  );
-
-  console.log("IS TESTING:", isTesting);
 
   const goTo = (idx: number) => setCurrent((idx + total) % total);
 
@@ -169,11 +163,10 @@ export default function Login() {
           </p>
           <div className="flex flex-col gap-4 w-full mb-6">
             <button
-              disabled={!isTesting}
               onClick={() => setUserType("student")}
               className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "student" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
             >
-              Student {!isTesting ? "(coming soon)" : ""}
+              Student
             </button>
             <button
               onClick={() => setUserType("mentor")}
@@ -182,11 +175,7 @@ export default function Login() {
               Mentor
             </button>
           </div>
-          {/* <div className="w-full flex items-center mb-6">
-            <div className="flex-grow h-px bg-gray-200" />
-            <span className="mx-4 text-gray-400">or</span>
-            <div className="flex-grow h-px bg-gray-200" />
-          </div> */}
+
           <button
             onClick={() => {
               console.log("clicked");
