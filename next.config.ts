@@ -4,11 +4,13 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: false,
+  productionBrowserSourceMaps: true,
   images: {
     domains: [
       "localhost",
       "lh3.googleusercontent.com",
       "https://app-bluerobins-nu.vercel.app",
+      "https://app.bluerobins.com",
       "zjcrwkaeulxkaprlmrbz.supabase.co",
     ],
   },
