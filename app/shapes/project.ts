@@ -11,7 +11,7 @@ export type ProjectProps = {
   prerequisites: { title: string; url: string }[];
   session_day: string;
   session_time: string;
-  session_count: number;
+  sessions_count: number;
   spots: number;
   start_date: string;
   title: string;

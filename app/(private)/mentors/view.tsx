@@ -17,6 +17,7 @@ import { useUser } from "@/app/hooks/useUser";
 const MentorCard = ({ mentor }: { mentor: any }) => {
   const { data: user } = useUser();
   const userId = user?.id ?? "";
+  mentor = mentor ?? {};
   return (
     <div className="flex flex-1 bg-white rounded-2xl border  border-gray-200 ">
       <div className="flex-1 grid grid-cols-[auto_auto_1fr] gap-x-4 gap-y-1 p-6 auto-rows-max">

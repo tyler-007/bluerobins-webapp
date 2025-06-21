@@ -39,6 +39,7 @@ export default function MentorView({
   userId: string;
 }) {
   console.log("MENTOR PROFILE: SB", profile);
+  profile = profile ?? {};
   return (
     <div className="grid grid-cols-[1fr_320px] w-full h-full gap-1 bg-gradient-primary">
       <div className="p-6 max-h-full overflow-y-auto flex flex-col ">

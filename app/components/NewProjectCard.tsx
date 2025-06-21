@@ -55,7 +55,7 @@ export default function NewProjectCard({
     prerequisites,
     session_day,
     session_time,
-    session_count,
+    sessions_count,
     spots,
     start_date,
     tools,
@@ -71,7 +71,7 @@ export default function NewProjectCard({
   const startDate = dayjs(start_date).format("MMM D, YYYY");
   // day={project.session_day}
   const endDate = dayjs(start_date)
-    .add(session_count, "week")
+    .add(sessions_count, "week")
     .format("MMM D, YYYY");
 
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -85,14 +85,14 @@ export default function NewProjectCard({
     order: any,
     package_id: number,
     title: string,
-    session_count: number,
+    sessions_count: number,
     mentor_user: string,
     startDate: string
   ) => {
     return fetch("/api/book_package", {
       method: "POST",
       body: JSON.stringify({
-        count: session_count,
+        count: sessions_count,
         for_user: mentor_user,
         title: title,
         startDate,
@@ -122,7 +122,7 @@ export default function NewProjectCard({
       order,
       package_id,
       title,
-      session_count,
+      sessions_count,
       mentor_user,
       startDate
     );
@@ -138,6 +138,8 @@ export default function NewProjectCard({
       <div className="relative min-h-[300px] bg-white rounded-xl shadow-sm border border-gray-200 p-6 pb-2 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between "></div>
     );
   }
+
+  console.log("PROJECT DETAILS", projectDetails, sessions_count);
 
   return (
     <div className="relative bg-white rounded-xl shadow-sm border border-gray-200 p-6 pb-2 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between ">
@@ -168,15 +170,15 @@ export default function NewProjectCard({
 
         <div className="grid grid-cols-[auto_1fr] gap-2 items-center mt-2 mb-4">
           <Hash className="w-4 h-4" />
-          <span className="text-base "> {session_count} Sessions </span>
+          <span className="text-base "> {sessions_count} Sessions </span>
           <Clock className="w-4 h-4" />
           <span className="text-base">
             Every {session_day} {time}
           </span>{" "}
           <Calendar className="w-4 h-4" />
           <span className="text-base">
-            {dayjs(startDate).format("DD MMM")} to{" "}
-            {dayjs(endDate).format("DD MMM")}
+            {dayjs(startDate).format("DD MMM")}{" "}
+            {endDate && `to ${dayjs(endDate).format("DD MMM")}`}
           </span>
           {!isMentor && (
             <>
@@ -219,7 +221,7 @@ export default function NewProjectCard({
           </div>
           {/* <div className="flex justify-between"> */}
           <PricingInfoDialog
-            sessionCount={session_count}
+            sessionCount={sessions_count}
             triggerText="View Pricing Info"
             buttonProps={{
               className: "text-blue-500",
@@ -257,7 +259,7 @@ export default function NewProjectCard({
               description,
               tags,
               mentor,
-              sessions: session_count,
+              sessions: sessions_count,
               startDate,
               endDate,
               time: session_time,
@@ -275,7 +277,7 @@ export default function NewProjectCard({
             <span className="text-lg">
               You are about to pay
               <br />
-              <b>${price}</b> for {title} <b>({session_count} sessions)</b>
+              <b>${price}</b> for {title} <b>({sessions_count} sessions)</b>
               <br />
               with <b>{mentor?.name}</b>
             </span>
