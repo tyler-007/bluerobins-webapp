@@ -31,12 +31,14 @@ type ProjectCardProps = {
   package_id: number;
   userId: string;
   isMentor?: boolean;
+  hideFilled?: boolean;
 };
 
 export default function NewProjectCard({
   package_id,
   userId,
   isMentor,
+  hideFilled,
 }: ProjectCardProps) {
   const { data, isLoading } = package_id
     ? useShape<ProjectProps>(getProjectShape(package_id))
@@ -139,21 +141,25 @@ export default function NewProjectCard({
     );
   }
 
-  console.log("PROJECT DETAILS", projectDetails, sessions_count);
+  if (hideFilled && !isMentor && spotsLeft < 1) {
+    return null;
+  }
 
   return (
     <div className="relative bg-white rounded-xl shadow-sm border border-gray-200 p-6 pb-2 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between ">
       <div className="flex flex-col flex-1">
         <div className="flex">
           <h2 className="text-2xl font-bold mb-1 flex-1">{title}</h2>
-          <Button
-            onClick={onEdit}
-            variant="ghost"
-            className="text-blue-500 flex -mt-1"
-          >
-            <Edit3 className="w-3 h-3 mr-1" />
-            <span className="text-sm">Edit</span>
-          </Button>
+          {isMentor && (
+            <Button
+              onClick={onEdit}
+              variant="ghost"
+              className="text-blue-500 flex -mt-1"
+            >
+              <Edit3 className="w-3 h-3 mr-1" />
+              <span className="text-sm">Edit</span>
+            </Button>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-2 mb-2">
@@ -183,7 +189,9 @@ export default function NewProjectCard({
           {!isMentor && (
             <>
               <User className="w-5 h-5" strokeWidth={1.5} />
-              <Link href={`/mentor/${mentor_user}`}>{mentor?.name}</Link>
+              <Link className="text-blue-500" href={`/mentor/${mentor_user}`}>
+                {mentor?.name}
+              </Link>
               <div> </div>
               {/* <Button variant="ghost" size="sm" className="text-blue-500">
                 View Details
