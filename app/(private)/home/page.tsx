@@ -94,7 +94,7 @@ export default async function HomePage() {
   // const availability = bookingConfig?.availability;
   const availability = profile?.availability;
 
-  const projectLimit = isMentor ? undefined : 5;
+  const projectLimit = isMentor ? undefined : undefined;
 
   if (!profile?.verified && isMentor) {
     return (
