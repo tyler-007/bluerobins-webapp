@@ -190,6 +190,7 @@ export default function MentorProfileEdit({
   };
 
   const handleLogout = async () => {
+    window?.localStorage?.clear();
     window?.localStorage?.removeItem("mentor_onboarded");
     await supabase.auth.signOut();
     router.push("/");
