@@ -180,35 +180,34 @@ export default function StudentProfileEdit({
 
                 <div className="flex-1" />
                 <div className="flex flex-row gap-2 mt-4">
-                  {!hideTerms && (
-                    <div className="flex flex-row gap-2 items-center justify-center">
-                      <input
-                        type="checkbox"
-                        checked={checkboxChecked}
-                        onChange={(e) => setCheckboxChecked(e.target.checked)}
-                      />
-                      <span>
-                        I agree to the{" "}
-                        <a
-                          target="_blank"
-                          href="/static/terms-and-conditions.pdf"
-                          className="text-blue-500 underline"
-                          onClick={() => setTermsClicked(true)}
-                        >
-                          Terms of Service
-                        </a>{" "}
-                        and{" "}
-                        <a
-                          target="_blank"
-                          href="/static/privacy-policy.pdf"
-                          className="text-blue-500 underline"
-                          onClick={() => setPrivacyClicked(true)}
-                        >
-                          Privacy Policy
-                        </a>
-                      </span>
-                    </div>
-                  )}
+                  <div className="flex flex-row gap-2 items-center justify-center">
+                    <input
+                      type="checkbox"
+                      checked={checkboxChecked}
+                      onChange={(e) => setCheckboxChecked(e.target.checked)}
+                    />
+                    <span>
+                      I agree to the{" "}
+                      <a
+                        target="_blank"
+                        href="/static/terms-and-conditions.pdf"
+                        className="text-blue-500 underline"
+                        onClick={() => setTermsClicked(true)}
+                      >
+                        Terms of Service
+                      </a>{" "}
+                      and{" "}
+                      <a
+                        target="_blank"
+                        href="/static/privacy-policy.pdf"
+                        className="text-blue-500 underline"
+                        onClick={() => setPrivacyClicked(true)}
+                      >
+                        Privacy Policy
+                      </a>
+                    </span>
+                  </div>
+
                   <Button
                     onClick={() => {
                       if (

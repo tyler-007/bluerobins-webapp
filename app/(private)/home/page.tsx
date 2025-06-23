@@ -94,7 +94,7 @@ export default async function HomePage() {
   // const availability = bookingConfig?.availability;
   const availability = profile?.availability;
 
-  const projectLimit = isMentor ? undefined : 5;
+  const projectLimit = isMentor ? undefined : undefined;
 
   if (!profile?.verified && isMentor) {
     return (
@@ -139,22 +139,20 @@ export default async function HomePage() {
         </div>
         <div className="flex flex-row flex-wrap gap-4">
           {myBookings?.length ? (
-            myBookings
-              .slice(0, 4)
-              .map((booking) => (
-                <ScheduleItem
-                  key={booking.id}
-                  bookingId={booking.id}
-                  mentorId={booking.for}
-                  eventId={booking.event_id}
-                  eventLink={booking.event_link}
-                  userType={userType}
-                  studentId={booking.by}
-                  title={booking.title}
-                  description={booking.description}
-                  start_time={booking.start_time}
-                />
-              ))
+            myBookings.map((booking) => (
+              <ScheduleItem
+                key={booking.id}
+                bookingId={booking.id}
+                mentorId={booking.for}
+                eventId={booking.event_id}
+                eventLink={booking.event_link}
+                userType={userType}
+                studentId={booking.by}
+                title={booking.title}
+                description={booking.description}
+                start_time={booking.start_time}
+              />
+            ))
           ) : (
             <div className="flex flex-1 items-center justify-center p-6 border-dashed border-blue-500 border-2 rounded-2xl">
               <span>No upcoming sessions</span>
