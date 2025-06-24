@@ -142,16 +142,7 @@ export default function MentorView({
             senderId={userId}
             receiverId={profile.id}
             mentorId={profile.id}
-            triggerText={
-              <Button
-                variant="outline"
-                className="mx-5 py-2 "
-                onClick={() => console.log("Open Schedule")}
-              >
-                <Calendar className="h-4 w-4 mr-2" />
-                Start a Chat
-              </Button>
-            }
+            triggerText="Start a Chat"
           ></ChatView>
           {/* <div className="border-2 border-red-500"></div> */}
         </div>
