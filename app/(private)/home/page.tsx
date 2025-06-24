@@ -168,7 +168,7 @@ export default async function HomePage() {
             {isMentor && (
               <a href="/project-hub/create">
                 <Button loadOnClick variant="outline">
-                  Create New
+                  Create New Project
                 </Button>
               </a>
             )}

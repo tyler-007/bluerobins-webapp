@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, MoreVertical, Paperclip, Mic, Send } from "lucide-react";
@@ -11,6 +10,7 @@ import { chats } from "./sample_data";
 import { createClient } from "@/utils/supabase/client";
 import { useGetMessages } from "./useGetMessages";
 import { useUser } from "@/app/hooks/useUser";
+import Avatar from "@/components/shared/Avatar";
 
 interface ChatScreenProps {
   channel_id: string;
@@ -164,19 +164,17 @@ export default function ChatScreen({
               )}
               <div
                 style={{
-                  justifyContent:
-                    message.from_user === userId ? "flex-end" : "flex-start",
+                  flexDirection:
+                    message.from_user === userId ? "row-reverse" : "row",
                 }}
-                className={`mb-2 flex gap-2`}
+                className={`mb-2 flex gap-2 justify-start`}
               >
-                <img
+                <Avatar
+                  size="sm"
                   src={
                     message.from_user === userId ? myAvatar : _receiver?.avatar
                   }
-                  className="w-10 h-10 bg-red-300 rounded-full"
-                  style={{
-                    order: message.from_user === userId ? 1 : 0,
-                  }}
+                  className="w-10 h-10 bg-red-300 rounded-full object-cover"
                 />
 
                 <div
