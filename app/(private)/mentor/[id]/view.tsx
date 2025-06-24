@@ -10,6 +10,7 @@ import Image from "next/image";
 import { TimeSlots } from "@/app/(private)/home/TimeSlotItem";
 import ProjectCard from "@/app/components/NewProjectCard";
 import dayjs from "dayjs";
+import Avatar from "@/components/shared/Avatar";
 
 export default function MentorView({
   id,
@@ -117,13 +118,12 @@ export default function MentorView({
       <div className="bg-[#EDF1FB] p-8 pl-6">
         <div className="border-2 bg-white flex flex-col gap-4 relative rounded-2xl overflow-clip pb-8">
           <div className="h-32 bg-gradient-to-b from-[#2953BE] to-[#10A3E9]"></div>
-          <div className=" self-center -mt-14 w-20 h-20 overflow-clip rounded-full bg-gray-200">
-            <Image
+          <div className=" self-center -mt-14">
+            <Avatar
               src={profile.photo_url}
               alt={profile.name}
-              width={80}
-              height={80}
-              className="w-full h-full object-cover"
+              size="xxl"
+              className="rounded-full object-cover"
             />
           </div>
           <h2 className="text-xl font-bold text-center px-8">{profile.name}</h2>
