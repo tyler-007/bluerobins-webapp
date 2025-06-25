@@ -27,7 +27,8 @@ export default async function ChatsPage({
 
   const { data: otherMentors } = await supabase
     .from("mentor_profiles")
-    .select("...profiles(name, id, avatar)");
+    .select("...profiles(name, id, avatar)")
+    .eq("verified", true);
 
   const { data: channelMembers } = await supabase
     .from("channel_members")
