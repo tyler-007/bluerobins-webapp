@@ -13,10 +13,11 @@ import {
 import { z } from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useMemo, useRef } from "react";
 import { useLayoutData } from "../../useLayoutData";
 import { createClient } from "@/utils/supabase/client";
 import { redirect, useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Project {
   id: number;
@@ -38,7 +39,7 @@ const prereqSchema = z.object({
 const formSchema = z.object({
   id: z.number().min(1, "Project id is required"),
   sessionDescriptions: z
-    .array(z.string().min(8, "Session description is required"))
+    .array(z.string().min(1, "Session description is required"))
     .refine(
       (arr) => arr.length === 8 || arr.length === 12,
       "Must have either 8 or 12 sessions"
@@ -52,16 +53,8 @@ type FormValues = z.infer<typeof formSchema>;
 const defaultValues: FormValues = {
   id: 0,
   sessionDescriptions: Array(12).fill(""),
-  tools: [
-    { title: "", url: "" },
-    { title: "", url: "" },
-    { title: "", url: "" },
-  ],
-  prereqs: [
-    { title: "", url: "" },
-    { title: "", url: "" },
-    { title: "", url: "" },
-  ],
+  tools: [],
+  prereqs: [],
 };
 
 const getValues = (project: any) => {
@@ -78,15 +71,20 @@ const getValues = (project: any) => {
 export default function EditPage() {
   const project = useLayoutData() as Project | null;
   const router = useRouter();
-  const values = project ? getValues(project) : undefined;
+  const { toast } = useToast();
+
+  const values = useMemo(() => {
+    if (!project) return defaultValues;
+    return getValues(project);
+  }, [project?.id, project?.agenda, project?.tools, project?.prerequisites]);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues,
     values,
     mode: "onChange",
   });
 
-  console.log("PROJECT:", project);
+  // Reset form when project data becomes available
 
   const {
     fields: toolFields,
@@ -107,19 +105,37 @@ export default function EditPage() {
   });
 
   const onSubmit = async (values: FormValues) => {
-    // handle form submission
     console.log("Values", values);
     const supabase = createClient();
     const { data, error } = await supabase
       .from("projects")
       .update({
-        agenda: values.sessionDescriptions,
+        agenda: values.sessionDescriptions.map((description) => ({
+          description,
+        })),
         tools: values.tools,
         prerequisites: values.prereqs,
       })
       .eq("id", values.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update project details. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Project details updated successfully!",
+    });
+
     redirect(`/project-hub`);
   };
+
+  console.log("FORM:", form.formState.errors);
 
   return (
     <div className="min-h-screen grid grid-cols-[1fr] w-full items-center">
@@ -143,7 +159,11 @@ export default function EditPage() {
               >
                 Cancel
               </Button>
-              <Button type="submit" className="px-8">
+              <Button
+                onClick={() => form.handleSubmit(onSubmit)()}
+                type="button"
+                className="px-8"
+              >
                 Save
               </Button>
             </div>
@@ -295,8 +315,6 @@ export default function EditPage() {
                 ))}
               </div>
             </div>
-
-            {/* Move the buttons inside the form */}
           </form>
         </Form>
       </div>

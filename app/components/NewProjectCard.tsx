@@ -27,6 +27,7 @@ import Link from "next/link";
 
 import { getProjectShape, type ProjectProps } from "@/app/shapes/project";
 import { getUserProfile, type UserProfileProps } from "@/app/shapes/profile";
+import { cn } from "@/lib/utils";
 type ProjectCardProps = {
   package_id: number;
   userId: string;
@@ -181,7 +182,11 @@ export default function NewProjectCard({
             Every {session_day} {time}
           </span>{" "}
           <Calendar className="w-4 h-4" />
-          <span className="text-base">
+          <span
+            className={cn("text-base", {
+              "text-red-500": dayjs(startDate).isBefore(dayjs()),
+            })}
+          >
             {dayjs(startDate).format("DD MMM")}{" "}
             {endDate && `to ${dayjs(endDate).format("DD MMM")}`}
           </span>
