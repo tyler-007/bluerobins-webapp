@@ -68,7 +68,10 @@ export async function POST(request) {
         location: "Virtual Meeting",
         startDateTime: dayjs(start_time).format("YYYY-MM-DDTHH:mm:ssZ"),
         endDateTime: dayjs(end_time).format("YYYY-MM-DDTHH:mm:ssZ"),
-        attendees: [{ email: mentorDetails.email }, { email: user.user.email }],
+        attendees: [
+          { email: mentorDetails.data.email },
+          { email: user.user.email },
+        ],
         externalRecorderEmail: "tools@bluerobins.com",
       });
       if (info.error) throw info.error;
