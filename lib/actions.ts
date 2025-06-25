@@ -157,8 +157,6 @@ ${recorderInstructions}
         attendee.email.includes("@")
     );
 
-    console.log("VALID ATTENDEES:", validAttendees, eventData.attendees);
-
     // Prepare the event data
     const event = {
       summary: eventData.summary,
