@@ -183,28 +183,27 @@ export default function CreatePage() {
       prereqs,
     } = values;
 
-    const selling_price = SELLING_PRICE_COST_MAP[sessions].selling_price;
-    const cost_price = SELLING_PRICE_COST_MAP[sessions].cost_price;
+    const pricingInfo = SELLING_PRICE_COST_MAP[sessions as keyof typeof SELLING_PRICE_COST_MAP];
 
     const { data, error } = await supabase.from("projects").insert({
+      mentor_user_id: userId,
       title,
       description,
       categories: category.split(","),
-      sessions_count: sessions,
+      sessions_count: parseInt(sessions),
       spots,
       start_date: dayjs(`${startDate} ${time}`, "YYYY-MM-DD HH:mm").toDate(),
-      session_time: dayjs(`${startDate} ${time}`, "YYYY-MM-DD HH:mm").toDate(),
+      session_time: time,
       session_day: dayOfWeek,
       agenda: sessionDescriptions.map((description) => ({
         description,
       })),
       tools,
-      selling_price: selling_price,
-      cost_price: cost_price,
-      prerequisites: prereqs,
-      mentor_user: userId,
+      selling_price: pricingInfo?.selling_price,
+      cost_price: pricingInfo?.cost_price,
+      status: "published",
     });
-    console.log("SUBMITTED", data, error);
+    console.log("Create data", data, error);
     router.replace("/project-hub");
   };
 

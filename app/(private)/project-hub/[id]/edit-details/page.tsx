@@ -16,10 +16,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React, { Fragment } from "react";
 import { useLayoutData } from "../../useLayoutData";
 import { createClient } from "@/utils/supabase/client";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface Project {
-  id: number;
+  id: string;
   sessions_count: number;
   agenda: Array<{ description: string }>;
   tools: Array<{ title: string; url: string }>;
@@ -36,13 +36,10 @@ const prereqSchema = z.object({
 });
 
 const formSchema = z.object({
-  id: z.number().min(1, "Project id is required"),
+  id: z.string().uuid("Invalid project ID"),
   sessionDescriptions: z
-    .array(z.string().min(8, "Session description is required"))
-    .refine(
-      (arr) => arr.length === 8 || arr.length === 12,
-      "Must have either 8 or 12 sessions"
-    ),
+    .array(z.string())
+    .min(1, "At least one session description is required"),
   tools: z.array(resourceSchema),
   prereqs: z.array(prereqSchema),
 });
@@ -50,7 +47,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const defaultValues: FormValues = {
-  id: 0,
+  id: "",
   sessionDescriptions: Array(12).fill(""),
   tools: [
     { title: "", url: "" },
@@ -66,12 +63,11 @@ const defaultValues: FormValues = {
 
 const getValues = (project: any) => {
   return {
-    id: project.id,
-    sessionDescriptions: project?.agenda?.map(
-      (agenda: any) => agenda.description
-    ),
-    tools: project?.tools,
-    prereqs: project?.prerequisites,
+    id: project?.id ?? "",
+    sessionDescriptions:
+      project?.agenda?.map((agenda: any) => agenda.description) ?? [],
+    tools: project?.tools ?? [],
+    prereqs: project?.prerequisites ?? [],
   };
 };
 
@@ -106,19 +102,31 @@ export default function EditPage() {
     name: "prereqs",
   });
 
+  const onInvalid = (errors: any) => {
+    console.error("Form validation failed:", errors);
+    alert("Form has errors. Please check the console for details.");
+  };
+
   const onSubmit = async (values: FormValues) => {
     // handle form submission
-    console.log("Values", values);
-    const supabase = createClient();
+    console.log("Submitting values:", values);
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("projects")
       .update({
-        agenda: values.sessionDescriptions,
+        agenda: values.sessionDescriptions.map((desc) => ({ description: desc })),
         tools: values.tools,
         prerequisites: values.prereqs,
       })
       .eq("id", values.id);
-    redirect(`/project-hub`);
+
+    if (error) {
+      console.error("Failed to update project details:", error);
+      alert(`Error updating project: ${error.message}`);
+      return;
+    }
+
+    router.push(`/project-hub`);
   };
 
   return (
@@ -135,7 +143,13 @@ export default function EditPage() {
               <ArrowLeft className="w-6 h-6" />
             </Button>
             <h1 className="text-2xl font-bold flex-1">Edit Session details</h1>
-            <div className="flex gap-4">
+          </div>
+          <form
+            className="space-y-8"
+            onSubmit={form.handleSubmit(onSubmit, onInvalid)}
+            autoComplete="off"
+          >
+            <div className="flex justify-end gap-4">
               <Button
                 onClick={() => router.back()}
                 variant="outline"
@@ -143,16 +157,14 @@ export default function EditPage() {
               >
                 Cancel
               </Button>
-              <Button type="submit" className="px-8">
+              <Button
+                loading={form.formState.isSubmitting}
+                type="submit"
+                className="px-8"
+              >
                 Save
               </Button>
             </div>
-          </div>
-          <form
-            className="space-y-8"
-            onSubmit={form.handleSubmit(onSubmit)}
-            autoComplete="off"
-          >
             {/* Session Descriptions */}
             <div className="rounded-2xl bg-white p-6 mb-6 shadow">
               <label className="font-semibold text-lg block mb-3">
@@ -295,8 +307,6 @@ export default function EditPage() {
                 ))}
               </div>
             </div>
-
-            {/* Move the buttons inside the form */}
           </form>
         </Form>
       </div>

@@ -17,11 +17,11 @@ export default async function SearchPage() {
   const isMentor = user.user_metadata.user_type === "mentor";
   const fetcher = supabase
     .from("projects")
-    .select("*, mentor:profiles(name, avatar)");
+    .select("*");
 
-  const { data: projects } = isMentor
-    ? await fetcher.eq("mentor_user", user.id)
-    : await fetcher;
+  const { data: projects } = await fetcher;
 
-  return <View projects={projects} isMentor={isMentor} userId={user.id} />;
+  return (
+    <View projects={projects ?? []} isMentor={isMentor} userId={user.id} />
+  );
 }

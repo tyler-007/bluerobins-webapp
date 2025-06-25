@@ -32,6 +32,7 @@ type ProjectCardProps = {
   userId: string;
   isMentor?: boolean;
   hideFilled?: boolean;
+  projectDetails?: ProjectProps;
 };
 
 export default function NewProjectCard({
@@ -39,12 +40,14 @@ export default function NewProjectCard({
   userId,
   isMentor,
   hideFilled,
+  projectDetails: projectDetailsFromProps,
 }: ProjectCardProps) {
-  const { data, isLoading } = package_id
-    ? useShape<ProjectProps>(getProjectShape(package_id))
-    : { data: [], isLoading: false };
+  const { data, isLoading } =
+    !projectDetailsFromProps && package_id
+      ? useShape<ProjectProps>(getProjectShape(package_id))
+      : { data: [], isLoading: false };
 
-  const projectDetails = data[0];
+  const projectDetails = projectDetailsFromProps ?? data[0];
   const {
     agenda,
     categories: tags = [],
@@ -303,6 +306,9 @@ export default function NewProjectCard({
           {spotsLeft} spot{spotsLeft > 1 ? "s" : ""} left
         </div>
       )}
+      <Link href={`/project-hub/${package_id}`}>
+        <Button variant="outline" className="w-full mt-2">Go to Full Project Page</Button>
+      </Link>
     </div>
   );
 }

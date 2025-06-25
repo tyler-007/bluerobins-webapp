@@ -1,28 +1,30 @@
 "use client"; // Required for React hooks
 
-import { createContext, useContext } from "react";
+import React, { createContext, useContext } from "react";
 
 // Create the context
-const LayoutDataContext = createContext(null);
+const LayoutDataContext = createContext<any | null>(null);
 
 // Provider to wrap children with the data
-export function LayoutDataProvider({
+export const LayoutDataProvider = ({
   children,
   value,
 }: {
   children: React.ReactNode;
   value: any;
-}) {
+}) => {
   return (
     <LayoutDataContext.Provider value={value}>
       {children}
     </LayoutDataContext.Provider>
   );
-}
+};
 
 // Hook to use the context
-export function useLayoutData() {
+export const useLayoutData = () => {
   const context = useContext(LayoutDataContext);
-  if (!context) throw new Error("Use layout data is outside context");
+  if (context === undefined) {
+    throw new Error("useLayoutData must be used within a LayoutDataProvider");
+  }
   return context;
-}
+};

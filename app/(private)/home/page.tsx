@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import ProjectHubView from "../project-hub/view";
 import ProjectCard from "@/app/components/NewProjectCard";
 import { TimeSlots } from "./TimeSlotItem";
+import MentorSidebar from "./components/MentorSidebar";
+
 const ExploreItem = ({
   title,
   description,
@@ -80,8 +82,8 @@ export default async function HomePage() {
         .order("start_time", { ascending: true })
         .eq(filterKey, user.id),
       isMentor
-        ? supabase.from("projects").select("id").eq("mentor_user", user.id)
-        : supabase.from("projects").select("id"),
+        ? supabase.from("projects").select("*").eq("mentor_user_id", user.id)
+        : supabase.from("projects").select("*")
     ]);
 
   const profile =
@@ -103,7 +105,7 @@ export default async function HomePage() {
           Thanks for signing up as a mentor!
         </h3>
         <p className="text-xl text-gray-500 text-center">
-          We’re reviewing your details and will notify you once <br />
+          We're reviewing your details and will notify you once <br />
           your profile is verified and your portal access is activated.
         </p>
 
@@ -163,7 +165,7 @@ export default async function HomePage() {
         <>
           <div className="flex flex-row gap-4 mt-7 items-center justify-between">
             <span className="text-2xl font-bold">
-              {isMentor ? "Project Hubs" : "Recommended Projects"}
+              {isMentor ? "My Projects" : "Recommended Projects"}
             </span>
             {isMentor && (
               <a href="/project-hub/create">
@@ -183,6 +185,7 @@ export default async function HomePage() {
                   userId={user.id}
                   isMentor={isMentor}
                   package_id={project.id}
+                  projectDetails={project}
                 />
               ))}
           </div>
@@ -190,79 +193,11 @@ export default async function HomePage() {
       </div>
       {!isMentor && <StudentOnboarding profile={profile} userId={user.id} />}
       {isMentor && (
-        <div className="flex w-[300px] flex-col bg-light border-l-2 border-gray-200 p-5 gap-5  ">
-          <div className="bg-white rounded-2xl p-6 border border-gray-200">
-            <div className="flex flex-row gap-4 items-center">
-              {profile?.photo_url ? (
-                <Image
-                  src={profile?.photo_url ?? ""}
-                  alt="avatar"
-                  width={56}
-                  height={56}
-                  className="rounded-full min-w-16  object-cover"
-                />
-              ) : (
-                <div className="flex h-14 w-14 rounded-full bg-[#B1D1FA] items-center justify-center">
-                  <User className="w-8 h-8 text-primary" />
-                </div>
-              )}
-              <div className="flex flex-col gap-1">
-                <span className="text-lg font-bold">
-                  {user?.user_metadata?.full_name}
-                </span>
-
-                <MentorProfileEdit
-                  triggerText="Edit Profile"
-                  initialStep={0}
-                  profile={profile}
-                  email={user?.email ?? ""}
-                  name={user?.user_metadata?.full_name}
-                  userId={user.id}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl flex flex-col flex-1 border border-gray-200 p-3">
-            {isMentor && (
-              <>
-                <div className="flex flex-row gap-4 items-center justify-between">
-                  <span className="text-lg font-bold">Timings</span>
-                  <MentorProfileEdit
-                    triggerText="Edit Timings"
-                    initialStep={2}
-                    triggerClassName="-mt-0 -ml-0 justify-end"
-                    profile={profile}
-                    email={user?.email ?? ""}
-                    name={user?.user_metadata?.full_name}
-                    userId={user.id}
-                  />
-                </div>
-                <div className="grid grid-cols-[auto_1fr] gap-2 gap-y-1 items-center">
-                  <TimeSlots availability={availability?.Sunday} day="Sunday" />
-                  <TimeSlots availability={availability?.Monday} day="Monday" />
-                  <TimeSlots
-                    availability={availability?.Tuesday}
-                    day="Tuesday"
-                  />
-                  <TimeSlots
-                    availability={availability?.Wednesday}
-                    day="Wednesday"
-                  />
-                  <TimeSlots
-                    availability={availability?.Thursday}
-                    day="Thursday"
-                  />
-                  <TimeSlots availability={availability?.Friday} day="Friday" />
-                  <TimeSlots
-                    availability={availability?.Saturday}
-                    day="Saturday"
-                  />
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+        <MentorSidebar
+          profile={profile}
+          user={user}
+          availability={availability}
+        />
       )}
     </div>
   );

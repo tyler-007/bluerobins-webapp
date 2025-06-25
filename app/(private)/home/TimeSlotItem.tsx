@@ -1,4 +1,6 @@
 import dayjs from "dayjs";
+import { Button } from "@/components/ui/button";
+import React, { useState } from "react";
 
 export const TimeSlots = ({
   availability,
@@ -17,13 +19,13 @@ export const TimeSlots = ({
         <span className="text-sm text-gray-500">Unavailable</span>
       ) : (
         (availability ?? []).map((item: any, index: number) => (
-          <>
+          <React.Fragment key={item.start || index}>
             {index > 0 && <div />}
             <span>
               {dayjs(`2024-01-01T${item.start}`).format("h:mm A")} -{" "}
               {dayjs(`2024-01-01T${item.end}`).format("h:mm A")}
             </span>
-          </>
+          </React.Fragment>
         ))
       )}
       <div className="flex col-span-2 h-1"></div>
