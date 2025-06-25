@@ -54,7 +54,7 @@ export async function POST(request) {
     console.log("PROCESSING INDEX:", index);
     const description = `Session ${index + 1} of ${count}`;
     const start_time = dayjs(startDate)
-      .add(index, "day")
+      .add(index, "week")
       .format("YYYY-MM-DDTHH:mm:ssZ");
     const end_time = dayjs(start_time)
       .add(1, "hour")
