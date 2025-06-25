@@ -1,6 +1,6 @@
 import Image from "next/image";
 import logo from "./mascot.png";
-import { Link, User } from "lucide-react";
+import { User } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import dayjs from "dayjs";
@@ -10,6 +10,7 @@ import MentorProfileEdit from "./MentorProfileEdit";
 import { Button } from "@/components/ui/button";
 import ProjectCard from "@/app/components/NewProjectCard";
 import { TimeSlots } from "./TimeSlotItem";
+import Link from "next/link";
 
 export default async function HomePage() {
   const supabase = await createClient();
