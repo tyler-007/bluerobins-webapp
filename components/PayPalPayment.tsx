@@ -41,6 +41,23 @@ export const PayPalPayment = ({
             intent: "CAPTURE",
             purchase_units: [
               {
+                items: [
+                  {
+                    name: "Mentorship Session – 1 Hour",
+                    description:
+                      "One-on-one online educational guidance session",
+                    quantity: "1",
+                    unit_amount: {
+                      currency_code: "USD",
+                      value: amount.toString(),
+                    },
+                    tax: {
+                      currency_code: "USD",
+                      value: "0",
+                    },
+                    category: "DIGITAL_GOODS", // This is key for intangible
+                  },
+                ],
                 amount: {
                   currency_code: "USD",
                   value: amount.toString(),

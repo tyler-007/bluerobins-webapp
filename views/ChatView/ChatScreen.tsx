@@ -43,6 +43,7 @@ export default function ChatScreen({
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [_receiver, setReceiver] = useState<any>(receiver);
+  const [_sender, setSender] = useState<any>();
 
   const { data: user } = useUser();
   const userId = user?.id ?? "";
@@ -61,6 +62,20 @@ export default function ChatScreen({
       fetchReceiver();
     }
   }, [receiverId]);
+
+  useEffect(() => {
+    const fetchSender = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", senderId)
+        .single();
+      setSender(data);
+    };
+    if (senderId && !_sender) {
+      fetchSender();
+    }
+  }, [senderId]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -170,6 +185,11 @@ export default function ChatScreen({
                 className={`mb-2 flex gap-2 justify-start`}
               >
                 <Avatar
+                  alt={
+                    message.from_user === userId
+                      ? _sender?.name
+                      : _receiver?.name
+                  }
                   size="sm"
                   src={
                     message.from_user === userId ? myAvatar : _receiver?.avatar
