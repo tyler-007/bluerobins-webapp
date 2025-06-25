@@ -34,7 +34,7 @@ const ScheduleItem = ({
   const time = dayjs(start_time).format("h:mm A");
   const date = dayjs(start_time).format("DD MMM YYYY");
   // const { data: user } = useUser();
-  const showJoin = false;
+  const showJoin = true;
   const isMentor = userType === "mentor";
   console.log(
     "eventId",
