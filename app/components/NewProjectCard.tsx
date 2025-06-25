@@ -97,8 +97,7 @@ export default function NewProjectCard({
         count: sessions_count,
         for_user: mentor_user,
         title: title,
-        startDate,
-
+        startDate: session_time,
         payment_id: order.id,
         package_id,
         details: order,
