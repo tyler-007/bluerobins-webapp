@@ -1,6 +1,6 @@
 import Image from "next/image";
 import logo from "./mascot.png";
-import { User } from "lucide-react";
+import { Link, User } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import dayjs from "dayjs";
@@ -126,12 +126,18 @@ export default async function HomePage() {
             <span className="text-2xl font-bold">
               {isMentor ? "Project Hubs" : "Recommended Projects"}
             </span>
-            {isMentor && (
+            {isMentor ? (
               <a href="/project-hub/create">
                 <Button loadOnClick variant="outline">
                   Create New Project
                 </Button>
               </a>
+            ) : (
+              <Link href="/project-hub/">
+                <Button loadOnClick variant="outline">
+                  View All
+                </Button>
+              </Link>
             )}
           </div>
           <div className="flex flex-wrap gap-4">
