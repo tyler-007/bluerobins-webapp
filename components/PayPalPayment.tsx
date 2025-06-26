@@ -21,6 +21,11 @@ export const PayPalPayment = ({
   const [test] = useQueryState("test_p", parseAsBoolean);
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
+  const isValidAmount = amount > 0;
+
+  console.log("--- PayPal Amount Debug ---");
+  console.log("Amount received:", amount);
+  console.log("Is amount valid?", isValidAmount);
 
   return (
     <PayPalScriptProvider
@@ -84,7 +89,7 @@ export const PayPalPayment = ({
           });
           onCancel?.();
         }}
-        disabled={isProcessing}
+        disabled={isProcessing || !isValidAmount}
       />
     </PayPalScriptProvider>
   );

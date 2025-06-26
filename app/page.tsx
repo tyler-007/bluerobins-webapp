@@ -169,6 +169,12 @@ export default function Login() {
               Student
             </button>
             <button
+              onClick={() => setUserType("parent")}
+              className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "parent" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
+            >
+              Parent
+            </button>
+            <button
               onClick={() => setUserType("mentor")}
               className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "mentor" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
             >

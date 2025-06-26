@@ -101,7 +101,7 @@ export const ProjectNotesClient = ({
 
   const handleSaveNote = async (data: NoteFormValues) => {
     try {
-      await saveNote({ ...data, projectId, mentorId });
+      await saveNote({ ...data, project_id: projectId, mentor_id: mentorId });
       toast({ title: "Success", description: "Your note has been saved." });
       router.refresh(); // Re-fetches data on the server and re-renders
     } catch (error: any) {

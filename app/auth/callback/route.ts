@@ -61,7 +61,10 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}${redirectTo}`);
     }
 
-    // Always redirect to home after successful authentication
+    // Redirect parents to /parent, others to /home
+    if (userType === "parent") {
+      return NextResponse.redirect(`${origin}/parent`);
+    }
     return NextResponse.redirect(`${origin}/home`);
   } catch (error) {
     console.error("Callback error:", error);

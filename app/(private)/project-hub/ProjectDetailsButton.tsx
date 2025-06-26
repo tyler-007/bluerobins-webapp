@@ -1,17 +1,20 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { useState, useEffect, Fragment } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "@/components/ui/form";
-import { useToast } from "@/components/ui/use-toast";
-import { createClient } from "@/utils/supabase/client";
-import { Clock, Calendar, Link as LinkIcon, ExternalLink } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import {
+  Calendar,
+  Clock,
+  ExternalLink,
+  Users,
+  X,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import Image from "next/image";
+import { Fragment, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default function ProjectDetailsButton({
   onBuyPackage,
@@ -36,14 +39,11 @@ export default function ProjectDetailsButton({
   name?: string;
   email?: string;
 }) {
-  const supabase = createClient();
   const [open, setOpen] = useState(false);
-  const { toast } = useToast();
 
-  const onClose = (open: boolean) => {
-    setOpen(open);
+  const onClose = () => {
+    setOpen(false);
   };
-
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetTrigger asChild>
@@ -65,8 +65,17 @@ export default function ProjectDetailsButton({
           <div className="w-full flex border-b p-4 items-center justify-between sticky top-0 bg-white">
             <h1 className="text-2xl font-bold">Project Details</h1>
             <Button className="mr-6" onClick={onBuyPackage}>
-              Buy Package
+              Book Now
             </Button>
+            <button
+              onClick={() => {
+                onClose();
+              }}
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </button>
           </div>
           <div className="grid gap-4 p-8">
             <h2 className="text-xl font-bold">{project.title}</h2>
@@ -122,18 +131,26 @@ export default function ProjectDetailsButton({
             </div>
             <h2 className="text-xl font-bold">Prerequisites</h2>
             <div className="flex flex-wrap gap-2 -mt-3">
-              {project.prerequisites
+              {(project.prerequisites ?? [])
                 .sort((a, b) => (a.url ? 1 : -1) - (b.url ? 1 : -1))
                 .map(({ title, url }, index) =>
                   url ? (
-                    <a href={url} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      key={index}
+                    >
                       <Badge className="cursor-pointer text-primary bg-transparent border border-primary hover:bg-secondary/80 flex items-center gap-2 px-4 text-base">
                         {title}
                         <ExternalLink className="w-5 h-5" />
                       </Badge>
                     </a>
                   ) : (
-                    <Badge className=" hover:bg-secondary/80 flex items-center gap-2 px-4 text-base">
+                    <Badge
+                      key={index}
+                      className=" hover:bg-secondary/80 flex items-center gap-2 px-4 text-base"
+                    >
                       {title}
                     </Badge>
                   )
@@ -145,14 +162,22 @@ export default function ProjectDetailsButton({
                 .sort((a, b) => (a.url ? 1 : -1) - (b.url ? 1 : -1))
                 .map(({ title, url }, index) =>
                   url ? (
-                    <a href={url} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      key={index}
+                    >
                       <Badge className="cursor-pointer text-primary bg-transparent border border-primary hover:bg-secondary/80 flex items-center gap-2 px-4 text-base">
                         {title}
                         <ExternalLink className="w-5 h-5" />
                       </Badge>
                     </a>
                   ) : (
-                    <Badge className=" hover:bg-secondary/80 flex items-center gap-2 px-4 text-base">
+                    <Badge
+                      key={index}
+                      className=" hover:bg-secondary/80 flex items-center gap-2 px-4 text-base"
+                    >
                       {title}
                     </Badge>
                   )

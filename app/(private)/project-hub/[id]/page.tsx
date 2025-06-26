@@ -28,11 +28,8 @@ const ProjectDetails = ({ project }: { project: any }) => {
   );
 };
 
-export default async function ProjectViewPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ProjectViewPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: projectId } = await params;
   const supabase = await createClient();
   const {
     data: { user },
@@ -41,8 +38,6 @@ export default async function ProjectViewPage({
   if (!user) {
     return notFound();
   }
-
-  const projectId = params.id;
 
   // Fetch project details
   const { data: project, error: projectError } = await supabase

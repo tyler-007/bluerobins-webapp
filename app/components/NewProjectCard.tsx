@@ -196,20 +196,17 @@ export default function NewProjectCard({
                 {mentor?.name}
               </Link>
               <div> </div>
-              {/* <Button variant="ghost" size="sm" className="text-blue-500">
-                View Details
-              </Button> */}
-              <ChatView
-                triggerClassName="text-left text-blue-500 text-sm cursor-pointer hover:text-black transition-all duration-300 "
-                triggerText="Chat with mentor"
-                name={``}
-                mentorId={mentor_user}
-                senderId={userId}
-                receiverId={mentor_user}
-              />
-              {/* <span className="text-blue-500 text-sm cursor-pointer hover:text-black transition-all duration-300 ">
-                Chat with mentor
-              </span> */}
+              <span className="text-left text-blue-500 text-sm cursor-pointer hover:text-black transition-all duration-300 ">
+                <ChatView
+                  asChild
+                  triggerClassName="border-none text-left text-blue-500 text-sm cursor-pointer hover:text-black transition-all duration-300 "
+                  triggerText="Chat with mentor"
+                  name={``}
+                  mentorId={mentor_user}
+                  senderId={userId}
+                  receiverId={mentor_user}
+                />
+              </span>
             </>
           )}
         </div>
@@ -263,23 +260,25 @@ export default function NewProjectCard({
               </span>
             </div>
           )}
-          <ProjectDetailsButton
-            onBuyPackage={onBuyPackage}
-            project={{
-              title,
-              description,
-              tags,
-              mentor,
-              sessions: sessions_count,
-              startDate,
-              endDate,
-              time: session_time,
-              day: session_day,
-              agenda,
-              tools,
-              prerequisites,
-            }}
-          />
+          <div className="w-full text-center mt-2">
+            <ProjectDetailsButton
+              onBuyPackage={onBuyPackage}
+              project={{
+                title,
+                description,
+                tags,
+                mentor,
+                sessions: sessions_count,
+                startDate,
+                endDate,
+                time: session_time,
+                day: session_day,
+                agenda,
+                tools,
+                prerequisites,
+              }}
+            />
+          </div>
         </>
       )}
       <PaymentDialog

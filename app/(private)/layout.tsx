@@ -16,6 +16,7 @@ export default async function PrivateLayout({
     return redirect("/");
   }
   const isMentor = user.user_metadata.user_type === "mentor";
+  const isParent = user.user_metadata.user_type === "parent";
   const { data: profile } = await supabase
     .from("mentor_profiles")
     .select("*")
@@ -31,6 +32,11 @@ export default async function PrivateLayout({
 
   const isStudent = !isMentor;
   const verified = isStudent || profile?.verified;
+  if (isParent) {
+    return (
+      <main className="flex flex-1 min-h-screen bg-gradient-primary">{children}</main>
+    );
+  }
   return (
     <div className="flex flex-row min-h-screen max-h-screen overflow-hidden">
       <Sidebar

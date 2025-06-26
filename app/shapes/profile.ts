@@ -8,6 +8,7 @@ export type UserProfileProps = {
 };
 
 export const getUserProfile = (user_id: string): ShapeStreamOptions => {
+  console.log("getUserProfile called with:", user_id, "window:", typeof window);
   if (typeof window !== `undefined`) {
     if (!user_id) {
       return {
