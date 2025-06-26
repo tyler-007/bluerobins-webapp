@@ -70,7 +70,7 @@ const SELLING_PRICE_COST_MAP = {
     cost_price: 839,
   },
   "12": {
-    selling_price: 1289,
+    selling_price: 1530,
     cost_price: 900,
   },
 };
