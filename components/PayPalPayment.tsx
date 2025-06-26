@@ -47,7 +47,7 @@ export const PayPalPayment = ({
                 description: "One-on-one online educational guidance session",
                 items: [
                   {
-                    name: "Mentorship Session – 1 Hour",
+                    name: "Mentorship Package",
                     quantity: "1",
                     unit_amount: {
                       currency_code: "USD",

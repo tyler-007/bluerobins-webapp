@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { TagInput } from "@/app/components/ui/TagInput";
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "../../types/mentor-profile";
-import { User } from "lucide-react";
+import { User, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -26,6 +26,7 @@ export function ProfileStep({ form }: ProfileStepProps) {
   const { toast } = useToast();
   const supabase = createClient();
   const [userId, setUserId] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
@@ -55,10 +56,12 @@ export function ProfileStep({ form }: ProfileStepProps) {
                         accept="image/*"
                         className="hidden"
                         id="photo-upload"
+                        disabled={isUploading}
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file || !userId) return;
 
+                          setIsUploading(true);
                           try {
                             // Upload to Supabase Storage
                             const fileExt = file.name.split(".").pop();
@@ -96,6 +99,8 @@ export function ProfileStep({ form }: ProfileStepProps) {
                                 error.message || "Failed to upload photo",
                               variant: "destructive",
                             });
+                          } finally {
+                            setIsUploading(false);
                           }
                         }}
                       />
@@ -105,10 +110,16 @@ export function ProfileStep({ form }: ProfileStepProps) {
                           "min-w-32 max-w-32 min-h-32 max-h-32 h-full aspect-square rounded-xl border-2 border-dashed border-gray-300",
                           "flex items-center justify-center cursor-pointer",
                           "hover:border-gray-400 transition-colors",
-                          "relative overflow-hidden"
+                          "relative overflow-hidden",
+                          isUploading && "cursor-not-allowed opacity-50"
                         )}
                       >
-                        {field.value ? (
+                        {isUploading ? (
+                          <div className="flex flex-col items-center gap-2 text-gray-500">
+                            <Loader2 className="w-8 h-8 animate-spin" />
+                            <span className="text-xs">Uploading...</span>
+                          </div>
+                        ) : field.value ? (
                           <img
                             src={field.value}
                             alt="Profile preview"
