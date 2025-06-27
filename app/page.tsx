@@ -72,8 +72,6 @@ export default function Login() {
         },
       });
 
-      console.log("DATA:", Object.keys(data));
-
       if (error) throw error;
     } catch (error: any) {
       console.error("OAuth error:", error);
