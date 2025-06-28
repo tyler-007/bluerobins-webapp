@@ -48,7 +48,8 @@ const renderMessageWithLinks = (message: string) => {
           href={part}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 hover:text-blue-800 underline break-all"
+          className="text-blue-600 hover:text-blue-800 underline break-all max-w-full overflow-hidden text-ellipsis whitespace-nowrap inline-flex items-center"
+          style={{ maxWidth: "100%" }}
         >
           {displayUrl}
         </a>
@@ -222,7 +223,9 @@ export default function ChatScreen({
                   }
                   size="sm"
                   src={
-                    message.from_user === userId ? myAvatar : _receiver?.avatar
+                    message.from_user === userId
+                      ? _sender?.avatar
+                      : _receiver?.avatar
                   }
                   className="w-10 h-10 bg-red-300 rounded-full object-cover"
                 />
