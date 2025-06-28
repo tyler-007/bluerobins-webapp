@@ -31,6 +31,33 @@ const formatMessageDate = (date: Date) => {
   }
 };
 
+// Function to detect URLs and make them clickable
+const renderMessageWithLinks = (message: string) => {
+  // URL regex pattern
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = message.split(urlRegex);
+
+  return parts.map((part, index) => {
+    if (urlRegex.test(part)) {
+      // Truncate URL if it's too long
+      const displayUrl =
+        part.length > 50 ? part.substring(0, 47) + "..." : part;
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:text-blue-800 underline break-all"
+        >
+          {displayUrl}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 export default function ChatScreen({
   channel_id,
   senderId,
@@ -207,7 +234,9 @@ export default function ChatScreen({
                     order: message.from_user === userId ? 0 : 1,
                   }}
                 >
-                  <p className="text-sm">{message.message}</p>
+                  <p className="text-sm">
+                    {renderMessageWithLinks(message.message)}
+                  </p>
                   <p className="text-right text-xs text-gray-500 mt-1">
                     {format(new Date(message.created_at), "h:mm a")}
                   </p>
