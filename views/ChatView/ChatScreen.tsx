@@ -137,7 +137,10 @@ export default function ChatScreen({
     return !isSameDay(currentDate, previousDate);
   };
 
-  const messagesToShow = [...(oldMessages ?? []), ...messages];
+  // Combine and sort messages by created_at ascending
+  const messagesToShow = [...(oldMessages ?? []), ...messages].sort((a, b) =>
+    new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
 
   return (
     <div className="flex flex-col h-full">

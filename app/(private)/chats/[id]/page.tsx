@@ -22,7 +22,7 @@ export default async function ChatPage({ params }: any) {
 
   return (
     <ChatScreen
-      receiver={receiver}
+      receiver={receiver?.profiles}
       channel_id={id}
       senderId={user?.user?.id ?? ""}
       receiverId={receiverId}

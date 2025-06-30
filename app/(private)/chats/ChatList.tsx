@@ -132,7 +132,7 @@ export default function ChatList({
 
   return (
     <div className="w-full max-w-md mx-auto divide-y border-[#DDD] border-b">
-      {myChannels.map((chat: any) => (
+      {(myChannels ?? []).map((chat: any) => (
         <ChatListItem
           key={chat.channel_id}
           chat={chat}

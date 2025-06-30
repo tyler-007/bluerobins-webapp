@@ -74,17 +74,47 @@ export default async function ChatsPage({
       </div>
       <div className="flex flex-row flex-1 bg-[#EEF2FB]">
         <div className="flex flex-[2] flex-col bg-light border-r-2 border-[#DDD]">
-          {userId && (
-            <ChatList
-              userId={userId}
-              unread_messages_count={unread_messages_count}
-              myChannels={channelMembers}
-              lastMessageObject={lastMessageObject}
-            />
-          )}
+          {/* Blue Robins Support always at the top */}
+          <div className="w-full max-w-md mx-auto divide-y border-[#DDD] border-b">
+            <a
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=support@bluerobins.com"
+              target="_blank"
+              className="flex items-center px-4 py-3 gap-2 hover:bg-[#E0E6F6] transition"
+            >
+              <div className="h-8 w-8 rounded-full bg-[#2953BE] flex items-center justify-center" />
+              <h4>Blue Robins Support</h4>
+            </a>
+          </div>
+          {/* Chats section for real users */}
+          <h3 className="text-xl font-bold p-3 px-6">Chats</h3>
+          <div className="w-full max-w-md mx-auto divide-y border-[#DDD] border-b">
+            {myChannels?.map((channel) => {
+              // Find all members for this channel except the current user
+              const others = channelMembers?.filter(
+                (member) =>
+                  member.channel_id === channel.channel_id &&
+                  member.user_id !== userId
+              ) || [];
+              return others.map((other) => (
+                <a
+                  key={channel.channel_id + '-' + other.user_id}
+                  href={`/chats/${channel.channel_id}`}
+                  className="flex items-center px-4 py-3 gap-2 hover:bg-[#E0E6F6] transition"
+                >
+                  <Image
+                    src={other.profiles?.avatar || "/logo.png"}
+                    alt={other.profiles?.name || "User"}
+                    width={32}
+                    height={32}
+                    className="rounded-full object-cover"
+                  />
+                  <h4>{other.profiles?.name || other.user_id}</h4>
+                </a>
+              ));
+            })}
+          </div>
           {!isMentor && (
             <>
-              <h3 className="text-xl font-bold p-3 px-6">Other Mentors</h3>
               <div className="w-full max-w-md mx-auto divide-y border-[#DDD] border-b">
                 {otherMentors
                   ?.filter(
@@ -99,23 +129,6 @@ export default async function ChatsPage({
               </div>
             </>
           )}
-          <div className="w-full max-w-md mx-auto divide-y border-[#DDD] border-b">
-            <a
-              href="https://mail.google.com/mail/?view=cm&fs=1&to=support@bluerobins.com"
-              target="_blank"
-              className="flex items-center px-4 py-3 gap-2 hover:bg-[#E0E6F6] transition"
-            >
-              <div className="h-8 w-8 rounded-full bg-[#2953BE] flex items-center justify-center" />
-              {/* <Image
-                  src={mentor.avatar}
-                  alt={mentor.name}
-                  width={32}
-                  height={32}
-                  className="rounded-full object-cover"
-                /> */}
-              <h4>Blue Robins Support</h4>
-            </a>
-          </div>
         </div>
         <div className="flex flex-[3] flex-col">{children}</div>
       </div>
