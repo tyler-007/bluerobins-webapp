@@ -1,3 +1,4 @@
+/*
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const originUrl = new URL(
@@ -42,3 +43,4 @@ export async function GET(request: Request) {
   }
   return resp;
 }
+*/

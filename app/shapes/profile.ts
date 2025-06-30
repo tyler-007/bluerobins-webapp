@@ -1,3 +1,4 @@
+/*
 import { ShapeStreamOptions } from "@electric-sql/client/*";
 
 export type UserProfileProps = {
@@ -37,3 +38,4 @@ export const getUserProfile = (user_id: string): ShapeStreamOptions => {
     };
   }
 };
+*/

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 
 import ProjectDetailsButton from "@/app/(private)/project-hub/ProjectDetailsButton";
 import { PaymentDialog } from "@/components/PaymentDialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 
@@ -22,11 +22,14 @@ import { PricingInfoDialog } from "@/components/PricingInfoDialog";
 import { Badge } from "@/components/ui/badge";
 import { ChatView } from "@/views/ChatView";
 import { parseAsBoolean, useQueryState } from "nuqs";
-import { useShape, getShapeStream } from "@electric-sql/react";
 import Link from "next/link";
 
-import { getProjectShape, type ProjectProps } from "@/app/shapes/project";
-import { getUserProfile, type UserProfileProps } from "@/app/shapes/profile";
+import { useToast } from "@/hooks/use-toast";
+import { createClient } from "@/utils/supabase/client";
+
+type ProjectProps = any;
+type UserProfileProps = any;
+
 type ProjectCardProps = {
   package_id: number;
   userId: string;
@@ -42,19 +45,63 @@ export default function NewProjectCard({
   hideFilled,
   projectDetails: projectDetailsFromProps,
 }: ProjectCardProps) {
-  const { data, isLoading } =
-    !projectDetailsFromProps && package_id
-      ? useShape<ProjectProps>(getProjectShape(package_id))
-      : { data: [], isLoading: false };
+  const [projectDetails, setProjectDetails] = useState(
+    projectDetailsFromProps
+  );
+  const [mentor, setMentor] = useState<UserProfileProps>();
+  const [isLoading, setIsLoading] = useState(!projectDetailsFromProps);
 
-  const projectDetails = projectDetailsFromProps ?? data[0];
+  useEffect(() => {
+    const fetchProjectDetails = async () => {
+      if (!projectDetailsFromProps && package_id) {
+        setIsLoading(true);
+        const supabase = createClient();
+        const { data: projectData, error } = await supabase
+          .from("projects")
+          .select("*")
+          .eq("id", package_id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching project details:", error);
+        } else {
+          setProjectDetails(projectData);
+        }
+        setIsLoading(false);
+      }
+    };
+
+    fetchProjectDetails();
+  }, [package_id, projectDetailsFromProps]);
+
+  useEffect(() => {
+    const fetchMentorDetails = async () => {
+      if (projectDetails?.mentor_user_id) {
+        const supabase = createClient();
+        const { data: mentorData, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", projectDetails.mentor_user_id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching mentor details:", error);
+        } else {
+          setMentor(mentorData);
+        }
+      }
+    };
+
+    fetchMentorDetails();
+  }, [projectDetails]);
+
   const {
     agenda,
     categories: tags = [],
     cost_price,
     selling_price,
     title,
-    mentor_user,
+    mentor_user_id: mentor_user,
     description,
     filled_spots,
     prerequisites,
@@ -66,15 +113,10 @@ export default function NewProjectCard({
     tools,
   } = projectDetails ?? {};
 
-  const { data: mentorData, isLoading: mentorLoading } =
-    useShape<UserProfileProps>(getUserProfile(mentor_user));
-  const mentor = mentorData[0];
-
   const spotsLeft = spots - filled_spots;
   const price = isMentor ? cost_price : selling_price;
   const time = dayjs(session_time).format("hh:mm A");
   const startDate = dayjs(start_date).format("MMM D, YYYY");
-  // day={project.session_day}
   const endDate = dayjs(start_date)
     .add(sessions_count, "week")
     .format("MMM D, YYYY");
@@ -86,6 +128,7 @@ export default function NewProjectCard({
   );
   const [navigating, setNavigating] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
   const bookSlotAPI = async (
     order: any,
     package_id: number,
@@ -110,6 +153,14 @@ export default function NewProjectCard({
   };
 
   const onBuyPackage = async () => {
+    if (!mentor_user) {
+      toast({
+        title: "Booking Unavailable",
+        description: "This project doesn't have a mentor assigned yet and cannot be booked.",
+        variant: "destructive",
+      });
+      return;
+    }
     setNavigating(true);
     setShowPaymentDialog(true);
   };
@@ -122,15 +173,19 @@ export default function NewProjectCard({
     setShowPaymentDialog(false);
   };
 
-  const handlePaymentSuccess = async (order: any) => {
-    await bookSlotAPI(
-      order,
-      package_id,
-      title,
-      sessions_count,
-      mentor_user,
-      startDate
-    );
+  const handlePaymentSuccess = async (order: any, mentorUserId: string) => {
+    try {
+      await bookSlotAPI(
+        order,
+        package_id,
+        title,
+        sessions_count,
+        mentorUserId,
+        startDate
+      );
+    } finally {
+      setShowPaymentDialog(false);
+    }
   };
 
   const onEdit = () => {
@@ -223,11 +278,7 @@ export default function NewProjectCard({
             <span className="text-black text-base font-normal flex-1">
               {spots - spotsLeft} / {spots} Enrolled
             </span>
-            {/* <Button variant="default" size="sm" className="text-sm rounded-md">
-          Invite
-        </Button> */}
           </div>
-          {/* <div className="flex justify-between"> */}
           <PricingInfoDialog
             sessionCount={sessions_count}
             triggerText="View Pricing Info"
@@ -235,7 +286,6 @@ export default function NewProjectCard({
               className: "text-blue-500",
             }}
           />
-          {/* </div> */}
         </>
       )}
       {!isMentor && (
@@ -249,6 +299,7 @@ export default function NewProjectCard({
                 size="sm"
                 className="text-sm rounded-md"
                 onClick={onBuyPackage}
+                disabled={!mentor_user}
               >
                 Book Now
               </Button>
@@ -296,7 +347,7 @@ export default function NewProjectCard({
         open={showPaymentDialog}
         onOpenChange={setShowPaymentDialog}
         amount={isTesting ? 0.1 : price}
-        onSuccess={handlePaymentSuccess}
+        onSuccess={(order) => handlePaymentSuccess(order, mentor_user)}
         onError={handlePaymentError}
         onCancel={handlePaymentCancel}
       />

@@ -1,3 +1,4 @@
+/*
 import { ShapeStreamOptions } from "@electric-sql/client/*";
 
 export type ProjectProps = {
@@ -39,3 +40,4 @@ export const getProjectShape = (package_id: number): ShapeStreamOptions => {
     };
   }
 };
+*/

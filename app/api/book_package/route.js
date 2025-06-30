@@ -16,6 +16,13 @@ export async function POST(request) {
   } = req;
   const { data: user } = await supabase.auth.getUser();
 
+  if (!for_user) {
+    return NextResponse.json(
+      { status: false, message: "Mentor ID is missing" },
+      { status: 400 }
+    );
+  }
+
   const projectData = await supabase
     .from("projects")
     .select("filled_spots, spots")

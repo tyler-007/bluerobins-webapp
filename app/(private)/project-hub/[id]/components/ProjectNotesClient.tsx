@@ -15,9 +15,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import dayjs from "dayjs";
 
 const noteSchema = z.object({
-  note_text: z.string().min(10, "Note must be at least 10 characters long."),
+  note_text: z.string().optional(),
   week_number: z.number().int().min(1),
 });
 
@@ -28,42 +29,43 @@ async function saveNote(noteData: {
   note_text: string;
   week_number: number;
   project_id: string;
+  student_id: string;
   mentor_id: string;
+  user_type: "student" | "mentor";
 }) {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
-    throw new Error("Authentication error. You must be logged in to save a note.");
+    throw new Error("Authentication error.");
   }
 
-  const { data: existingNote, error: fetchError } = await supabase
+  // Find the specific note for this user and week
+  const { data: existingNote } = await supabase
     .from("project_notes")
     .select("id")
     .eq("project_id", noteData.project_id)
-    .eq("student_id", user.id)
     .eq("week_number", noteData.week_number)
-    .eq("author_type", "student")
-    .single();
+    .eq("author_type", noteData.user_type)
+    .maybeSingle();
 
-  if (fetchError && fetchError.code !== 'PGRST116') {
-    console.error("Error checking for existing note:", fetchError);
-    throw new Error("Could not save note.");
-  }
-  
-  const { error } = await supabase.from("project_notes").upsert({
+  const dataToUpsert = {
     id: existingNote?.id,
     project_id: noteData.project_id,
-    student_id: user.id,
+    student_id: noteData.student_id,
     mentor_id: noteData.mentor_id,
     week_number: noteData.week_number,
     note_text: noteData.note_text,
-    author_type: 'student',
-    visibility: 'shared',
-  });
+    author_type: noteData.user_type,
+    visibility: "shared",
+  };
+
+  const { error } = await supabase.from("project_notes").upsert(dataToUpsert);
 
   if (error) {
     console.error("Error saving note:", error);
-    throw new Error("Failed to save note.");
+    throw new Error("Failed to save note. Please contact support.");
   }
 }
 
@@ -73,51 +75,107 @@ export const ProjectNotesClient = ({
   mentorId,
   notes,
   currentWeek = 1,
+  sessionDate,
+  userType,
 }: {
   projectId: string;
   studentId: string;
   mentorId: string;
   notes: any[];
   currentWeek?: number;
+  sessionDate: string;
+  userType: "student" | "mentor";
 }) => {
   const router = useRouter();
+
+  // Find the specific notes for the current week
   const studentNoteForCurrentWeek = notes.find(
-    (n) => n.week_number === currentWeek && n.author_type === 'student'
+    (n) => n.week_number === currentWeek && n.author_type === "student"
+  );
+  const mentorNoteForCurrentWeek = notes.find(
+    (n) => n.week_number === currentWeek && n.author_type === "mentor"
   );
 
-  const isNoteLocked = studentNoteForCurrentWeek?.locked === true;
+  const sessionLockDate = dayjs(sessionDate).add(1, "day");
+  const isLocked = dayjs().isAfter(sessionLockDate);
+  const isStudent = userType === "student";
 
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    setValue,
+    watch,
+    formState: { isSubmitting },
   } = useForm<NoteFormValues>({
-    resolver: zodResolver(noteSchema),
     defaultValues: {
-      note_text: studentNoteForCurrentWeek?.note_text || "",
+      note_text:
+        (isStudent
+          ? studentNoteForCurrentWeek?.note_text
+          : mentorNoteForCurrentWeek?.note_text) || "",
       week_number: currentWeek,
     },
   });
 
   const handleSaveNote = async (data: NoteFormValues) => {
     try {
-      await saveNote({ ...data, project_id: projectId, mentor_id: mentorId });
+      await saveNote({
+        note_text: data.note_text || "",
+        week_number: data.week_number,
+        project_id: projectId,
+        mentor_id: mentorId,
+        student_id: studentId,
+        user_type: userType,
+      });
       toast({ title: "Success", description: "Your note has been saved." });
-      router.refresh(); // Re-fetches data on the server and re-renders
+      router.refresh();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
+  
+  // Group notes by week for easier rendering
+  const pastNotesByWeek = notes.reduce((acc, note) => {
+    if (note.week_number === currentWeek) return acc;
+    if (!acc[note.week_number]) {
+      acc[note.week_number] = {};
+    }
+    acc[note.week_number][note.author_type] = note;
+    return acc;
+  }, {} as Record<number, { student?: any; mentor?: any }>);
 
   return (
     <div className="space-y-6">
-       <Card>
+      <Card>
         <CardHeader>
-          <CardTitle>Week {currentWeek} Note</CardTitle>
+          <CardTitle>Week {currentWeek} Notes</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <h4 className="font-semibold">Student's Note</h4>
+            <p className="text-sm text-gray-600 whitespace-pre-wrap mt-1">
+              {studentNoteForCurrentWeek?.note_text || "No note from student yet."}
+            </p>
+          </div>
+          <div>
+            <h4 className="font-semibold">Mentor's Note</h4>
+            <p className="text-sm text-gray-600 whitespace-pre-wrap mt-1">
+              {mentorNoteForCurrentWeek?.note_text || "No feedback from mentor yet."}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Add/Edit Your Note</CardTitle>
           <CardDescription>
-            {isNoteLocked
-              ? "This note is locked and can no longer be edited."
-              : "Add or edit your note for the current week. You can edit it for up to 24 hours."}
+            {isLocked
+              ? "This week's notes are locked."
+              : "Your note will be locked 24 hours after the session."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -126,49 +184,51 @@ export const ProjectNotesClient = ({
               name="note_text"
               control={control}
               render={({ field }) => (
-                <div>
-                  <Textarea
-                    {...field}
-                    rows={6}
-                    placeholder={
-                      isNoteLocked
-                        ? "This note is locked."
-                        : "Write your weekly reflection, progress, and any questions you have for your mentor..."
-                    }
-                    disabled={isNoteLocked}
-                  />
-                  {errors.note_text && <p className="text-sm text-red-500 mt-1">{errors.note_text.message}</p>}
-                </div>
+                <Textarea
+                  {...field}
+                  rows={5}
+                  placeholder="Enter your note here..."
+                  disabled={isLocked}
+                />
               )}
             />
-            <Button type="submit" disabled={isSubmitting || isNoteLocked}>
-              {isSubmitting ? "Saving..." : "Save Note"}
+            <Button type="submit" disabled={isSubmitting || isLocked}>
+              {isSubmitting ? "Saving..." : "Save Your Note"}
             </Button>
           </form>
         </CardContent>
       </Card>
-      
+
       <div>
         <h3 className="text-xl font-semibold mb-4">Past Notes</h3>
         <div className="space-y-4">
-          {notes
-            .sort((a, b) => b.week_number - a.week_number)
-            .map((note) => (
-            <Card key={note.id}>
-              <CardHeader>
-                <CardTitle>
-                  Week {note.week_number} - {note.author_type === 'student' ? 'Your Note' : 'Mentor Feedback'}
-                </CardTitle>
-                <CardDescription>
-                  {new Date(note.created_at).toLocaleDateString()}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="whitespace-pre-wrap">{note.note_text}</p>
-              </CardContent>
-            </Card>
-          ))}
-          {notes.length === 0 && <p>No notes have been added yet.</p>}
+          {Object.keys(pastNotesByWeek)
+            .sort((a, b) => Number(b) - Number(a))
+            .map((week) => {
+              const studentNote = pastNotesByWeek[Number(week)]?.student;
+              const mentorNote = pastNotesByWeek[Number(week)]?.mentor;
+              return (
+                <Card key={week}>
+                  <CardHeader>
+                    <CardTitle>Week {week} Notes</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold">Student's Note</h4>
+                      <p className="whitespace-pre-wrap text-sm text-gray-700 mt-1">
+                        {studentNote?.note_text || "No note added."}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Mentor's Note</h4>
+                      <p className="whitespace-pre-wrap text-sm text-gray-700 mt-1">
+                        {mentorNote?.note_text || "No note added."}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
         </div>
       </div>
     </div>

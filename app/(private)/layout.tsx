@@ -15,8 +15,10 @@ export default async function PrivateLayout({
   if (!user) {
     return redirect("/");
   }
+
   const isMentor = user.user_metadata.user_type === "mentor";
   const isParent = user.user_metadata.user_type === "parent";
+  
   const { data: profile } = await supabase
     .from("mentor_profiles")
     .select("*")
@@ -28,15 +30,18 @@ export default async function PrivateLayout({
     .select("*", { count: "exact", head: true })
     .eq("to_user", user?.id)
     .is("read_by", null);
-  console.log("UNREAD MESSAGES: SB", unread_messages_count);
 
   const isStudent = user.user_metadata.user_type === "student";
   const verified = isStudent || profile?.verified;
   if (isParent) {
     return (
-      <main className="flex flex-1 min-h-screen bg-gradient-primary">{children}</main>
+      <main className="flex flex-1 min-h-screen bg-gradient-primary">
+        {children}
+      </main>
     );
   }
+
+  // Render the default layout with a sidebar for students and mentors
   return (
     <div className="flex flex-row min-h-screen max-h-screen overflow-hidden">
       <Sidebar

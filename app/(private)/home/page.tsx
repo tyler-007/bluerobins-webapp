@@ -77,8 +77,12 @@ export default async function HomePage() {
       supabase.from(profileKey).select("*").eq("id", user.id).single(),
       supabase
         .from("bookings")
-        .select("*")
+        .select("*, projects(*)")
         .gte("start_time", dayjs().format("YYYY-MM-DDTHH:mm:ssZ"))
+        .lte(
+          "start_time",
+          dayjs().add(17, "days").endOf("day").format("YYYY-MM-DDTHH:mm:ssZ")
+        )
         .order("start_time", { ascending: true })
         .eq(filterKey, user.id),
       isMentor
@@ -141,20 +145,30 @@ export default async function HomePage() {
         </div>
         <div className="flex flex-row flex-wrap gap-4">
           {myBookings?.length ? (
-            myBookings.map((booking) => (
-              <ScheduleItem
-                key={booking.id}
-                bookingId={booking.id}
-                mentorId={booking.for}
-                eventId={booking.event_id}
-                eventLink={booking.event_link}
-                userType={userType}
-                studentId={booking.by}
-                title={booking.title}
-                description={booking.description}
-                start_time={booking.start_time}
-              />
-            ))
+            myBookings.map((booking) => {
+              const projectStartDate = booking.projects.start_date
+                ? dayjs(booking.projects.start_date)
+                : dayjs();
+              const sessionDate = dayjs(booking.start_time);
+              const weekNumber = sessionDate.diff(projectStartDate, "week") + 1;
+
+              return (
+                <ScheduleItem
+                  key={booking.id}
+                  bookingId={booking.id}
+                  mentorId={booking.for}
+                  eventId={booking.event_id}
+                  eventLink={booking.event_link}
+                  userType={userType}
+                  studentId={booking.by}
+                  title={booking.title}
+                  description={booking.description}
+                  start_time={booking.start_time}
+                  projectId={booking.project_id}
+                  weekNumber={weekNumber}
+                />
+              );
+            })
           ) : (
             <div className="flex flex-1 items-center justify-center p-6 border-dashed border-blue-500 border-2 rounded-2xl">
               <span>No upcoming sessions</span>

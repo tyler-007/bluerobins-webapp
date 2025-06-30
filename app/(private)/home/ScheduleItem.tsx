@@ -6,6 +6,66 @@ import dayjs from "dayjs";
 import { Clock, Video } from "lucide-react";
 import Link from "next/link";
 import { RescheduleDialog } from "@/components/RescheduleDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ProjectNotesClient } from "../project-hub/[id]/components/ProjectNotesClient";
+import { createClient } from "@/utils/supabase/client";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+
+const NotesDialog = ({
+  projectId,
+  studentId,
+  mentorId,
+  currentWeek,
+  sessionDate,
+  userType,
+}: {
+  projectId: string;
+  studentId: string;
+  mentorId: string;
+  currentWeek: number;
+  sessionDate: string;
+  userType: "student" | "mentor";
+}) => {
+  const [notes, setNotes] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchNotes = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("project_notes")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("week_number", { ascending: true })
+        .order("created_at", { ascending: true });
+      if (error) {
+        console.error("Error fetching notes:", error);
+      } else {
+        setNotes(data || []);
+      }
+    };
+    fetchNotes();
+  }, [projectId]);
+
+  return (
+    <ProjectNotesClient
+      projectId={projectId}
+      studentId={studentId}
+      mentorId={mentorId}
+      notes={notes}
+      currentWeek={currentWeek}
+      sessionDate={sessionDate}
+      userType={userType}
+    />
+  );
+};
+
 const ScheduleItem = ({
   title,
   description,
@@ -16,6 +76,8 @@ const ScheduleItem = ({
   eventLink,
   start_time,
   bookingId,
+  projectId,
+  weekNumber,
 }: {
   title?: string;
   description: string;
@@ -26,6 +88,8 @@ const ScheduleItem = ({
   userType: string;
   eventLink?: string;
   bookingId: string;
+  projectId: string;
+  weekNumber: number;
 }) => {
   const profileId = userType === "mentor" ? studentId : mentorId;
   const senderId = userType === "mentor" ? mentorId : studentId;
@@ -60,6 +124,26 @@ const ScheduleItem = ({
           with {profile?.name ?? "Mentor"}
         </span>
       )}
+
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" className="mt-2">View Notes</Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Weekly Notes for "{title}"</DialogTitle>
+          </DialogHeader>
+          <NotesDialog
+            projectId={projectId}
+            studentId={studentId}
+            mentorId={mentorId}
+            currentWeek={weekNumber}
+            sessionDate={start_time}
+            userType={userType as "student" | "mentor"}
+          />
+        </DialogContent>
+      </Dialog>
+
       <div className="flex flex-row flex-1 gap-4 items-center justify-between mt-4">
         <ChatView
           name={`s_${studentId}:m_${mentorId}`}

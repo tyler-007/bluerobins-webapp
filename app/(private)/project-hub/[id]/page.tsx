@@ -54,10 +54,25 @@ export default async function ProjectViewPage({ params }: { params: Promise<{ id
     .order("week_number", { ascending: true })
     .order("created_at", { ascending: true });
 
+  // Fetch booking information to check if the user is enrolled
+  const { data: booking, error: bookingError } = await supabase
+    .from("bookings")
+    .select("id")
+    .eq("project_id", projectId)
+    .eq("by", user.id)
+    .maybeSingle();
+
   if (projectError || !project) {
     console.error("Error fetching project:", projectError);
     return notFound();
   }
+  
+  if (bookingError) {
+    console.error("Error checking enrollment:", bookingError);
+    // Decide if you want to block the page or just hide notes
+  }
+
+  const isEnrolled = !!booking;
   
   if (notesError) {
     console.error("Error fetching notes:", notesError);

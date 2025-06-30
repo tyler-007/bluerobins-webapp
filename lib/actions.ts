@@ -76,6 +76,17 @@ function isValidISODateTime(dateTime: string): boolean {
 export async function createCalendarEvent(
   eventData: EventInput
 ): Promise<EventResult> {
+  if (!process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS) {
+    console.warn(
+      "Google service account credentials not found. Skipping calendar event creation."
+    );
+    return {
+      success: true,
+      eventId: null,
+      meetLink: "",
+    };
+  }
+
   try {
     console.log("Creating calendar event");
     // Parse the service account credentials from environment variable
