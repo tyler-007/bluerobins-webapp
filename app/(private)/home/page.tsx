@@ -166,6 +166,7 @@ export default async function HomePage() {
                   start_time={booking.start_time}
                   projectId={booking.project_id}
                   weekNumber={weekNumber}
+                  status={booking.status}
                 />
               );
             })

@@ -6,6 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import ParentOnboarding from "./ParentOnboarding";
 import ChildrenSelection from "./ChildrenSelection";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import { StarDisplay } from "./components/StarDisplay";
 
 export default function ParentDashboard() {
   const [loading, setLoading] = useState(true);
@@ -14,6 +15,8 @@ export default function ParentDashboard() {
   const [childrenLinks, setChildrenLinks] = useState<any[]>([]);
   const [childrenProfiles, setChildrenProfiles] = useState<any[]>([]);
   const [notesByChild, setNotesByChild] = useState<any>({});
+  const [progressByChild, setProgressByChild] = useState<any>({});
+  const [reviewsByChild, setReviewsByChild] = useState<any>({});
   const [pendingLinks, setPendingLinks] = useState<any[]>([]);
   const router = useRouter();
 
@@ -61,9 +64,12 @@ export default function ParentDashboard() {
           .select("id, grade, institution_name, parent_name")
           .in("id", studentIds);
         setChildrenProfiles(students || []);
-        // Fetch notes for each child
+        // Fetch notes and progress for each child
         const notesObj: any = {};
+        const progressObj: any = {};
+        const reviewsObj: any = {};
         for (const student of students || []) {
+          // Fetch notes
           const { data: notes } = await supabase
             .from("project_notes")
             .select("*")
@@ -76,11 +82,41 @@ export default function ParentDashboard() {
             return acc;
           }, {});
           notesObj[student.id] = grouped;
+
+          // Fetch bookings for progress
+          const { data: bookings } = await supabase
+            .from("bookings")
+            .select("project_id, status, projects(title)")
+            .eq("by", student.id);
+          
+          const progressByProject = (bookings || []).reduce((acc: any, booking: any) => {
+            if (!booking.project_id) return acc;
+            acc[booking.project_id] = acc[booking.project_id] || { completed: 0, total: 0, title: booking.projects.title };
+            acc[booking.project_id].total++;
+            if (booking.status === 'completed') {
+              acc[booking.project_id].completed++;
+            }
+            return acc;
+          }, {});
+
+          progressObj[student.id] = progressByProject;
+
+          // Fetch reviews
+          const { data: reviews } = await supabase
+            .from("reviews")
+            .select("*, bookings(title)")
+            .eq("student_id", student.id);
+          
+          reviewsObj[student.id] = reviews || [];
         }
         setNotesByChild(notesObj);
+        setProgressByChild(progressObj);
+        setReviewsByChild(reviewsObj);
       } else {
         setChildrenProfiles([]);
         setNotesByChild({});
+        setProgressByChild({});
+        setReviewsByChild({});
       }
     };
     fetchProfilesAndNotes();
@@ -137,6 +173,25 @@ export default function ParentDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-4">
+                <h4 className="font-semibold mb-2">Progress</h4>
+                {progressByChild[child.id] && Object.keys(progressByChild[child.id]).length > 0 ? (
+                  Object.values(progressByChild[child.id]).map((progress: any, index: number) => (
+                    <div key={index} className="mb-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">{progress.title}</span>
+                        <span className="text-sm text-gray-600">{progress.completed} / {progress.total} sessions completed</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                        <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${(progress.completed / progress.total) * 100}%` }}></div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-gray-400">No projects started yet.</div>
+                )}
+              </div>
+              <h4 className="font-semibold mb-2 mt-6">Weekly Logs</h4>
               {notesByChild[child.id] && Object.keys(notesByChild[child.id]).length > 0 ? (
                 Object.entries(notesByChild[child.id]).map(([week, notes]: any) => (
                   <div key={week} className="mb-4">
@@ -154,6 +209,23 @@ export default function ParentDashboard() {
                 ))
               ) : (
                 <div className="text-gray-400">No notes yet.</div>
+              )}
+              <h4 className="font-semibold mb-2 mt-6">Session Feedback</h4>
+              {reviewsByChild[child.id] && reviewsByChild[child.id].length > 0 ? (
+                reviewsByChild[child.id].map((review: any) => (
+                  <div key={review.id} className="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="font-medium">{review.bookings.title || 'Session Review'}</span>
+                      <StarDisplay rating={review.rating} />
+                    </div>
+                    {review.feedback && (
+                      <p className="text-gray-700 text-sm">{review.feedback}</p>
+                    )}
+                    <div className="text-xs text-gray-400 mt-1">{new Date(review.created_at).toLocaleDateString()}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-gray-400">No feedback submitted yet.</div>
               )}
             </CardContent>
           </Card>

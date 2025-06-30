@@ -17,6 +17,10 @@ import { ProjectNotesClient } from "../project-hub/[id]/components/ProjectNotesC
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { markAsCompleted } from "@/app/actions/bookings";
+import { useToast } from "@/components/ui/use-toast";
+import { RatingDialog } from "./components/RatingDialog";
+import { Check } from "lucide-react";
 
 const NotesDialog = ({
   projectId,
@@ -25,6 +29,8 @@ const NotesDialog = ({
   currentWeek,
   sessionDate,
   userType,
+  weekNumber,
+  status,
 }: {
   projectId: string;
   studentId: string;
@@ -32,6 +38,8 @@ const NotesDialog = ({
   currentWeek: number;
   sessionDate: string;
   userType: "student" | "mentor";
+  weekNumber: number;
+  status?: string;
 }) => {
   const [notes, setNotes] = useState<any[]>([]);
 
@@ -78,6 +86,7 @@ const ScheduleItem = ({
   bookingId,
   projectId,
   weekNumber,
+  status,
 }: {
   title?: string;
   description: string;
@@ -90,6 +99,7 @@ const ScheduleItem = ({
   bookingId: string;
   projectId: string;
   weekNumber: number;
+  status?: string;
 }) => {
   const profileId = userType === "mentor" ? studentId : mentorId;
   const senderId = userType === "mentor" ? mentorId : studentId;
@@ -97,6 +107,9 @@ const ScheduleItem = ({
   const { data: profile } = useProfile(profileId);
   const time = dayjs(start_time).format("h:mm A");
   const date = dayjs(start_time).format("DD MMM YYYY");
+  const { toast } = useToast();
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [isRating, setIsRating] = useState(false);
   // const { data: user } = useUser();
   const showJoin = false;
   const isMentor = userType === "mentor";
@@ -107,13 +120,39 @@ const ScheduleItem = ({
     "age",
     dayjs(start_time).format("h:mm A")
   );
+
+  const handleMarkAsCompleted = async () => {
+    setIsCompleting(true);
+    const result = await markAsCompleted(bookingId);
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Session marked as completed.",
+      });
+    }
+    setIsCompleting(false);
+  };
+
   return (
     <div className="flex flex-col flex-1 gap-1 bg-white max-w-max rounded-2xl border border-gray-200 p-6 pt-4 min-w-[330px]">
       <div className="flex flex-row gap-4 items-center justify-between">
         <span className="text-sm text-black">{date}</span>
-        <span className="bg-[#f0f0f0] rounded-full px-4 py-1 text-sm">
-          {dayjs(start_time).format("h:mm A")}
-        </span>
+        <div className="flex items-center gap-2">
+          {status === "completed" && (
+            <span className="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">
+              Completed
+            </span>
+          )}
+          <span className="bg-[#f0f0f0] rounded-full px-4 py-1 text-sm">
+            {dayjs(start_time).format("h:mm A")}
+          </span>
+        </div>
       </div>
       <span className="text-lg font-bold">{title ?? `One on One Meeting`}</span>
       {description && (
@@ -140,46 +179,92 @@ const ScheduleItem = ({
             currentWeek={weekNumber}
             sessionDate={start_time}
             userType={userType as "student" | "mentor"}
+            weekNumber={weekNumber}
+            status={status}
           />
         </DialogContent>
       </Dialog>
 
-      <div className="flex flex-row flex-1 gap-4 items-center justify-between mt-4">
-        <ChatView
-          name={`s_${studentId}:m_${mentorId}`}
-          senderId={senderId}
-          receiverId={receiverId}
-        />
-        {!eventLink && (
-          <button className="bg-[#2953BE] border-[#2953BE] border-[1.5px] gap-2  text-white rounded-xl px-4 py-1 text-base flex flex-row flex-1 items-center justify-center">
-            <Clock className="w-5 h-5" />
-            <span>Schedule</span>
-          </button>
+      <div className="mt-4 space-y-2">
+        <div className="grid grid-cols-2 gap-2">
+          <ChatView
+            name={`s_${studentId}:m_${mentorId}`}
+            senderId={senderId}
+            receiverId={receiverId}
+          />
+          {isMentor && (
+            <>
+              {eventLink ? (
+                <RescheduleDialog
+                  start_time={start_time}
+                  eventId={eventId}
+                  bookingId={bookingId}
+                />
+              ) : (
+                <Button variant="outline" className="w-full flex-1">
+                  <Clock className="w-5 h-5 mr-2" />
+                  <span>Schedule</span>
+                </Button>
+              )}
+            </>
+          )}
+
+          {!isMentor && (
+            <>
+              {status === "completed" ? null : (
+                <Button asChild className="w-full flex-1">
+                  {eventLink ? (
+                    <Link
+                      href={eventLink}
+                      target="_blank"
+                      className="flex flex-row gap-2 items-center justify-center"
+                    >
+                      <Video className="w-5 h-5" />
+                      <span>Join</span>
+                    </Link>
+                  ) : (
+                    <>
+                      <Clock className="w-5 h-5 mr-2" />
+                      <span>Schedule</span>
+                    </>
+                  )}
+                </Button>
+              )}
+            </>
+          )}
+        </div>
+
+        {isMentor && status !== "completed" && (
+          <Button
+            onClick={handleMarkAsCompleted}
+            disabled={isCompleting}
+            loading={isCompleting}
+            variant="outline"
+            className="w-full"
+          >
+            <Check className="w-4 h-4 mr-2" />
+            Mark as Complete
+          </Button>
         )}
-        {eventLink ? (
-          showJoin ? (
-            <button className="bg-[#2953BE] border-[#2953BE] border-[1.5px] gap-2  text-white rounded-xl px-4 py-1 text-base flex flex-row flex-1 items-center justify-center">
-              <Link
-                href={eventLink}
-                target="_blank"
-                className="flex flex-row gap-2 items-center justify-center"
-              >
-                <Video className="w-5 h-5" />
-                <span>Join </span>
-              </Link>
-            </button>
-          ) : isMentor ? (
-            <RescheduleDialog
-              start_time={start_time}
-              eventId={eventId}
+
+        {!isMentor && status === "completed" && (
+          <>
+            <Button
+              onClick={() => setIsRating(true)}
+              variant="outline"
+              className="w-full"
+            >
+              Rate Session
+            </Button>
+            <RatingDialog
+              open={isRating}
+              onOpenChange={setIsRating}
               bookingId={bookingId}
+              mentorId={mentorId}
+              studentId={studentId}
             />
-          ) : // <button className="bg-[#2953BE] border-[#2953BE] border-[1.5px] gap-2  text-white rounded-xl px-4 py-1 text-base flex flex-row flex-1 items-center justify-center">
-          //   <Clock className="w-5 h-5" />
-          //   <span>Reschedule</span>
-          // </button>
-          null
-        ) : null}
+          </>
+        )}
       </div>
     </div>
   );
