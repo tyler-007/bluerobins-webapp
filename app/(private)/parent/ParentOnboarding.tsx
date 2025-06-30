@@ -39,17 +39,22 @@ export default function ParentOnboarding({ userId, email: defaultEmail }: { user
   const onSubmit = async (data: ParentFormValues) => {
     setLoading(true);
     try {
-      const { error } = await supabase.from("parent_profiles").upsert({
-        user_id: userId,
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        country: data.country,
-      });
+      const { error } = await supabase.from("parent_profiles").upsert(
+        {
+          user_id: userId,
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          country: data.country,
+        },
+        {
+          onConflict: "user_id",
+        }
+      );
       if (error) throw error;
       toast({ title: "Success", description: "Profile updated successfully." });
       setTimeout(() => {
-        router.refresh();
+        router.push("/parent");
       }, 1500);
     } catch (error) {
       toast({ title: "Error", description: "Failed to update profile", variant: "destructive" });

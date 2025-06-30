@@ -64,7 +64,10 @@ export default function Login() {
         options: {
           redirectTo: `${window.location.origin}/auth/callback?user_type=${userType}`,
           skipBrowserRedirect: false,
-        },
+          data: {
+            user_type: userType,
+          },
+        } as any,
       });
 
       if (error) throw error;

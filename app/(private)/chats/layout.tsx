@@ -20,23 +20,42 @@ export default async function ChatsPage({
   const isMentor = userType === "mentor";
 
   const userId = user?.id;
+
+  // Step 1: Get the IDs of all channels the current user is a member of.
   const { data: myChannels } = await supabase
     .from("channel_members")
-    .select("*")
+    .select("channel_id")
     .eq("user_id", userId);
+
+  const myChannelIds = (myChannels ?? []).map((c) => c.channel_id);
+
+  // Step 2: Get the other members in those channels (their user_id and which channel they belong to).
+  const { data: channelMembers } = await supabase
+    .from("channel_members")
+    .select("user_id, channel_id")
+    .in("channel_id", myChannelIds)
+    .neq("user_id", userId);
+
+  // Step 3: Get the profiles for those other members.
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, name, avatar")
+    .in("id", (channelMembers ?? []).map((m) => m.user_id));
+
+  // Step 4: Combine the data into a single array that's easy to render.
+  const chatsToDisplay = (channelMembers ?? []).map((member) => {
+    const profile = profiles?.find((p) => p.id === member.user_id);
+    return {
+      channel_id: member.channel_id,
+      user_id: member.user_id,
+      name: profile?.name,
+      avatar: profile?.avatar,
+    };
+  });
 
   const { data: otherMentors } = await supabase
     .from("mentor_profiles")
     .select("...profiles(name, id, avatar)");
-
-  const { data: channelMembers } = await supabase
-    .from("channel_members")
-    .select("*, ...profiles(name, avatar)")
-    .in(
-      "channel_id",
-      (myChannels ?? []).map((channel) => channel.channel_id)
-    )
-    .neq("user_id", userId);
 
   // Get last message from each channel
   const { data: lastMessages } = await supabase
@@ -88,30 +107,22 @@ export default async function ChatsPage({
           {/* Chats section for real users */}
           <h3 className="text-xl font-bold p-3 px-6">Chats</h3>
           <div className="w-full max-w-md mx-auto divide-y border-[#DDD] border-b">
-            {myChannels?.map((channel) => {
-              // Find all members for this channel except the current user
-              const others = channelMembers?.filter(
-                (member) =>
-                  member.channel_id === channel.channel_id &&
-                  member.user_id !== userId
-              ) || [];
-              return others.map((other) => (
-                <a
-                  key={channel.channel_id + '-' + other.user_id}
-                  href={`/chats/${channel.channel_id}`}
-                  className="flex items-center px-4 py-3 gap-2 hover:bg-[#E0E6F6] transition"
-                >
-                  <Image
-                    src={other.profiles?.avatar || "/logo.png"}
-                    alt={other.profiles?.name || "User"}
-                    width={32}
-                    height={32}
-                    className="rounded-full object-cover"
-                  />
-                  <h4>{other.profiles?.name || other.user_id}</h4>
-                </a>
-              ));
-            })}
+            {chatsToDisplay.map((other) => (
+              <a
+                key={other.channel_id}
+                href={`/chats/${other.channel_id}`}
+                className="flex items-center px-4 py-3 gap-2 hover:bg-[#E0E6F6] transition"
+              >
+                <Image
+                  src={other.avatar || "/logo.png"}
+                  alt={other.name || "User"}
+                  width={32}
+                  height={32}
+                  className="rounded-full object-cover"
+                />
+                <h4>{other.name || other.user_id}</h4>
+              </a>
+            ))}
           </div>
           {!isMentor && (
             <>

@@ -102,7 +102,7 @@ export default function MentorProfileEdit({
   const supabase = createClient();
   const router = useRouter();
   profile = profile || {};
-  const [open, setOpen] = useState(!profile.onboarded);
+  const [open, setOpen] = useState(isOnboarding && !profile.onboarded);
   const { toast } = useToast();
   const [checkboxChecked, setCheckboxChecked] = useState(!isOnboarding);
   const [termsClicked, setTermsClicked] = useState(!isOnboarding);

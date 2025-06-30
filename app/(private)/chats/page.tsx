@@ -27,9 +27,9 @@ export default async function ChatsPage() {
     .neq("user_id", userId)
     .limit(1);
 
-  if (channelMembers && channelMembers.length > 0) {
-    redirect(`/chats/${channelMembers[0].channel_id}`);
-  }
+  // if (channelMembers && channelMembers.length > 0) {
+  //   redirect(`/chats/${channelMembers[0].channel_id}`);
+  // }
 
   return (
     <div className="flex flex-col items-center justify-center flex-1">

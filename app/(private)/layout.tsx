@@ -30,7 +30,7 @@ export default async function PrivateLayout({
     .is("read_by", null);
   console.log("UNREAD MESSAGES: SB", unread_messages_count);
 
-  const isStudent = !isMentor;
+  const isStudent = user.user_metadata.user_type === "student";
   const verified = isStudent || profile?.verified;
   if (isParent) {
     return (
