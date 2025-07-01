@@ -15,6 +15,9 @@ export async function POST(request) {
     title,
   } = req;
   const { data: user } = await supabase.auth.getUser();
+  console.log("USER:", user);
+  const by_user = req.by_user || user?.user?.id;
+  console.log("BY_USER:", by_user);
 
   const projectData = await supabase
     .from("projects")
@@ -48,6 +51,12 @@ export async function POST(request) {
     .eq("id", for_user)
     .single();
 
+  const studentDetails = await supabase
+    .from("profiles")
+    .select("email")
+    .eq("id", by_user)
+    .single();
+
   console.log("Mentor Details:", mentorDetails);
   let bookingData = [];
   for (let index = 0; index < count; index++) {
@@ -70,7 +79,7 @@ export async function POST(request) {
         endDateTime: dayjs(end_time).format("YYYY-MM-DDTHH:mm:ssZ"),
         attendees: [
           { email: mentorDetails.data.email },
-          { email: user.user.email },
+          { email: studentDetails.data.email },
         ],
         externalRecorderEmail: "tools@bluerobins.com",
       });
@@ -81,11 +90,11 @@ export async function POST(request) {
       console.log("Error creating event:", error);
     }
 
-    console.log("TRYING TO BOOK EVENT");
+    console.log("TRYING TO BOOK EVENT:", meetLink);
     const { data, error } = await supabase
       .from("bookings")
       .insert({
-        by: user.user.id,
+        by: by_user,
         for: for_user,
         start_time,
         end_time,

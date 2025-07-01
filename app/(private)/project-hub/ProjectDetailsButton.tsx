@@ -122,7 +122,7 @@ export default function ProjectDetailsButton({
             </div>
             <h2 className="text-xl font-bold">Prerequisites</h2>
             <div className="flex flex-wrap gap-2 -mt-3">
-              {project.prerequisites
+              {(project.prerequisites ?? [])
                 .sort((a, b) => (a.url ? 1 : -1) - (b.url ? 1 : -1))
                 .map(({ title, url }, index) =>
                   url ? (
@@ -141,7 +141,7 @@ export default function ProjectDetailsButton({
             </div>
             <h2 className="text-xl font-bold">Tools & Resources</h2>
             <div className="flex flex-wrap gap-2 -mt-3">
-              {project.tools
+              {(project.tools ?? [])
                 .sort((a, b) => (a.url ? 1 : -1) - (b.url ? 1 : -1))
                 .map(({ title, url }, index) =>
                   url ? (
