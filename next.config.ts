@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
       "https://app-bluerobins-nu.vercel.app",
       "https://app.bluerobins.com",
       "zjcrwkaeulxkaprlmrbz.supabase.co",
+      "rfjjvnjkqjszvgewklac.supabase.co",
     ],
   },
 };

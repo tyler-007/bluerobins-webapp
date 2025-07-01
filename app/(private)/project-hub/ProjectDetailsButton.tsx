@@ -45,7 +45,7 @@ export default function ProjectDetailsButton({
     setOpen(false);
   };
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button
           onClick={() => setOpen(true)}
