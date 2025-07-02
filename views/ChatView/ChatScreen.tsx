@@ -31,6 +31,34 @@ const formatMessageDate = (date: Date) => {
   }
 };
 
+// Function to detect URLs and make them clickable
+const renderMessageWithLinks = (message: string) => {
+  // URL regex pattern
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = message.split(urlRegex);
+
+  return parts.map((part, index) => {
+    if (urlRegex.test(part)) {
+      // Truncate URL if it's too long
+      const displayUrl =
+        part.length > 50 ? part.substring(0, 47) + "..." : part;
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:text-blue-800 underline break-all max-w-full overflow-hidden text-ellipsis whitespace-nowrap inline-flex items-center"
+          style={{ maxWidth: "100%" }}
+        >
+          {displayUrl}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 export default function ChatScreen({
   channel_id,
   senderId,
@@ -152,7 +180,10 @@ export default function ChatScreen({
     return !isSameDay(currentDate, previousDate);
   };
 
-  const messagesToShow = [...(oldMessages ?? []), ...messages];
+  const messagesToShow = [...(oldMessages ?? []), ...messages].sort(
+    (a, b) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
 
   return (
     <div className="flex flex-col h-full">
@@ -192,7 +223,9 @@ export default function ChatScreen({
                   }
                   size="sm"
                   src={
-                    message.from_user === userId ? myAvatar : _receiver?.avatar
+                    message.from_user === userId
+                      ? _sender?.avatar
+                      : _receiver?.avatar
                   }
                   className="w-10 h-10 bg-red-300 rounded-full object-cover"
                 />
@@ -207,7 +240,9 @@ export default function ChatScreen({
                     order: message.from_user === userId ? 0 : 1,
                   }}
                 >
-                  <p className="text-sm">{message.message}</p>
+                  <p className="text-sm">
+                    {renderMessageWithLinks(message.message)}
+                  </p>
                   <p className="text-right text-xs text-gray-500 mt-1">
                     {format(new Date(message.created_at), "h:mm a")}
                   </p>

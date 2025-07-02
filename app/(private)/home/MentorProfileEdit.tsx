@@ -105,8 +105,7 @@ export default function MentorProfileEdit({
   const [open, setOpen] = useState(!profile.onboarded);
   const { toast } = useToast();
   const [checkboxChecked, setCheckboxChecked] = useState(!isOnboarding);
-  const [termsClicked, setTermsClicked] = useState(!isOnboarding);
-  const [privacyClicked, setPrivacyClicked] = useState(!isOnboarding);
+
   const values = profile
     ? getValues(profile, defaultValues, { name })
     : undefined;
@@ -264,7 +263,6 @@ export default function MentorProfileEdit({
                       target="_blank"
                       href="/static/terms-and-conditions.pdf"
                       className="text-blue-500 underline"
-                      onClick={() => setTermsClicked(true)}
                     >
                       Terms of Service
                     </a>{" "}
@@ -273,7 +271,6 @@ export default function MentorProfileEdit({
                       target="_blank"
                       href="/static/privacy-policy.pdf"
                       className="text-blue-500 underline"
-                      onClick={() => setPrivacyClicked(true)}
                     >
                       Privacy Policy
                     </a>
@@ -308,15 +305,6 @@ export default function MentorProfileEdit({
                       toast({
                         title: "Requirements Not Met",
                         description: "Please check the box before saving.",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    if (!termsClicked || !privacyClicked) {
-                      toast({
-                        title: "Requirements Not Met",
-                        description:
-                          "Please read both Terms of Service and Privacy Policy before saving.",
                         variant: "destructive",
                       });
                       return;
