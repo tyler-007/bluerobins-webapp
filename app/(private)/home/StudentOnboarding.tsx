@@ -33,8 +33,6 @@ export default function StudentProfileEdit({
   const [show, setShow] = useState(!profile.onboarded);
   const { toast } = useToast();
   const [checkboxChecked, setCheckboxChecked] = useState(false);
-  const [termsClicked, setTermsClicked] = useState(false);
-  const [privacyClicked, setPrivacyClicked] = useState(false);
   const router = useRouter();
   // console.log("PRAO:", profile);
   const values = profile
@@ -193,7 +191,6 @@ export default function StudentProfileEdit({
                         target="_blank"
                         href="/static/terms-and-conditions.pdf"
                         className="text-blue-500 underline"
-                        onClick={() => setTermsClicked(true)}
                       >
                         Terms of Service
                       </a>{" "}
@@ -202,7 +199,6 @@ export default function StudentProfileEdit({
                         target="_blank"
                         href="/static/privacy-policy.pdf"
                         className="text-blue-500 underline"
-                        onClick={() => setPrivacyClicked(true)}
                       >
                         Privacy Policy
                       </a>
@@ -211,15 +207,10 @@ export default function StudentProfileEdit({
 
                   <Button
                     onClick={() => {
-                      if (
-                        !checkboxChecked ||
-                        !termsClicked ||
-                        !privacyClicked
-                      ) {
+                      if (!checkboxChecked) {
                         toast({
                           title: "Requirements Not Met",
-                          description:
-                            "Please check the box and click both Terms of Service and Privacy Policy links before saving.",
+                          description: "Please check the box before saving.",
                           variant: "destructive",
                         });
                         return;
