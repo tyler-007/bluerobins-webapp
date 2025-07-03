@@ -12,6 +12,9 @@ export const OtherMentorChatItem = ({ mentor }: { mentor: any }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Use photo_url if available, otherwise fallback to avatar
+  const avatarUrl = mentor.photo_url || mentor.avatar;
+
   const onClick = useCallback(async () => {
     if (isLoading) return;
     setIsLoading(true);
@@ -36,7 +39,7 @@ export const OtherMentorChatItem = ({ mentor }: { mentor: any }) => {
       onClick={onClick}
     >
       <Image
-        src={mentor.avatar}
+        src={avatarUrl}
         alt={mentor.name}
         width={32}
         height={32}

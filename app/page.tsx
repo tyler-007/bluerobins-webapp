@@ -39,7 +39,7 @@ const carouselSlides = [
 export default function Login() {
   const [current, setCurrent] = useState(1); // Start on the second slide
   const [userType, setUserType] = useState<
-    "student" | "parent" | "mentor" | undefined
+    "student" | "parent" | "mentor" | "admin" | undefined
   >("mentor");
   const supabase = createClient();
   const total = carouselSlides.length;
@@ -180,13 +180,16 @@ export default function Login() {
             >
               Mentor
             </button>
+            <button
+              onClick={() => setUserType("admin")}
+              className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "admin" ? "bg-[#FFA501] text-white border-[#FFA501]" : "hover:bg-gray-100"}`}
+            >
+              Admin
+            </button>
           </div>
 
           <button
-            onClick={() => {
-              console.log("clicked");
-              onGoogleSignIn();
-            }}
+            onClick={onGoogleSignIn}
             className="flex items-center justify-center w-full bg-gray-100 rounded-full py-3 text-lg font-medium text-gray-700 hover:bg-gray-200 transition border border-gray-200"
           >
             <Image

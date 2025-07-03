@@ -9,6 +9,7 @@ import {
   Calendar,
   BookOpen,
   HelpCircle,
+  ShoppingCart,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -36,6 +37,11 @@ const options = [
     label: "Project Hub",
     icon: BookOpen,
     href: "/project-hub",
+  },
+  {
+    label: "Cart",
+    icon: ShoppingCart,
+    href: "/home/cart",
   },
 ];
 

@@ -61,9 +61,12 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}${redirectTo}`);
     }
 
-    // Redirect parents to /parent, others to /home
+    // Redirect parents to /parent, admins to /admin, others to /home
     if (userType === "parent") {
       return NextResponse.redirect(`${origin}/parent`);
+    }
+    if (userType === "admin") {
+      return NextResponse.redirect(`${origin}/admin`);
     }
     return NextResponse.redirect(`${origin}/home`);
   } catch (error) {

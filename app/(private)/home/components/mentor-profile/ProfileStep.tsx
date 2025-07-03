@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { TagInput } from "@/app/components/ui/TagInput";
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "../../types/mentor-profile";
-import { User } from "lucide-react";
+import { User, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -206,6 +206,73 @@ export function ProfileStep({ form }: ProfileStepProps) {
             </FormItem>
           )}
         />
+        <FormItem>
+          <FormLabel>Intro Video (max 30s, 100MB)</FormLabel>
+          <FormControl>
+            <div className="relative">
+              <input
+                type="file"
+                accept="*"
+                className="hidden"
+                id="video-upload"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file || !userId) return;
+                  if (file.size > 100 * 1024 * 1024) {
+                    toast({
+                      title: "Error",
+                      description: "File too large (max 100MB)",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  // Sanitize file name
+                  const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+                  const storageKey = `${userId}/${sanitizedFileName}`;
+                  try {
+                    const { error: uploadError } = await supabase.storage
+                      .from("mentor-intro-video")
+                      .upload(storageKey, file, {
+                        cacheControl: "3600",
+                        upsert: true,
+                        contentType: file.type,
+                      });
+                    if (uploadError) throw uploadError;
+                    toast({
+                      title: "Success",
+                      description: "File uploaded successfully",
+                    });
+                  } catch (error: any) {
+                    console.error("Error uploading file:", error);
+                    toast({
+                      title: "Error",
+                      description: error.message || "Failed to upload file",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              />
+              <label
+                htmlFor="video-upload"
+                className={cn(
+                  "min-w-32 max-w-32 min-h-32 max-h-32 h-full aspect-square rounded-xl border-2 border-dashed border-gray-300",
+                  "flex items-center justify-center cursor-pointer",
+                  "hover:border-gray-400 transition-colors",
+                  "relative overflow-hidden"
+                )}
+              >
+                <div className="flex flex-col items-center gap-2 text-gray-500">
+                  <Video className="w-8 h-8" />
+                  <span className="text-xs">Click to upload file</span>
+                </div>
+              </label>
+            </div>
+          </FormControl>
+          <FormDescription>
+            Upload a file (max 100MB). This helps students get to know you!
+          </FormDescription>
+          <FormMessage />
+        </FormItem>
       </CardContent>
     </Card>
   );

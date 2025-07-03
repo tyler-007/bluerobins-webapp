@@ -86,7 +86,7 @@ export default async function HomePage() {
         .order("start_time", { ascending: true })
         .eq(filterKey, user.id),
       isMentor
-        ? supabase.from("projects").select("*").eq("mentor_user_id", user.id)
+        ? supabase.from("projects").select("*").eq("mentor_user", user.id)
         : supabase.from("projects").select("*")
     ]);
 

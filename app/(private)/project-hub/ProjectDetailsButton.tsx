@@ -91,13 +91,15 @@ export default function ProjectDetailsButton({
             <div className="flex flex-col bg-blue-200 p-3 pt-2 my-2 rounded-xl gap-1">
               <span className="text-black">Mentor</span>
               <div className="flex flex-row items-center gap-2">
-                <Image
-                  src={project.mentor?.avatar}
-                  alt="mentor"
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                />
+                {(() => { const avatarUrl = project.mentor?.avatar || project.mentor?.avatar; return avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt="mentor"
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                ) : null; })()}
                 <span className="text-primary">{project.mentor?.name}</span>
               </div>
             </div>

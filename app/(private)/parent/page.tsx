@@ -7,6 +7,10 @@ import ParentOnboarding from "./ParentOnboarding";
 import ChildrenSelection from "./ChildrenSelection";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { StarDisplay } from "./components/StarDisplay";
+import { getCart, markCartPaid, parentPayAndBookCart } from "@/app/actions/cart";
+import { Button } from "@/components/ui/button";
+import { PaymentDialog } from "@/components/PaymentDialog";
+import { toast } from "@/components/ui/use-toast";
 
 export default function ParentDashboard() {
   const [loading, setLoading] = useState(true);
@@ -18,6 +22,12 @@ export default function ParentDashboard() {
   const [progressByChild, setProgressByChild] = useState<any>({});
   const [reviewsByChild, setReviewsByChild] = useState<any>({});
   const [pendingLinks, setPendingLinks] = useState<any[]>([]);
+  const [cartsByChild, setCartsByChild] = useState<any>({});
+  const [showPaymentDialogFor, setShowPaymentDialogFor] = useState<string | null>(null);
+  const [payingCartId, setPayingCartId] = useState<string | null>(null);
+  const [paying, setPaying] = useState(false);
+  const [userNamesById, setUserNamesById] = useState<any>({});
+  const [profileNamesById, setProfileNamesById] = useState<any>({});
   const router = useRouter();
 
   useEffect(() => {
@@ -64,10 +74,39 @@ export default function ParentDashboard() {
           .select("id, grade, institution_name, parent_name")
           .in("id", studentIds);
         setChildrenProfiles(students || []);
+        // Fetch names from profiles table
+        if (students && students.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, name')
+            .in('id', students.map((s: any) => s.id));
+          const nameMap: Record<string, string> = {};
+          (profiles || []).forEach((p: any) => {
+            nameMap[p.id] = p.name || "(No Name)";
+          });
+          setProfileNamesById(nameMap);
+        } else {
+          setProfileNamesById({});
+        }
+        // Fetch user names from auth.users
+        if (students && students.length > 0) {
+          const { data: users } = await supabase
+            .from('auth.users')
+            .select('id, user_metadata')
+            .in('id', students.map((s: any) => s.id));
+          const userMap: Record<string, string> = {};
+          (users || []).forEach((u: any) => {
+            userMap[u.id] = u.user_metadata?.full_name || "(No Name)";
+          });
+          setUserNamesById(userMap);
+        } else {
+          setUserNamesById({});
+        }
         // Fetch notes and progress for each child
         const notesObj: any = {};
         const progressObj: any = {};
         const reviewsObj: any = {};
+        const cartsObj: any = {};
         for (const student of students || []) {
           // Fetch notes
           const { data: notes } = await supabase
@@ -108,15 +147,25 @@ export default function ParentDashboard() {
             .eq("student_id", student.id);
           
           reviewsObj[student.id] = reviews || [];
+
+          // Fetch cart for this child
+          const cartRes = await getCart(student.id);
+          if (cartRes.success) {
+            cartsObj[student.id] = cartRes.cart;
+          } else {
+            cartsObj[student.id] = null;
+          }
         }
         setNotesByChild(notesObj);
         setProgressByChild(progressObj);
         setReviewsByChild(reviewsObj);
+        setCartsByChild(cartsObj);
       } else {
         setChildrenProfiles([]);
         setNotesByChild({});
         setProgressByChild({});
         setReviewsByChild({});
+        setCartsByChild({});
       }
     };
     fetchProfilesAndNotes();
@@ -167,12 +216,69 @@ export default function ParentDashboard() {
         {childrenProfiles.map((child) => (
           <Card key={child.id} className="w-full">
             <CardHeader>
-              <CardTitle>{child.parent_name || "(No Name)"}</CardTitle>
+              <CardTitle>{profileNamesById[child.id] || "(No Name)"}</CardTitle>
               <CardDescription>
                 Grade: {child.grade} | Institution: {child.institution_name}
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-4">
+                <h4 className="font-semibold mb-2">Cart</h4>
+                {cartsByChild[child.id] && cartsByChild[child.id].student_cart_items?.length > 0 ? (
+                  <>
+                    <div className="flex flex-col gap-2 mb-2">
+                      {cartsByChild[child.id].student_cart_items.map((item: any) => (
+                        <div key={item.id} className="flex justify-between items-center border-b pb-1">
+                          <span>{item.projects?.title || "Project"} <span className="text-xs text-gray-500">(Mentor: {item.mentor_profiles?.name || "-"})</span></span>
+                          <span className="text-sm">${item.projects?.selling_price || "-"}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex justify-between items-center font-semibold">
+                      <span>Total:</span>
+                      <span>${cartsByChild[child.id].student_cart_items.reduce((sum: number, item: any) => sum + (Number(item.projects?.selling_price) || 0), 0)}</span>
+                    </div>
+                    {cartsByChild[child.id].status === "paid" ? (
+                      <div className="text-green-600 font-bold mt-2">Paid</div>
+                    ) : (
+                      <Button
+                        className="mt-2"
+                        loading={payingCartId === cartsByChild[child.id].id}
+                        disabled={payingCartId === cartsByChild[child.id].id}
+                        onClick={() => setShowPaymentDialogFor(child.id)}
+                      >
+                        Pay for Cart
+                      </Button>
+                    )}
+                    <PaymentDialog
+                      open={showPaymentDialogFor === child.id}
+                      onOpenChange={(open) => setShowPaymentDialogFor(open ? child.id : null)}
+                      amount={cartsByChild[child.id].student_cart_items.reduce((sum: number, item: any) => sum + (Number(item.projects?.selling_price) || 0), 0)}
+                      onSuccess={async (order) => {
+                        setPaying(true);
+                        setPayingCartId(cartsByChild[child.id].id);
+                        const res = await parentPayAndBookCart({ childId: child.id, parentId: profile.id, paymentDetails: order });
+                        if (res.success) {
+                          toast({ title: "Payment successful!", description: "Cart has been paid and sessions booked.", variant: "default" });
+                          // Refetch cart for this child
+                          const cartRes = await getCart(child.id);
+                          setCartsByChild((prev: any) => ({ ...prev, [child.id]: cartRes.success ? cartRes.cart : null }));
+                          setShowPaymentDialogFor(null);
+                        } else {
+                          toast({ title: "Error", description: res.error || "Could not complete payment.", variant: "destructive" });
+                        }
+                        setPaying(false);
+                        setPayingCartId(null);
+                      }}
+                      onError={() => setShowPaymentDialogFor(null)}
+                      onCancel={() => setShowPaymentDialogFor(null)}
+                      summary={<div>Pay <b>${cartsByChild[child.id].student_cart_items.reduce((sum: number, item: any) => sum + (Number(item.projects?.selling_price) || 0), 0)}</b> for all projects in {profileNamesById[child.id] || "this child"}'s cart.</div>}
+                    />
+                  </>
+                ) : (
+                  <div className="text-gray-400">No items in cart.</div>
+                )}
+              </div>
               <div className="mb-4">
                 <h4 className="font-semibold mb-2">Progress</h4>
                 {progressByChild[child.id] && Object.keys(progressByChild[child.id]).length > 0 ? (

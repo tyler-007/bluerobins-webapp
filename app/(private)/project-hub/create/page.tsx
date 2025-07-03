@@ -186,7 +186,7 @@ export default function CreatePage() {
     const pricingInfo = SELLING_PRICE_COST_MAP[sessions as keyof typeof SELLING_PRICE_COST_MAP];
 
     const { data, error } = await supabase.from("projects").insert({
-      mentor_user_id: userId,
+      mentor_user: userId,
       title,
       description,
       categories: category.split(","),

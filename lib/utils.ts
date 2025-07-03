@@ -21,3 +21,26 @@ export const getTagStyle = (tag: string, index: number) => {
   const styleIndex = (tag.charCodeAt(0) + index) % tagStyles.length;
   return tagStyles[styleIndex];
 };
+
+/**
+ * Returns an array of ISO date strings, evenly distributed between startDate and endDate (inclusive).
+ * @param {string} startDate - ISO string or Date
+ * @param {string} endDate - ISO string or Date
+ * @param {number} sessionCount
+ * @returns {string[]} Array of ISO date strings
+ */
+export function getEvenlyDistributedSessionDates(startDate: string | Date, endDate: string | Date, sessionCount: number): string[] {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  if (sessionCount <= 1) return [start.toISOString()];
+  const totalMs = end.getTime() - start.getTime();
+  let intervalMs = totalMs / (sessionCount - 1);
+  const maxIntervalMs = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
+  if (intervalMs > maxIntervalMs) intervalMs = maxIntervalMs;
+  const dates: string[] = [];
+  for (let i = 0; i < sessionCount; i++) {
+    const d = new Date(start.getTime() + Math.round(i * intervalMs));
+    dates.push(d.toISOString());
+  }
+  return dates;
+}

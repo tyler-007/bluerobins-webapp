@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ProjectNotesClient } from "./components/ProjectNotesClient";
+import dayjs from "dayjs";
 
 // Placeholder for Project Details UI
 const ProjectDetails = ({ project }: { project: any }) => {
@@ -42,7 +43,7 @@ export default async function ProjectViewPage({ params }: { params: Promise<{ id
   // Fetch project details
   const { data: project, error: projectError } = await supabase
     .from("projects")
-    .select("*, mentor_user_id") // Ensure mentor_user_id is selected
+    .select("*, mentor_user") // Ensure mentor_user is selected
     .eq("id", projectId)
     .single();
 
@@ -86,6 +87,8 @@ export default async function ProjectViewPage({ params }: { params: Promise<{ id
   const weeksSinceStart = Math.ceil((today.getTime() - projectStartDate.getTime()) / (1000 * 60 * 60 * 24 * 7));
   const currentWeek = Math.max(1, weeksSinceStart);
 
+  const sessionTime = dayjs(`${projectStartDate.toISOString().split('T')[0]} ${project.session_time}`, "YYYY-MM-DD HH:mm").toDate();
+
   return (
     <div className="p-4 md:p-8">
       <Tabs defaultValue="details" className="w-full">
@@ -100,9 +103,11 @@ export default async function ProjectViewPage({ params }: { params: Promise<{ id
           <ProjectNotesClient
             projectId={projectId}
             studentId={user.id}
-            mentorId={project.mentor_user_id}
+            mentorId={project.mentor_user}
             notes={notes || []}
             currentWeek={currentWeek}
+            sessionDate={sessionTime.toISOString()}
+            userType={user.id === project.mentor_user ? "mentor" : "student"}
           />
         </TabsContent>
       </Tabs>

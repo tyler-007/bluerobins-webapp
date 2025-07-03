@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import dayjs from "dayjs";
 import { createCalendarEvent } from "@/lib/actions";
+import { getEvenlyDistributedSessionDates } from "@/lib/utils";
+
 export async function POST(request) {
   const supabase = await createClient();
   const req = await request.json();
@@ -56,16 +58,23 @@ export async function POST(request) {
     .single();
 
   console.log("Mentor Details:", mentorDetails);
+
+  // Get project session count and dates
+  const { data: project } = await supabase
+    .from("projects")
+    .select("sessions_count, start_date, end_date")
+    .eq("id", project_id)
+    .single();
+  if (!project) {
+    return NextResponse.json({ status: false, message: "Project not found" }, { status: 404 });
+  }
+  const sessionDates = getEvenlyDistributedSessionDates(project.start_date, project.end_date, project.sessions_count);
+
   let bookingData = [];
-  for (let index = 0; index < count; index++) {
-    console.log("PROCESSING INDEX:", index);
-    const description = `Session ${index + 1} of ${count}`;
-    const start_time = dayjs(startDate)
-      .add(index, "day")
-      .format("YYYY-MM-DDTHH:mm:ssZ");
-    const end_time = dayjs(start_time)
-      .add(1, "hour")
-      .format("YYYY-MM-DDTHH:mm:ssZ");
+  for (let index = 0; index < sessionDates.length; index++) {
+    const description = `Session ${index + 1} of ${sessionDates.length}`;
+    const start_time = sessionDates[index];
+    const end_time = new Date(new Date(start_time).getTime() + 60 * 60 * 1000).toISOString();
     let eventId = "",
       meetLink = "";
     try {

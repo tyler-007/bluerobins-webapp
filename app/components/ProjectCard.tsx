@@ -10,6 +10,8 @@ import dayjs from "dayjs";
 import { redirect, useRouter } from "next/navigation";
 import Image from "next/image";
 import { PricingInfoDialog } from "@/components/PricingInfoDialog";
+import { useUser } from "@/app/hooks/useUser";
+import { addToCart } from "@/app/actions/cart";
 
 interface ProjectCardProps {
   package_id: number;
@@ -55,6 +57,7 @@ export default function ProjectCard({
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [navigating, setNavigating] = useState(false);
   const router = useRouter();
+  const { data: user } = useUser();
   console.log("NAME:", mentor);
   const bookSlotAPI = async (
     order: any,
@@ -169,15 +172,15 @@ export default function ProjectCard({
         <div className="flex flex-col bg-blue-200 p-3 pt-2 my-2 rounded-xl gap-1">
           <span className="text-black">Mentor</span>
           <div className="flex flex-row items-center gap-2">
-            {mentor?.avatar && (
+            {(() => { const avatarUrl = mentor?.avatar || mentor?.avatar; return avatarUrl ? (
               <Image
-                src={mentor?.avatar}
+                src={avatarUrl}
                 alt="mentor"
                 width={32}
                 height={32}
                 className="rounded-full"
               />
-            )}
+            ) : null; })()}
             <span className="text-primary">{mentor?.name}</span>
           </div>
         </div>
@@ -223,6 +226,25 @@ export default function ProjectCard({
           <>
             <Button className="w-full mt-2 text-lg py-6" onClick={onBuyPackage}>
               Buy Package
+            </Button>
+            <Button
+              className="w-full mt-2 text-lg py-6"
+              variant="outline"
+              onClick={async () => {
+                if (!user) {
+                  alert("Please log in as a student to add to cart.");
+                  return;
+                }
+                const res = await addToCart({ studentId: user.id, projectId: String(package_id), mentorId: mentor_user });
+                if (res.success) {
+                  alert("Project added to your cart.");
+                } else {
+                  alert(res.error || "Could not add to cart.");
+                }
+              }}
+              disabled={!mentor_user}
+            >
+              Add to Cart
             </Button>
             <ProjectDetailsButton
               onBuyPackage={onBuyPackage}

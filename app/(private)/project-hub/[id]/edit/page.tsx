@@ -163,7 +163,10 @@ export default function EditPage() {
           `${values.startDate} ${values.time}`,
           "YYYY-MM-DD HH:mm"
         ).toDate(),
-        session_time: values.time,
+        session_time: dayjs(
+          `${values.startDate} ${values.time}`,
+          "YYYY-MM-DD HH:mm"
+        ).toDate(),
         session_day: values.dayOfWeek,
         selling_price: pricingInfo?.selling_price,
         cost_price: pricingInfo?.cost_price,

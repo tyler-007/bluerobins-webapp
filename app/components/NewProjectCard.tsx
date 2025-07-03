@@ -11,6 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 import ProjectDetailsButton from "@/app/(private)/project-hub/ProjectDetailsButton";
 import { PaymentDialog } from "@/components/PaymentDialog";
@@ -26,6 +27,9 @@ import Link from "next/link";
 
 import { useToast } from "@/hooks/use-toast";
 import { createClient } from "@/utils/supabase/client";
+import Avatar from "@/components/shared/Avatar";
+import { useUser } from "@/app/hooks/useUser";
+import { addToCart } from "@/app/actions/cart";
 
 type ProjectProps = any;
 type UserProfileProps = any;
@@ -76,12 +80,12 @@ export default function NewProjectCard({
 
   useEffect(() => {
     const fetchMentorDetails = async () => {
-      if (projectDetails?.mentor_user_id) {
+      if (projectDetails?.mentor_user) {
         const supabase = createClient();
         const { data: mentorData, error } = await supabase
           .from("profiles")
           .select("*")
-          .eq("id", projectDetails.mentor_user_id)
+          .eq("id", projectDetails.mentor_user)
           .single();
 
         if (error) {
@@ -101,7 +105,7 @@ export default function NewProjectCard({
     cost_price,
     selling_price,
     title,
-    mentor_user_id: mentor_user,
+    mentor_user: mentor_user,
     description,
     filled_spots,
     prerequisites,
@@ -129,6 +133,8 @@ export default function NewProjectCard({
   const [navigating, setNavigating] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { data: user } = useUser();
+
   const bookSlotAPI = async (
     order: any,
     package_id: number,
@@ -193,6 +199,8 @@ export default function NewProjectCard({
     router.push(`/project-hub/${package_id}/edit`);
   };
 
+  const avatarUrl = mentor?.photo_url?.trim() ? mentor.photo_url : mentor?.avatar;
+
   if (!projectDetails) {
     return (
       <div className="relative min-h-[300px] bg-white rounded-xl shadow-sm border border-gray-200 p-6 pb-2 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between "></div>
@@ -221,7 +229,7 @@ export default function NewProjectCard({
         </div>
 
         <div className="flex flex-wrap gap-2 mb-2">
-          {tags.map((tag) => (
+          {tags.map((tag: string) => (
             <Badge
               className="text-sm rounded border-blue-500 text-blue-500 bg-[#f0f7fa]"
               variant="outline"
@@ -246,7 +254,33 @@ export default function NewProjectCard({
           </span>
           {!isMentor && (
             <>
-              <User className="w-5 h-5" strokeWidth={1.5} />
+              {avatarUrl ? (
+                <img
+                  src={mentor?.photo_url}
+                  alt={mentor?.name || "Mentor"}
+                  width={24}
+                  height={24}
+                  className="rounded-full object-cover"
+                  loading="lazy"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.style.display = 'none';
+                    const fallback = document.createElement('span');
+                    fallback.className = 'inline-block';
+                    target.parentNode?.insertBefore(fallback, target.nextSibling);
+                  }}
+                  style={{ display: mentor?.photo_url ? undefined : 'none' }}
+                />
+              ) : null}
+              {!mentor?.photo_url && (
+                <Avatar
+                  src={mentor?.avatar}
+                  alt={mentor?.name || "Mentor"}
+                  size="sm"
+                  fallback={mentor?.name}
+                />
+              )}
               <Link className="text-blue-500" href={`/mentor/${mentor_user}`}>
                 {mentor?.name}
               </Link>
@@ -291,7 +325,7 @@ export default function NewProjectCard({
       {!isMentor && (
         <>
           {spotsLeft > 0 ? (
-            <div className="flex items-center bg-[#f0f7fa] p-3 pt-2 rounded-lg gap-0">
+            <div className="flex items-center bg-[#f0f7fa] p-3 pt-2 rounded-lg gap-2">
               <DollarSign className="w-5 h-5" />
               <span className="text-black text-lg flex-1 mt-px">{price}</span>
               <Button
@@ -302,6 +336,26 @@ export default function NewProjectCard({
                 disabled={!mentor_user}
               >
                 Book Now
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-sm rounded-md ml-2"
+                onClick={async () => {
+                  if (!user) {
+                    toast({ title: "Not logged in", description: "Please log in as a student to add to cart.", variant: "destructive" });
+                    return;
+                  }
+                  const res = await addToCart({ studentId: user.id, projectId: String(package_id), mentorId: mentor_user });
+                  if (res.success) {
+                    toast({ title: "Added to Cart", description: "Project added to your cart." });
+                  } else {
+                    toast({ title: "Error", description: res.error || "Could not add to cart.", variant: "destructive" });
+                  }
+                }}
+                disabled={!mentor_user}
+              >
+                Add to Cart
               </Button>
             </div>
           ) : (
