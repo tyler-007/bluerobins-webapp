@@ -13,7 +13,6 @@ const nextConfig: NextConfig = {
       "https://app.bluerobins.com",
       "zjcrwkaeulxkaprlmrbz.supabase.co",
       "rfjjvnjkqjszvgewklac.supabase.co",
-      "dev.bluerobins.com",
     ],
   },
 };

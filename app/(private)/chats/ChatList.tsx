@@ -7,7 +7,6 @@ import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import Avatar from "@/components/shared/Avatar";
 
 const ChatListItem = ({
   id,
@@ -31,19 +30,13 @@ const ChatListItem = ({
         id === chat.channel_id && "bg-[#E0E6F6]"
       )}
     >
-      <Avatar
-        src={chat.avatar}
-        alt={chat.name}
-        size="lg"
-        className="rounded-full object-cover"
-      />
-      {/* <Image
+      <Image
         src={chat.avatar}
         alt={chat.name}
         width={56}
         height={56}
         className="rounded-full object-cover"
-      /> */}
+      />
       <div className="flex-1 ml-4 min-w-0">
         <div className="flex justify-between items-center">
           <span className="font-semibold text-gray-900 truncate">
@@ -62,16 +55,16 @@ const ChatListItem = ({
         </div>
         <div
           className={cn(
-            "flex gap-2 justify-between text-gray-600 truncate",
+            "flex justify-between text-gray-600 truncate",
             id === chat.channel_id && "hidden"
           )}
         >
-          <span className="text-ellipsis overflow-hidden">
+          <span>
             {lastMessageObject[chat.channel_id]?.message ??
               "Click to see messages"}
           </span>
           {unread_messages_count[chat.channel_id] && !hideCount && (
-            <div className="h-6 w-6 min-w-6 flex items-center justify-center bg-[#2953BE] text-white text-sm rounded-full">
+            <div className="h-6 w-6 flex items-center justify-center bg-[#2953BE] text-white text-sm rounded-full">
               <span className="text-sm">
                 {unread_messages_count[chat.channel_id]}
               </span>

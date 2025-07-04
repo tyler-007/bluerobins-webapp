@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import dayjs from "dayjs";
 import { createCalendarEvent } from "@/lib/actions";
+import { getEvenlyDistributedSessionDates } from "@/lib/utils";
+
 export async function POST(request) {
   const supabase = await createClient();
   const req = await request.json();
@@ -15,9 +17,13 @@ export async function POST(request) {
     title,
   } = req;
   const { data: user } = await supabase.auth.getUser();
-  console.log("USER:", user);
-  const by_user = req.by_user || user?.user?.id;
-  console.log("BY_USER:", by_user);
+
+  if (!for_user) {
+    return NextResponse.json(
+      { status: false, message: "Mentor ID is missing" },
+      { status: 400 }
+    );
+  }
 
   const projectData = await supabase
     .from("projects")
@@ -51,23 +57,24 @@ export async function POST(request) {
     .eq("id", for_user)
     .single();
 
-  const studentDetails = await supabase
-    .from("profiles")
-    .select("email")
-    .eq("id", by_user)
-    .single();
-
   console.log("Mentor Details:", mentorDetails);
+
+  // Get project session count and dates
+  const { data: project } = await supabase
+    .from("projects")
+    .select("sessions_count, start_date, end_date")
+    .eq("id", project_id)
+    .single();
+  if (!project) {
+    return NextResponse.json({ status: false, message: "Project not found" }, { status: 404 });
+  }
+  const sessionDates = getEvenlyDistributedSessionDates(project.start_date, project.end_date, project.sessions_count);
+
   let bookingData = [];
-  for (let index = 0; index < count; index++) {
-    console.log("PROCESSING INDEX:", index);
-    const description = `Session ${index + 1} of ${count}`;
-    const start_time = dayjs(startDate)
-      .add(index, "week")
-      .format("YYYY-MM-DDTHH:mm:ssZ");
-    const end_time = dayjs(start_time)
-      .add(1, "hour")
-      .format("YYYY-MM-DDTHH:mm:ssZ");
+  for (let index = 0; index < sessionDates.length; index++) {
+    const description = `Session ${index + 1} of ${sessionDates.length}`;
+    const start_time = sessionDates[index];
+    const end_time = new Date(new Date(start_time).getTime() + 60 * 60 * 1000).toISOString();
     let eventId = "",
       meetLink = "";
     try {
@@ -77,10 +84,7 @@ export async function POST(request) {
         location: "Virtual Meeting",
         startDateTime: dayjs(start_time).format("YYYY-MM-DDTHH:mm:ssZ"),
         endDateTime: dayjs(end_time).format("YYYY-MM-DDTHH:mm:ssZ"),
-        attendees: [
-          { email: mentorDetails.data.email },
-          { email: studentDetails.data.email },
-        ],
+        attendees: [{ email: mentorDetails.email }, { email: user.user.email }],
         externalRecorderEmail: "tools@bluerobins.com",
       });
       if (info.error) throw info.error;
@@ -90,11 +94,11 @@ export async function POST(request) {
       console.log("Error creating event:", error);
     }
 
-    console.log("TRYING TO BOOK EVENT:", meetLink);
+    console.log("TRYING TO BOOK EVENT");
     const { data, error } = await supabase
       .from("bookings")
       .insert({
-        by: by_user,
+        by: user.user.id,
         for: for_user,
         start_time,
         end_time,

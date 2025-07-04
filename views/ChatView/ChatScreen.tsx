@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, MoreVertical, Paperclip, Mic, Send } from "lucide-react";
@@ -10,7 +11,6 @@ import { chats } from "./sample_data";
 import { createClient } from "@/utils/supabase/client";
 import { useGetMessages } from "./useGetMessages";
 import { useUser } from "@/app/hooks/useUser";
-import Avatar from "@/components/shared/Avatar";
 
 interface ChatScreenProps {
   channel_id: string;
@@ -31,34 +31,6 @@ const formatMessageDate = (date: Date) => {
   }
 };
 
-// Function to detect URLs and make them clickable
-const renderMessageWithLinks = (message: string) => {
-  // URL regex pattern
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const parts = message.split(urlRegex);
-
-  return parts.map((part, index) => {
-    if (urlRegex.test(part)) {
-      // Truncate URL if it's too long
-      const displayUrl =
-        part.length > 50 ? part.substring(0, 47) + "..." : part;
-      return (
-        <a
-          key={index}
-          href={part}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:text-blue-800 underline break-all max-w-full overflow-hidden text-ellipsis whitespace-nowrap inline-flex items-center"
-          style={{ maxWidth: "100%" }}
-        >
-          {displayUrl}
-        </a>
-      );
-    }
-    return part;
-  });
-};
-
 export default function ChatScreen({
   channel_id,
   senderId,
@@ -71,7 +43,6 @@ export default function ChatScreen({
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [_receiver, setReceiver] = useState<any>(receiver);
-  const [_sender, setSender] = useState<any>();
 
   const { data: user } = useUser();
   const userId = user?.id ?? "";
@@ -90,20 +61,6 @@ export default function ChatScreen({
       fetchReceiver();
     }
   }, [receiverId]);
-
-  useEffect(() => {
-    const fetchSender = async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", senderId)
-        .single();
-      setSender(data);
-    };
-    if (senderId && !_sender) {
-      fetchSender();
-    }
-  }, [senderId]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -180,10 +137,7 @@ export default function ChatScreen({
     return !isSameDay(currentDate, previousDate);
   };
 
-  const messagesToShow = [...(oldMessages ?? []), ...messages].sort(
-    (a, b) =>
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-  );
+  const messagesToShow = [...(oldMessages ?? []), ...messages];
 
   return (
     <div className="flex flex-col h-full">
@@ -210,24 +164,19 @@ export default function ChatScreen({
               )}
               <div
                 style={{
-                  flexDirection:
-                    message.from_user === userId ? "row-reverse" : "row",
+                  justifyContent:
+                    message.from_user === userId ? "flex-end" : "flex-start",
                 }}
-                className={`mb-2 flex gap-2 justify-start`}
+                className={`mb-2 flex gap-2`}
               >
-                <Avatar
-                  alt={
-                    message.from_user === userId
-                      ? _sender?.name
-                      : _receiver?.name
-                  }
-                  size="sm"
+                <img
                   src={
-                    message.from_user === userId
-                      ? _sender?.avatar
-                      : _receiver?.avatar
+                    message.from_user === userId ? myAvatar : _receiver?.avatar
                   }
-                  className="w-10 h-10 bg-red-300 rounded-full object-cover"
+                  className="w-10 h-10 bg-red-300 rounded-full"
+                  style={{
+                    order: message.from_user === userId ? 1 : 0,
+                  }}
                 />
 
                 <div
@@ -240,9 +189,7 @@ export default function ChatScreen({
                     order: message.from_user === userId ? 0 : 1,
                   }}
                 >
-                  <p className="text-sm">
-                    {renderMessageWithLinks(message.message)}
-                  </p>
+                  <p className="text-sm">{message.message}</p>
                   <p className="text-right text-xs text-gray-500 mt-1">
                     {format(new Date(message.created_at), "h:mm a")}
                   </p>

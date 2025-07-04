@@ -39,7 +39,7 @@ const carouselSlides = [
 export default function Login() {
   const [current, setCurrent] = useState(1); // Start on the second slide
   const [userType, setUserType] = useState<
-    "student" | "parent" | "mentor" | undefined
+    "student" | "parent" | "mentor" | "admin" | undefined
   >("mentor");
   const supabase = createClient();
   const total = carouselSlides.length;
@@ -52,7 +52,7 @@ export default function Login() {
       toast({
         title: "Please select a user type",
         description:
-          "Choose whether you're a student or mentor before signing in.",
+          "Choose whether you're a student, mentor, parent, or admin before signing in.",
         variant: "destructive",
       });
       return;
@@ -148,17 +148,29 @@ export default function Login() {
             Join blurobins for free as a
           </p>
           <div className="flex flex-col gap-4 w-full mb-6">
-            {/* <button
+            <button
               onClick={() => setUserType("student")}
               className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "student" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
             >
               Student
-            </button> */}
+            </button>
             <button
               onClick={() => setUserType("mentor")}
               className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "mentor" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
             >
               Mentor
+            </button>
+            <button
+              onClick={() => setUserType("parent")}
+              className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "parent" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
+            >
+              Parent
+            </button>
+            <button
+              onClick={() => setUserType("admin")}
+              className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "admin" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
+            >
+              Admin
             </button>
           </div>
           {/* <div className="w-full flex items-center mb-6">

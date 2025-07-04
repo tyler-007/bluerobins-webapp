@@ -2,7 +2,6 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
 import View from "./view";
-import dayjs from "dayjs";
 
 export default async function SearchPage() {
   const supabase = await createClient();
@@ -22,7 +21,7 @@ export default async function SearchPage() {
 
   const { data: projects } = isMentor
     ? await fetcher.eq("mentor_user", user.id)
-    : await fetcher.gte("session_time", dayjs().format("YYYY-MM-DDTHH:mm:ssZ"));
+    : await fetcher;
 
   return <View projects={projects} isMentor={isMentor} userId={user.id} />;
 }

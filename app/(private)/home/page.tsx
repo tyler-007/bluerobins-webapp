@@ -1,16 +1,55 @@
 import Image from "next/image";
 import logo from "./mascot.png";
-import { User } from "lucide-react";
+import { MessageCircle, Video, BookOpen, Compass, User } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import dayjs from "dayjs";
+import { ChatView } from "@/views/ChatView";
+import { useUser } from "@/app/hooks/useUser";
+import { useProfile } from "@/app/hooks/useProfile";
 import ScheduleItem from "./ScheduleItem";
 import StudentOnboarding from "./StudentOnboarding";
 import MentorProfileEdit from "./MentorProfileEdit";
 import { Button } from "@/components/ui/button";
+import ProjectHubView from "../project-hub/view";
 import ProjectCard from "@/app/components/NewProjectCard";
 import { TimeSlots } from "./TimeSlotItem";
-import Link from "next/link";
+const ExploreItem = ({
+  title,
+  description,
+  items,
+  buttonLabel,
+  Icon,
+}: {
+  title: string;
+  description: string;
+  Icon: React.ReactNode;
+  items: { label: string }[];
+  buttonLabel: string;
+}) => {
+  return (
+    <div className="flex flex-col flex-1 gap-1 bg-white rounded-2xl border border-gray-200 p-6 pt-4">
+      <div className="flex flex-row gap-4 items-center">
+        <div className="bg-[#FFA50114] rounded-full w-8 h-8 flex items-center justify-center">
+          {Icon}
+        </div>
+        <span className="text-lg font-bold">{title}</span>
+      </div>
+      <span className="text-sm text-gray-500">{description}</span>
+      <div className="flex flex-col gap-4 mt-3">
+        {items.map((item) => (
+          <div className="flex bg-[#F4F6F7] px-5 py-2 rounded-xl text-foreground text-sm">
+            <span>{item.label}</span>
+          </div>
+        ))}
+      </div>
+      <div className="flex-1"></div>
+      <button className="border-[#10A3E9] border-[1.5px] text-[#10A3E9] rounded-2xl px-4 py-1 text-base flex flex-row gap-2 items-center self-center mt-4">
+        <span>{buttonLabel}</span>
+      </button>
+    </div>
+  );
+};
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -29,6 +68,8 @@ export default async function HomePage() {
 
   const profileKey = isMentor ? "mentor_profiles" : "student_profiles";
 
+  console.log("PROFILE KEY:", profileKey, user.id);
+
   const [profileResult, bookingsResult, projectsResult] =
     await Promise.allSettled([
       supabase.from(profileKey).select("*").eq("id", user.id).single(),
@@ -39,24 +80,20 @@ export default async function HomePage() {
         .order("start_time", { ascending: true })
         .eq(filterKey, user.id),
       isMentor
-        ? supabase.from("projects").select("id").eq("mentor_user", user.id)
-        : supabase
-            .from("projects")
-            .select("id")
-            .gte("session_time", dayjs().format("YYYY-MM-DDTHH:mm:ssZ")),
+        ? supabase.from("projects").select("*, mentor:profiles(name, avatar)").eq("mentor_user", user.id)
+        : supabase.from("projects").select("*, mentor:profiles(name, avatar)"),
     ]);
 
   const profile =
     profileResult.status === "fulfilled" ? profileResult.value.data : null;
   const myBookings =
     bookingsResult.status === "fulfilled" ? bookingsResult.value.data : [];
-  const projects =
-    projectsResult.status === "fulfilled" ? projectsResult.value.data : [];
+  const projects = projectsResult.status === "fulfilled" ? projectsResult.value.data : [];
 
   // const availability = bookingConfig?.availability;
   const availability = profile?.availability;
 
-  const projectLimit = isMentor ? undefined : 6;
+  const projectLimit = isMentor ? undefined : undefined;
 
   if (!profile?.verified && isMentor) {
     return (
@@ -65,7 +102,7 @@ export default async function HomePage() {
           Thanks for signing up as a mentor!
         </h3>
         <p className="text-xl text-gray-500 text-center">
-          We’re reviewing your details and will notify you once <br />
+          We're reviewing your details and will notify you once <br />
           your profile is verified and your portal access is activated.
         </p>
 
@@ -127,18 +164,12 @@ export default async function HomePage() {
             <span className="text-2xl font-bold">
               {isMentor ? "Project Hubs" : "Recommended Projects"}
             </span>
-            {isMentor ? (
+            {isMentor && (
               <a href="/project-hub/create">
                 <Button loadOnClick variant="outline">
-                  Create New Project
+                  Create New
                 </Button>
               </a>
-            ) : (
-              <Link href="/project-hub/">
-                <Button loadOnClick variant="outline">
-                  View All
-                </Button>
-              </Link>
             )}
           </div>
           <div className="flex flex-wrap gap-4">
@@ -147,10 +178,10 @@ export default async function HomePage() {
               ?.map((project) => (
                 <ProjectCard
                   key={project.id}
-                  hideFilled
+                  project={project}
+                  mentor={project.mentor || { name: '', avatar: '' }}
                   userId={user.id}
                   isMentor={isMentor}
-                  package_id={project.id}
                 />
               ))}
           </div>

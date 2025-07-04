@@ -22,57 +22,66 @@ import { PricingInfoDialog } from "@/components/PricingInfoDialog";
 import { Badge } from "@/components/ui/badge";
 import { ChatView } from "@/views/ChatView";
 import { parseAsBoolean, useQueryState } from "nuqs";
-import { useShape, getShapeStream } from "@electric-sql/react";
 import Link from "next/link";
 
-import { getProjectShape, type ProjectProps } from "@/app/shapes/project";
-import { getUserProfile, type UserProfileProps } from "@/app/shapes/profile";
-import { cn } from "@/lib/utils";
-type ProjectCardProps = {
-  package_id: number;
+type NewProjectCardProps = {
+  project: {
+    id: string;
+    title: string;
+    description: string;
+    categories: string[];
+    cost_price: number;
+    selling_price: number;
+    filled_spots: number;
+    spots: number;
+    agenda: { description: string }[];
+    tools: { title: string; url: string }[];
+    prerequisites: { title: string; url: string }[];
+    session_day: string;
+    session_time: string;
+    sessions_count: number;
+    start_date: string;
+    mentor_user: string;
+  };
+  mentor: {
+    name: string;
+    avatar: string;
+  };
   userId: string;
   isMentor?: boolean;
   hideFilled?: boolean;
 };
 
 export default function NewProjectCard({
-  package_id,
+  project,
+  mentor,
   userId,
-  isMentor,
-  hideFilled,
-}: ProjectCardProps) {
-  const { data, isLoading } = package_id
-    ? useShape<ProjectProps>(getProjectShape(package_id))
-    : { data: [], isLoading: false };
-
-  const projectDetails = data[0];
+  isMentor = false,
+  hideFilled = false,
+}: NewProjectCardProps) {
   const {
-    agenda,
+    id: package_id,
+    title = "",
+    description = "",
     categories: tags = [],
-    cost_price,
-    selling_price,
-    title,
-    mentor_user,
-    description,
-    filled_spots,
-    prerequisites,
-    session_day,
-    session_time,
-    sessions_count,
-    spots,
-    start_date,
-    tools,
-  } = projectDetails ?? {};
-
-  const { data: mentorData, isLoading: mentorLoading } =
-    useShape<UserProfileProps>(getUserProfile(mentor_user));
-  const mentor = mentorData[0];
+    cost_price = 0,
+    selling_price = 0,
+    filled_spots = 0,
+    spots = 0,
+    agenda = [],
+    tools = [],
+    prerequisites = [],
+    session_day = "",
+    session_time = "",
+    sessions_count = 0,
+    start_date = "",
+    mentor_user = "",
+  } = project ?? {};
 
   const spotsLeft = spots - filled_spots;
   const price = isMentor ? cost_price : selling_price;
   const time = dayjs(session_time).format("hh:mm A");
   const startDate = dayjs(start_date).format("MMM D, YYYY");
-  // day={project.session_day}
   const endDate = dayjs(start_date)
     .add(sessions_count, "week")
     .format("MMM D, YYYY");
@@ -98,7 +107,8 @@ export default function NewProjectCard({
         count: sessions_count,
         for_user: mentor_user,
         title: title,
-        startDate: session_time,
+        startDate,
+
         payment_id: order.id,
         package_id,
         details: order,
@@ -122,7 +132,7 @@ export default function NewProjectCard({
   const handlePaymentSuccess = async (order: any) => {
     await bookSlotAPI(
       order,
-      package_id,
+      Number(package_id),
       title,
       sessions_count,
       mentor_user,
@@ -135,7 +145,7 @@ export default function NewProjectCard({
     router.push(`/project-hub/${package_id}/edit`);
   };
 
-  if (!projectDetails) {
+  if (!project) {
     return (
       <div className="relative min-h-[300px] bg-white rounded-xl shadow-sm border border-gray-200 p-6 pb-2 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between "></div>
     );
@@ -182,11 +192,7 @@ export default function NewProjectCard({
             Every {session_day} {time}
           </span>{" "}
           <Calendar className="w-4 h-4" />
-          <span
-            className={cn("text-base", {
-              "text-red-500": dayjs(startDate).isBefore(dayjs()),
-            })}
-          >
+          <span className="text-base">
             {dayjs(startDate).format("DD MMM")}{" "}
             {endDate && `to ${dayjs(endDate).format("DD MMM")}`}
           </span>
@@ -197,9 +203,6 @@ export default function NewProjectCard({
                 {mentor?.name}
               </Link>
               <div> </div>
-              {/* <Button variant="ghost" size="sm" className="text-blue-500">
-                View Details
-              </Button> */}
               <ChatView
                 triggerClassName="text-left text-blue-500 text-sm cursor-pointer hover:text-black transition-all duration-300 "
                 triggerText="Chat with mentor"
@@ -208,9 +211,6 @@ export default function NewProjectCard({
                 senderId={userId}
                 receiverId={mentor_user}
               />
-              {/* <span className="text-blue-500 text-sm cursor-pointer hover:text-black transition-all duration-300 ">
-                Chat with mentor
-              </span> */}
             </>
           )}
         </div>
@@ -227,11 +227,7 @@ export default function NewProjectCard({
             <span className="text-black text-base font-normal flex-1">
               {spots - spotsLeft} / {spots} Enrolled
             </span>
-            {/* <Button variant="default" size="sm" className="text-sm rounded-md">
-          Invite
-        </Button> */}
           </div>
-          {/* <div className="flex justify-between"> */}
           <PricingInfoDialog
             sessionCount={sessions_count}
             triggerText="View Pricing Info"
@@ -239,7 +235,6 @@ export default function NewProjectCard({
               className: "text-blue-500",
             }}
           />
-          {/* </div> */}
         </>
       )}
       {!isMentor && (

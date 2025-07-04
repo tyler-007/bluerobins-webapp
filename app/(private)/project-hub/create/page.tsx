@@ -31,11 +31,11 @@ import { useRouter } from "next/navigation";
 
 const SELLING_PRICE_COST_MAP = {
   "8": {
-    selling_price: 1080,
+    selling_price: 1089,
     cost_price: 839,
   },
   "12": {
-    selling_price: 1530,
+    selling_price: 1289,
     cost_price: 900,
   },
 };
@@ -66,18 +66,22 @@ const formSchema = z.object({
       (arr) => arr.length === 8 || arr.length === 12,
       "Must have either 8 or 12 sessions"
     ),
-  tools: z.array(
-    z.object({
-      title: z.string().min(1, "Required"),
-      url: z.string().url("Invalid URL").or(z.literal("")),
-    })
-  ),
-  prereqs: z.array(
-    z.object({
-      title: z.string().min(1, "Required"),
-      url: z.string().url("Invalid URL").or(z.literal("")),
-    })
-  ),
+  tools: z
+    .array(
+      z.object({
+        title: z.string().min(1, "Required"),
+        url: z.string().url("Invalid URL").or(z.literal("")),
+      })
+    )
+    .min(1, "At least one tool is required"),
+  prereqs: z
+    .array(
+      z.object({
+        title: z.string().min(1, "Required"),
+        url: z.string().url("Invalid URL").or(z.literal("")),
+      })
+    )
+    .min(1, "At least one prerequisite is required"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -99,8 +103,17 @@ export default function CreatePage() {
       dayOfWeek: "",
       time: "",
       sessionDescriptions: Array(12).fill(""),
-      tools: [],
-      prereqs: [],
+      tools: [
+        { title: "SAM Platform + SAM Paper", url: "" },
+        { title: "Python", url: "" },
+        { title: "Kaggle brain tumor dataset", url: "" },
+        { title: "Jupyter Notebooks", url: "" },
+      ],
+      prereqs: [
+        { title: "CNN basics", url: "" },
+        { title: "Image data handling", url: "" },
+        { title: "Python programming", url: "" },
+      ],
     },
   });
 

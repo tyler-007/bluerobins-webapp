@@ -39,7 +39,7 @@ const carouselSlides = [
 export default function Login() {
   const [current, setCurrent] = useState(1); // Start on the second slide
   const [userType, setUserType] = useState<
-    "student" | "parent" | "mentor" | undefined
+    "student" | "parent" | "mentor" | "admin" | undefined
   >("mentor");
   const supabase = createClient();
   const total = carouselSlides.length;
@@ -71,6 +71,8 @@ export default function Login() {
           skipBrowserRedirect: false,
         },
       });
+
+      console.log("DATA:", Object.keys(data));
 
       if (error) throw error;
     } catch (error: any) {
@@ -171,6 +173,18 @@ export default function Login() {
               className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "mentor" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
             >
               Mentor
+            </button>
+            <button
+              onClick={() => setUserType("parent")}
+              className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "parent" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
+            >
+              Parent
+            </button>
+            <button
+              onClick={() => setUserType("admin")}
+              className={`border border-gray-300 rounded-full py-3 text-lg font-medium transition ${userType === "admin" ? "bg-[#2953BE] text-white border-[#2953BE]" : "hover:bg-gray-100"}`}
+            >
+              Admin
             </button>
           </div>
 

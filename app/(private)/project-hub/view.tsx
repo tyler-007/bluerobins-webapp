@@ -38,10 +38,11 @@ export default function ProjectHubView(props: {
           </div>
         )}
         <div className="flex flex-wrap gap-4">
-          {(props.projects ?? []).map((project: any) => (
+          {props.projects.map((project: any) => (
             <NewProjectCard
               key={project.id}
-              package_id={project.id}
+              project={project}
+              mentor={project.mentor || { name: '', avatar: '' }}
               userId={props.userId}
               isMentor={isMentor}
             />

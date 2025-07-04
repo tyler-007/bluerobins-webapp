@@ -55,9 +55,13 @@ export const updateSession = async (request: NextRequest) => {
       return response;
     }
 
-    // Redirect to home if authenticated and on root
+    // Redirect to home/parent/admin if authenticated and on root
     if (request.nextUrl.pathname === "/" && user) {
-      return NextResponse.redirect(new URL("/home", request.url));
+      const userType = user.user_metadata?.user_type;
+      let landing = "/home";
+      if (userType === "parent") landing = "/parent";
+      else if (userType === "admin") landing = "/admin";
+      return NextResponse.redirect(new URL(landing, request.url));
     }
 
     // Redirect to sign-in if not authenticated and trying to access protected route

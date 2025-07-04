@@ -39,32 +39,11 @@ export const PayPalPayment = ({
         createOrder={(data, actions) => {
           return actions.order.create({
             intent: "CAPTURE",
-            application_context: {
-              shipping_preference: "NO_SHIPPING",
-            },
             purchase_units: [
               {
-                description: "One-on-one online educational guidance session",
-                items: [
-                  {
-                    name: "Mentorship Package",
-                    quantity: "1",
-                    unit_amount: {
-                      currency_code: "USD",
-                      value: amount.toString(),
-                    },
-                    category: "DIGITAL_GOODS", // This is key for intangible
-                  },
-                ],
                 amount: {
                   currency_code: "USD",
                   value: amount.toString(),
-                  breakdown: {
-                    item_total: {
-                      currency_code: "USD",
-                      value: amount.toString(),
-                    },
-                  },
                 },
               },
             ],

@@ -42,9 +42,17 @@ export async function POST(request) {
 
   const { data: newData, error: newError } = await adminBase
     .from("channels")
-    .insert({ identifier, type: "private" })
+    .upsert({ identifier, type: "private" }, { onConflict: "identifier" })
     .select("id, identifier")
     .single();
+
+  if (newError && newError.code !== "23505") {
+    console.error("Error inserting channel:", newError);
+    return NextResponse.json({
+      status: false,
+      message: "Error creating channel",
+    });
+  }
 
   const { error: memberError } = await adminBase
     .from("channel_members")
@@ -52,6 +60,10 @@ export async function POST(request) {
       { channel_id: newData.id, user_id: student },
       { channel_id: newData.id, user_id: mentor },
     ]);
+
+  if (memberError && memberError.code !== "23505") {
+    // console.error("Error inserting channel members:", memberError);
+  }
 
   return NextResponse.json({
     status: true,

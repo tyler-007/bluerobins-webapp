@@ -34,7 +34,7 @@ const ScheduleItem = ({
   const time = dayjs(start_time).format("h:mm A");
   const date = dayjs(start_time).format("DD MMM YYYY");
   // const { data: user } = useUser();
-  const showJoin = true;
+  const showJoin = false;
   const isMentor = userType === "mentor";
   console.log(
     "eventId",
@@ -60,26 +60,18 @@ const ScheduleItem = ({
           with {profile?.name ?? "Mentor"}
         </span>
       )}
-      <ChatView
-        name={`s_${studentId}:m_${mentorId}`}
-        senderId={senderId}
-        receiverId={receiverId}
-        triggerClassName="w-min"
-      />
       <div className="flex flex-row flex-1 gap-4 items-center justify-between mt-4">
-        {isMentor && (
-          <RescheduleDialog
-            start_time={start_time}
-            eventId={eventId}
-            bookingId={bookingId}
-          />
-        )}
-        {/* {!eventLink && (
+        <ChatView
+          name={`s_${studentId}:m_${mentorId}`}
+          senderId={senderId}
+          receiverId={receiverId}
+        />
+        {!eventLink && (
           <button className="bg-[#2953BE] border-[#2953BE] border-[1.5px] gap-2  text-white rounded-xl px-4 py-1 text-base flex flex-row flex-1 items-center justify-center">
             <Clock className="w-5 h-5" />
             <span>Schedule</span>
           </button>
-        )} */}
+        )}
         {eventLink ? (
           showJoin ? (
             <button className="bg-[#2953BE] border-[#2953BE] border-[1.5px] gap-2  text-white rounded-xl px-4 py-1 text-base flex flex-row flex-1 items-center justify-center">
