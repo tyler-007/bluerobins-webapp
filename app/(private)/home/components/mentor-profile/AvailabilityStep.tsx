@@ -20,54 +20,6 @@ export function AvailabilityStep({ form }: AvailabilityStepProps) {
   return (
     <Card>
       <CardContent className="flex flex-col gap-4 mt-4">
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="hours_per_week"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Commitment per week (hours)</FormLabel>
-                <FormDescription className="text-xs">
-                  Hours per week can you commit
-                </FormDescription>
-                <FormControl>
-                  <Input
-                    type="number"
-                    {...field}
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                    min={1}
-                    placeholder="Enter hours per week"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="hourly_rate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Per hour rate ($)</FormLabel>
-                <FormDescription className="text-xs">
-                  Your hourly rate for mentoring sessions
-                </FormDescription>
-                <FormControl>
-                  <Input
-                    type="number"
-                    {...field}
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                    min={1}
-                    placeholder="Enter hourly rate"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
         <FormField
           control={form.control}
           name="availability"

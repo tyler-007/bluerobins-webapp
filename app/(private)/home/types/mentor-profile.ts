@@ -64,7 +64,7 @@ export const defaultValues: FormValues = {
   state: "",
   city: "",
   country: "",
-  mentoring_type: "pay_as_you_go",
+  mentoring_type: "both",
   preferred_mentees: [],
   institution: "",
   major: "",

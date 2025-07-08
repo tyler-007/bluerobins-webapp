@@ -52,66 +52,6 @@ export function MentorTypeStep({ form }: MentorTypeStepProps) {
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="mentoring_type"
-          render={({ field }) => (
-            <FormItem className="space-y-2">
-              <FormLabel>Mentoring Type</FormLabel>
-              <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className="flex flex-col gap-2"
-                >
-                  <FormItem className="flex space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem
-                        className="mt-[6px]"
-                        value="pay_as_you_go"
-                      />
-                    </FormControl>
-                    <div>
-                      <FormLabel className="font-normal">
-                        Pay as you go sessions
-                      </FormLabel>
-                      <FormDescription className="text-xs">
-                        One-on-one sessions that can be booked individually,
-                        perfect for specific questions or short-term guidance
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                  <FormItem className="flex space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem
-                        className="mt-[6px]"
-                        value="research_packages"
-                      />
-                    </FormControl>
-                    <div>
-                      <FormLabel className="font-normal">
-                        Research mentorship packages
-                      </FormLabel>
-                      <FormDescription className="text-xs">
-                        Comprehensive packages for long-term research projects,
-                        including regular meetings and structured guidance
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="both" />
-                    </FormControl>
-                    <div className="space-y-1">
-                      <FormLabel className="font-normal">Both</FormLabel>
-                    </div>
-                  </FormItem>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <FormField
           control={form.control}
