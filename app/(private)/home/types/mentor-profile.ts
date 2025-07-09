@@ -23,9 +23,10 @@ export const formSchema = z.object({
   linkedin_url: z
     .string()
     .trim()
+    .min(1, { message: "LinkedIn URL is required" })
     .refine((val) => !val || val.match(/^https?:\/\/.+/), {
       message: "Please enter a valid URL",
-    })
+    }),
 
   bio: z.string().min(1, { message: "Bio is required" }),
   hours_per_week: z
