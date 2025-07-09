@@ -26,7 +26,7 @@ export const formSchema = z.object({
     .refine((val) => !val || val.match(/^https?:\/\/.+/), {
       message: "Please enter a valid URL",
     })
-    .optional(),
+
   bio: z.string().min(1, { message: "Bio is required" }),
   hours_per_week: z
     .number()
