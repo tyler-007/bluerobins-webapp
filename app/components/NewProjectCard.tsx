@@ -232,13 +232,13 @@ export default function NewProjectCard({
         </Button> */}
           </div>
           {/* <div className="flex justify-between"> */}
-          <PricingInfoDialog
+          {/* <PricingInfoDialog
             sessionCount={sessions_count}
             triggerText="View Pricing Info"
             buttonProps={{
               className: "text-blue-500",
             }}
-          />
+          /> */}
           {/* </div> */}
         </>
       )}
