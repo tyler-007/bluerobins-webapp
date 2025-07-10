@@ -66,11 +66,11 @@ const getValues = (project: any) => {
 
 const SELLING_PRICE_COST_MAP = {
   "8": {
-    selling_price: 1080,
+    selling_price: 1099,
     cost_price: 839,
   },
   "12": {
-    selling_price: 1530,
+    selling_price: 1649,
     cost_price: 900,
   },
 };
