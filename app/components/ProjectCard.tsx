@@ -189,10 +189,7 @@ export default function ProjectCard({
               {spotsLeft} Student{spotsLeft === 1 ? "" : "s"}
             </span>
             <div className="flex-1"></div>
-            <PricingInfoDialog
-              sessionCount={sessions}
-              triggerText="View Pricing Info"
-            />
+
             {/* <span className="text-gray-500 text-sm">Price: ${price}</span> */}
           </div>
         ) : (
