@@ -157,7 +157,7 @@ export default function Login() {
         <div className="w-full max-w-md mx-auto flex flex-col items-center">
           <h1 className="text-4xl font-bold mb-2 mt-4 text-center">Sign Up</h1>
           <p className="text-lg text-gray-500 mb-8 text-center">
-            Join blurobins for free as a
+            Join bluerobins for free as a
           </p>
           <div className="flex flex-col gap-4 w-full mb-6">
             <button
