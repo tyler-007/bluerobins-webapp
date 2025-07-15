@@ -28,14 +28,16 @@ export default async function HomePage() {
   const filterKey = isMentor ? "for" : "by";
 
   const profileKey = isMentor ? "mentor_profiles" : "student_profiles";
-
+  const start_time = isMentor
+    ? dayjs().subtract(3, "day").format("YYYY-MM-DDTHH:mm:ssZ")
+    : dayjs().format("YYYY-MM-DDTHH:mm:ssZ");
   const [profileResult, bookingsResult, projectsResult] =
     await Promise.allSettled([
       supabase.from(profileKey).select("*").eq("id", user.id).single(),
       supabase
         .from("bookings")
         .select("*")
-        .gte("start_time", dayjs().format("YYYY-MM-DDTHH:mm:ssZ"))
+        .gte("start_time", start_time)
         .order("start_time", { ascending: true })
         .eq(filterKey, user.id),
       isMentor
