@@ -57,10 +57,14 @@ export async function POST(request) {
     .eq("id", by_user)
     .single();
 
-  console.log("Mentor Details:", mentorDetails);
+  const parentEmail = await supabase
+    .from("student_profiles")
+    .select("parent_email")
+    .eq("id", by_user)
+    .single();
+
   let bookingData = [];
   for (let index = 0; index < count; index++) {
-    console.log("PROCESSING INDEX:", index);
     const description = `Session ${index + 1} of ${count}`;
     const start_time = dayjs(startDate)
       .add(index, "week")
@@ -80,6 +84,7 @@ export async function POST(request) {
         attendees: [
           { email: mentorDetails.data.email },
           { email: studentDetails.data.email },
+          { email: parentEmail.data.parent_email },
         ],
         externalRecorderEmail: "tools@bluerobins.com",
       });
