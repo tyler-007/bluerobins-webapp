@@ -57,6 +57,7 @@ const getValues = (project: any) => {
     description: project?.description,
     sessions: project?.sessions_count,
     spots: project?.spots,
+    filled_spots: project?.filled_spots,
     startDate: dayjs(project?.start_date).format("YYYY-MM-DD"),
     dayOfWeek: "Sunday",
     time: dayjs(project?.session_time).format("HH:mm"),
@@ -128,6 +129,38 @@ export default function EditPage() {
 
     redirect(`/project-hub/${values.id}/edit-details`);
   };
+
+  const onDelete = async () => {
+    if (!project?.id) return;
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("projects")
+      .update({
+        deleted: true,
+      })
+      .eq("id", project?.id);
+    if (error) {
+      console.error("Error deleting project:", error);
+    } else {
+      console.log("Project deleted successfully");
+    }
+    redirect(`/project-hub/`);
+  };
+
+  if (project?.deleted) {
+    return (
+      <div className="min-h-screen w-full flex flex-col items-center justify-center gap-2">
+        <div>This project has been deleted</div>
+        <Button
+          onClick={() => router.replace("/project-hub")}
+          variant="outline"
+          className="border-blue-300 text-blue-600 px-5 py-2 ml-2"
+        >
+          Go to Project Hub
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full grid grid-cols-[1fr] items-center">
@@ -357,14 +390,17 @@ export default function EditPage() {
                 )}
               />
 
-              <div className="flex flex-1 justify-end items-center">
-                <Button
-                  variant="outline"
-                  className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-5 py-2 ml-2"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" /> Delete project
-                </Button>
-              </div>
+              {!(project?.filled_spots || 0) && (
+                <div className="flex flex-1 justify-end items-center">
+                  <Button
+                    onClick={onDelete}
+                    variant="outline"
+                    className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-5 py-2 ml-2"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" /> Delete project
+                  </Button>
+                </div>
+              )}
             </div>
           </form>
         </Form>
