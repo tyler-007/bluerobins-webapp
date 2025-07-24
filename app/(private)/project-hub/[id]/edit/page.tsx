@@ -29,6 +29,18 @@ import { defaultValues } from "@/app/(private)/home/types";
 import dayjs from "dayjs";
 import { redirect, useRouter } from "next/navigation";
 
+// Define the type for your project object
+type Project = {
+  id: number;
+  deleted: boolean;
+  filled_spots: number;
+  start_date: string;
+  session_time: string;
+  sessions_count: number;
+  spots: number;
+  title: string;
+};
+
 const formSchema = z.object({
   id: z.number().min(1, "Project id is required"),
   title: z.string().min(1, "Project title is required"),
@@ -77,7 +89,7 @@ const SELLING_PRICE_COST_MAP = {
 };
 
 export default function EditPage() {
-  const project = useLayoutData();
+  const project = useLayoutData() as Project | undefined;
   const router = useRouter();
   const values = project ? getValues(project) : undefined;
   const form = useForm<FormValues>({
