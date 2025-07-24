@@ -147,8 +147,6 @@ export default function EditPage() {
     redirect(`/project-hub/`);
   };
 
-  console.log("project.delte,", project?.deleted);
-
   if (project?.deleted) {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-center gap-2">
