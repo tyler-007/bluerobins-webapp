@@ -18,7 +18,8 @@ export default async function SearchPage() {
   const isMentor = user.user_metadata.user_type === "mentor";
   const fetcher = supabase
     .from("projects")
-    .select("*, mentor:profiles(name, avatar)");
+    .select("*, mentor:profiles(name, avatar)")
+    .eq("deleted", false);
 
   const { data: projects } = isMentor
     ? await fetcher.eq("mentor_user", user.id)

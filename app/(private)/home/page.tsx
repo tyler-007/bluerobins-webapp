@@ -41,11 +41,16 @@ export default async function HomePage() {
         .order("start_time", { ascending: true })
         .eq(filterKey, user.id),
       isMentor
-        ? supabase.from("projects").select("id").eq("mentor_user", user.id)
+        ? supabase
+            .from("projects")
+            .select("id")
+            .eq("mentor_user", user.id)
+            .eq("deleted", false)
         : supabase
             .from("projects")
             .select("id")
-            .gte("session_time", dayjs().format("YYYY-MM-DDTHH:mm:ssZ")),
+            .gte("session_time", dayjs().format("YYYY-MM-DDTHH:mm:ssZ"))
+            .eq("deleted", false),
     ]);
 
   const profile =
