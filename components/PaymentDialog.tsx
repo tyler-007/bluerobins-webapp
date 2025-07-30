@@ -10,8 +10,12 @@ import {
 import { PayPalPayment } from "@/components/PayPalPayment";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { CouponItem } from "./CouponItem";
 
 interface PaymentDialogProps {
+  title: string;
+  sessions: number;
+  mentor: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   amount: number;
@@ -22,6 +26,9 @@ interface PaymentDialogProps {
 }
 
 export const PaymentDialog = ({
+  title,
+  sessions,
+  mentor,
   open,
   onOpenChange,
   amount,
@@ -31,6 +38,7 @@ export const PaymentDialog = ({
   summary,
 }: PaymentDialogProps) => {
   const [showThankYou, setShowThankYou] = useState(false);
+  const [finalAmount, setFinalAmount] = useState(amount);
 
   const _onSuccess = (order: any) => {
     setShowThankYou(true);
@@ -55,9 +63,23 @@ export const PaymentDialog = ({
             <DialogHeader>
               <DialogTitle>Complete Your Payment</DialogTitle>
             </DialogHeader>
-            {summary && <div className="mb-4">{summary}</div>}
-            <PayPalPayment
+
+            <div className="flex flex-col gap-2">
+              <span className="text-lg">
+                You are about to pay
+                <br />
+                <b>${finalAmount}</b> for {title} <b>({sessions} sessions)</b>
+                <br />
+                with <b>{mentor}</b>
+              </span>
+            </div>
+            <CouponItem
+              finalAmount={finalAmount}
               amount={amount}
+              updateFinalAmount={setFinalAmount}
+            />
+            <PayPalPayment
+              amount={finalAmount}
               onSuccess={_onSuccess}
               onError={onError}
               onCancel={onCancel}

@@ -284,17 +284,9 @@ export default function NewProjectCard({
         </>
       )}
       <PaymentDialog
-        summary={
-          <div className="flex flex-col gap-2">
-            <span className="text-lg">
-              You are about to pay
-              <br />
-              <b>${price}</b> for {title} <b>({sessions_count} sessions)</b>
-              <br />
-              with <b>{mentor?.name}</b>
-            </span>
-          </div>
-        }
+        title={title}
+        sessions={sessions_count}
+        mentor={mentor?.name}
         open={showPaymentDialog}
         onOpenChange={setShowPaymentDialog}
         amount={isTesting ? 0.1 : price}

@@ -17,8 +17,6 @@ export default function ProjectHubView(props: {
   const isMentor = props.isMentor;
   const router = useRouter();
 
-  console.log("PROJECTS:", props.projects);
-
   return (
     <>
       <div className="flex flex-col gap-4 w-full p-6">
