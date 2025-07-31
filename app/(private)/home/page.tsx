@@ -103,7 +103,7 @@ export default async function HomePage() {
           </h1>
         </div>
         <div className="flex flex-row gap-4 mt-7 items-center justify-between">
-          <span className="text-2xl font-bold">Upcoming Sessions</span>
+          <span className="text-2xl font-bold">Sessions</span>
           {/* {!!myBookings?.length && <span>See All</span>} */}
         </div>
         <div className="flex flex-row flex-wrap gap-4">
