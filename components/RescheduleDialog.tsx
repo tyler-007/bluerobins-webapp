@@ -19,6 +19,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { createClient } from "@/utils/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -37,10 +38,12 @@ interface RescheduleDialogProps {
 }
 
 export const RescheduleDialog = ({
+  studentId,
   start_time,
   eventId,
   bookingId,
 }: {
+  studentId: string;
   start_time: string;
   eventId: string;
   bookingId: string;
@@ -90,6 +93,21 @@ export const RescheduleDialog = ({
   }, [date, eventId, time, start_time]);
 
   console.log("Time:", start_time);
+
+  // Get current timezone
+  const currentTimezone = dayjs.tz.guess();
+  const timezoneAbbr = dayjs().tz(currentTimezone).format("z");
+
+  const { data: studentDetails } = useQuery({
+    queryKey: ["studentDetails", studentId],
+    queryFn: () =>
+      fetch(`/api/get_student_details?studentId=${studentId}`).then((res) =>
+        res.json()
+      ),
+  });
+
+  const selectedTime = dayjs(`${date} ${time}`, "YYYY-MM-DD HH:mm");
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -107,6 +125,9 @@ export const RescheduleDialog = ({
               value={date}
               onChange={(e) => setDate(e.target.value)}
             />
+            <span className="text-black -mt-1 text-sm ml-1">
+              {dayjs(date).format("dddd")}
+            </span>
           </div>
           <div className="flex flex-1 flex-col gap-2">
             <span className="text-black">Start Time</span>
@@ -115,12 +136,32 @@ export const RescheduleDialog = ({
               value={time}
               onChange={(e) => setTime(e.target.value)}
             />
+            <span className="text-black -mt-1 text-sm ml-1">
+              {timezoneAbbr === "z" ? "" : timezoneAbbr} {currentTimezone}
+            </span>
           </div>
         </div>
         <DialogFooter>
-          <Button loading={loading} onClick={_onReschedule} type="submit">
-            Reschedule
-          </Button>
+          <div className="w-full flex justify-between items-center gap-8">
+            {studentDetails?.timezone && (
+              <span className="text-black -mt-1 text-xs ml-1">
+                Student Time: <br />
+                <span className="text-sm">
+                  {selectedTime
+                    .tz(studentDetails.timezone)
+                    .format("DD MMM, dddd, h:mm A")}
+                </span>
+              </span>
+            )}
+            <Button
+              className="ml-auto"
+              loading={loading}
+              onClick={_onReschedule}
+              type="submit"
+            >
+              Reschedule
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

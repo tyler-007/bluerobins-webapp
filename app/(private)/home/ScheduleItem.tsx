@@ -69,6 +69,7 @@ const ScheduleItem = ({
       <div className="flex flex-row flex-1 gap-4 items-center justify-between mt-4">
         {isMentor && (
           <RescheduleDialog
+            studentId={studentId}
             start_time={start_time}
             eventId={eventId}
             bookingId={bookingId}
@@ -94,6 +95,7 @@ const ScheduleItem = ({
             </button>
           ) : isMentor ? (
             <RescheduleDialog
+              studentId={studentId}
               start_time={start_time}
               eventId={eventId}
               bookingId={bookingId}
