@@ -7,24 +7,30 @@ export async function sendInAppNotification(notification: {
     related_entity_type?: string;
 }) {
     const supabase = createAdminClient();
-    const channelName = `notifications-${notification.user_id}`;
-    
     const payload = {
-        id: notification.related_entity_id || new Date().getTime().toString(), // Use entity_id or timestamp as a fallback key
+        user_id: notification.user_id,
         message: notification.message,
         is_read: false,
+        related_entity_id: notification.related_entity_id,
+        related_entity_type: notification.related_entity_type,
         created_at: new Date().toISOString(),
     };
 
-    try {
-        await supabase.realtime.sendToChannel(channelName, {
-            type: "broadcast",
-            event: "new_notification",
-            payload,
-        });
-        return { success: true, data: [payload] };
-    } catch (error) {
-        console.error("Error broadcasting in-app notification:", error);
+    // Insert into DB
+    const { data, error } = await supabase
+        .from("in_app_notifications")
+        .insert([payload])
+        .select();
+
+    if (error) {
+        console.error("Error inserting in-app notification:", error);
         return { success: false, error };
     }
-} 
+
+    // Remove the call to supabase.realtime.sendToChannel, just insert the notification
+    // (Assume this is inside sendInAppNotification or similar function)
+    // Remove or comment out:
+    // await supabase.realtime.sendToChannel(channelName, { ... });
+
+    return { success: true, data: data[0] };
+}

@@ -1,30 +1,32 @@
 import sgMail from '@sendgrid/mail';
+import { EmailParams, EmailType } from './types';
+import { getUserPreferences } from './preferences';
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
-export type EmailParams = {
-  to: string;
-  subject?: string;
-  html?: string;
-  text?: string;
-  from?: string;
-  templateId?: string;
-  dynamicTemplateData?: Record<string, any>;
-};
+export async function sendEmail(params: EmailParams) {
+  // Only check preferences for promotional emails
+  if (params.userId && (params.emailType === 'promotional')) {
+    const preferences = await getUserPreferences(params.userId);
+    console.log('[Email] User preferences:', preferences);
+    if (preferences && preferences.email_opt_in === false) {
+      console.log(`[Email] User ${params.userId} has unsubscribed from promotional emails. Skipping email.`);
+      return { success: true, skipped: true, reason: 'unsubscribed' };
+    }
+  }
 
-export async function sendEmail({ to, subject, html, text, from, templateId, dynamicTemplateData }: EmailParams) {
   try {
     const msg: any = {
-      to,
-      from: from || process.env.SENDGRID_FROM_EMAIL!,
+      to: params.to,
+      from: params.from || process.env.SENDGRID_FROM_EMAIL!,
     };
-    if (templateId) {
-      msg.templateId = templateId;
-      msg.dynamicTemplateData = dynamicTemplateData;
+    if (params.templateId) {
+      msg.templateId = params.templateId;
+      msg.dynamicTemplateData = params.dynamicTemplateData;
     } else {
-      msg.subject = subject;
-      msg.html = html;
-      if (text) msg.text = text;
+      msg.subject = params.subject;
+      msg.html = params.html;
+      if (params.text) msg.text = params.text;
     }
     const result = await sgMail.send(msg);
     return { success: true, result };
