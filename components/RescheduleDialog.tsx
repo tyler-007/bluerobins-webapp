@@ -145,7 +145,7 @@ export const RescheduleDialog = ({
           <div className="w-full flex justify-between items-center gap-8">
             {studentDetails?.timezone && (
               <span className="text-black -mt-1 text-xs ml-1">
-                Student Time: <br />
+                Student Time: ({studentDetails.timezone})<br />
                 <span className="text-sm">
                   {selectedTime
                     .tz(studentDetails.timezone)
