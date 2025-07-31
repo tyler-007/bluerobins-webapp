@@ -1,13 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { NextResponse } from "next/server";
 import { createAdminClient } from "@/utils/supabase/admin";
-import dayjs from "dayjs";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import isBetween from "dayjs/plugin/isBetween";
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isSameOrBefore);
-dayjs.extend(isBetween);
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -19,8 +11,6 @@ export async function GET(request) {
     .select("*")
     .eq("id", studentId)
     .single();
-
-  console.log("DATA:", data);
 
   return NextResponse.json(data);
 }
