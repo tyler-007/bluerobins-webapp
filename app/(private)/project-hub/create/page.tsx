@@ -4,7 +4,7 @@ import { ArrowLeft, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Select,
   SelectTrigger,
@@ -29,80 +29,229 @@ import dayjs from "dayjs";
 import { useUser } from "@/app/hooks/useUser";
 import { useRouter } from "next/navigation";
 
-const SELLING_PRICE_COST_MAP = {
-  "8": {
-    selling_price: 1099,
-    cost_price: 839,
-  },
-  "12": {
-    selling_price: 1649,
-    cost_price: 900,
-  },
+// Type for pricing data from database
+type PricingData = {
+  type_of_project: string;
+  number_of_sessions: number;
+  selling_price: number;
 };
 
-const formSchema = z.object({
-  title: z.string().min(1, "Project title is required"),
-  category: z.string().min(1, "Project category is required"),
-  description: z.string().min(1, "Project description is required"),
-  sessions: z.enum(["8", "12"], {
-    required_error: "Please select number of sessions",
-  }),
-  spots: z
-    .number()
-    .min(1, "Minimum 1 spot required")
-    .max(10, "Maximum 10 spots allowed"),
-  startDate: z
-    .string()
-    .min(1, "Start date is required")
-    .refine(
-      (date) => new Date(date) >= new Date(new Date().setHours(0, 0, 0, 0)),
-      "Start date cannot be in the past"
-    ),
-  dayOfWeek: z.string().min(1, "Day of week is required"),
-  time: z.string().min(1, "Time is required"),
-  sessionDescriptions: z
-    .array(z.string().min(8, "Session description is required"))
-    .refine(
-      (arr) => arr.length === 8 || arr.length === 12,
-      "Must have either 8 or 12 sessions"
-    ),
-  tools: z.array(
-    z.object({
-      title: z.string().min(1, "Required"),
-      url: z.string().url("Invalid URL").or(z.literal("")),
-    })
-  ),
-  prereqs: z.array(
-    z.object({
-      title: z.string().min(1, "Required"),
-      url: z.string().url("Invalid URL").or(z.literal("")),
-    })
-  ),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+// Type for project types from database
+type ProjectType = {
+  type_of_project: string;
+};
 
 export default function CreatePage() {
   const supabase = createClient();
   const router = useRouter();
   const { data: user } = useUser();
   const userId = user?.id;
+  const [pricingData, setPricingData] = useState<PricingData[]>([]);
+  const [projectTypes, setProjectTypes] = useState<string[]>([]);
+  const [sessionOptions, setSessionOptions] = useState<string[]>([]);
+  const [filteredSessionOptions, setFilteredSessionOptions] = useState<string[]>([]);
+  const [currentPrice, setCurrentPrice] = useState<number>(0);
+  const [isLoadingPricing, setIsLoadingPricing] = useState(true);
+  const [isLoadingProjectTypes, setIsLoadingProjectTypes] = useState(true);
+  const [isLoadingSessionOptions, setIsLoadingSessionOptions] = useState(true);
+
+  // Dynamic form schema based on fetched project types and session options
+  const createFormSchema = (projectTypes: string[], sessionOptions: string[]) => {
+    return z.object({
+      title: z.string().min(1, "Project title is required"),
+      category: z.string().min(1, "Project category is required"),
+      description: z.string().min(1, "Project description is required"),
+      typeOfProject: z.enum(projectTypes as [string, ...string[]], {
+        required_error: "Please select project type",
+      }),
+      sessions: z.enum(sessionOptions as [string, ...string[]], {
+        required_error: "Please select number of sessions",
+      }),
+      spots: z
+        .number()
+        .min(1, "Minimum 1 spot required")
+        .max(3, "Maximum 3 spots allowed"),
+      startDate: z
+        .string()
+        .min(1, "Start date is required")
+        .refine(
+          (date) => new Date(date) >= new Date(new Date().setHours(0, 0, 0, 0)),
+          "Start date cannot be in the past"
+        ),
+      dayOfWeek: z.string().min(1, "Day of week is required"),
+      time: z.string().min(1, "Time is required"),
+      sessionDescriptions: z
+        .array(z.string().min(8, "Session description is required"))
+        .refine(
+          (arr) => sessionOptions.includes(arr.length.toString()),
+          `Must have ${sessionOptions.join(" or ")} sessions`
+        ),
+      tools: z.array(
+        z.object({
+          title: z.string().min(1, "Required"),
+          url: z.string().url("Invalid URL").or(z.literal("")),
+        })
+      ),
+      prereqs: z.array(
+        z.object({
+          title: z.string().min(1, "Required"),
+          url: z.string().url("Invalid URL").or(z.literal("")),
+        })
+      ),
+    });
+  };
+
+  type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
+
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createFormSchema(projectTypes, filteredSessionOptions.length > 0 ? filteredSessionOptions : sessionOptions)),
     defaultValues: {
       title: "",
       category: "",
       description: "",
-      sessions: "8",
+      typeOfProject: projectTypes[0] || "Other",
+      sessions: sessionOptions[0] || "8",
       spots: 1,
       startDate: "",
       dayOfWeek: "",
       time: "",
-      sessionDescriptions: Array(12).fill(""),
+      sessionDescriptions: Array(parseInt(sessionOptions[0]) || 8).fill(""),
       tools: [],
       prereqs: [],
     },
   });
+
+  // Fetch pricing data from database
+  useEffect(() => {
+    const fetchPricingData = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("pricing_config")
+          .select("*")
+          .order("number_of_sessions");
+
+        if (error) {
+          console.error("Error fetching pricing data:", error);
+        } else {
+          setPricingData(data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching pricing data:", error);
+      } finally {
+        setIsLoadingPricing(false);
+      }
+    };
+
+    fetchPricingData();
+  }, [supabase]);
+
+  // Fetch project types from database
+  useEffect(() => {
+    const fetchProjectTypes = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("pricing_config")
+          .select("type_of_project")
+          .order("type_of_project");
+
+        if (error) {
+          console.error("Error fetching project types:", error);
+        } else {
+          const types = Array.from(new Set(data?.map(item => item.type_of_project) || []));
+          setProjectTypes(types);
+          
+          // Update form default values if project types are loaded
+          if (types.length > 0 && form.getValues("typeOfProject") === "Other") {
+            form.setValue("typeOfProject", types[0]);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching project types:", error);
+      } finally {
+        setIsLoadingProjectTypes(false);
+      }
+    };
+
+    fetchProjectTypes();
+  }, [supabase, form]);
+
+  // Fetch session options from database
+  useEffect(() => {
+    const fetchSessionOptions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("pricing_config")
+          .select("number_of_sessions")
+          .order("number_of_sessions");
+
+        if (error) {
+          console.error("Error fetching session options:", error);
+        } else {
+          const sessions = Array.from(new Set(data?.map(item => item.number_of_sessions.toString()) || []));
+          setSessionOptions(sessions);
+          
+          // Update form default values if session options are loaded
+          if (sessions.length > 0 && form.getValues("sessions") === "8") {
+            form.setValue("sessions", sessions[0]);
+            form.setValue("sessionDescriptions", Array(parseInt(sessions[0])).fill(""));
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching session options:", error);
+      } finally {
+        setIsLoadingSessionOptions(false);
+      }
+    };
+
+    fetchSessionOptions();
+  }, [supabase, form]);
+
+  // Get available sessions for a specific project type
+  const getAvailableSessionsForProjectType = (projectType: string): string[] => {
+    const availableSessions = pricingData
+      .filter(p => p.type_of_project === projectType)
+      .map(p => p.number_of_sessions.toString());
+    return Array.from(new Set(availableSessions));
+  };
+
+  // Get pricing for current selection
+  const getPricing = (typeOfProject: string, sessions: string) => {
+    const sessionsNum = parseInt(sessions);
+    const pricing = pricingData.find(
+      (p) => p.type_of_project === typeOfProject && p.number_of_sessions === sessionsNum
+    );
+    return pricing?.selling_price || 0;
+  };
+
+  // Effect to update filtered sessions and price when project type changes
+  useEffect(() => {
+    const selectedProjectType = form.watch("typeOfProject");
+    if (selectedProjectType && pricingData.length > 0) {
+      const availableSessions = getAvailableSessionsForProjectType(selectedProjectType);
+      setFilteredSessionOptions(availableSessions);
+      
+      // Auto-select the first available session if current session is not available
+      const currentSession = form.watch("sessions");
+      if (availableSessions.length > 0 && !availableSessions.includes(currentSession)) {
+        form.setValue("sessions", availableSessions[0]);
+        const newPrice = getPricing(selectedProjectType, availableSessions[0]);
+        setCurrentPrice(newPrice);
+      } else if (availableSessions.includes(currentSession)) {
+        const newPrice = getPricing(selectedProjectType, currentSession);
+        setCurrentPrice(newPrice);
+      }
+    }
+  }, [form.watch("typeOfProject"), pricingData, form]);
+
+  // Effect to update price when sessions change
+  useEffect(() => {
+    const selectedProjectType = form.watch("typeOfProject");
+    const selectedSessions = form.watch("sessions");
+    if (selectedProjectType && selectedSessions && pricingData.length > 0) {
+      const newPrice = getPricing(selectedProjectType, selectedSessions);
+      setCurrentPrice(newPrice);
+    }
+  }, [form.watch("sessions"), pricingData, form]);
 
   const {
     fields: toolFields,
@@ -123,7 +272,7 @@ export default function CreatePage() {
   });
 
   // Add effect to update day of week when date changes
-  React.useEffect(() => {
+  useEffect(() => {
     const startDate = form.watch("startDate");
     if (startDate) {
       const date = new Date(startDate);
@@ -141,12 +290,10 @@ export default function CreatePage() {
     }
   }, [form.watch("startDate")]);
 
-  // Add effect to update session descriptions when sessions count changes
-  React.useEffect(() => {
-    const sessions = form.watch("sessions");
-    const currentDescriptions = form.getValues("sessionDescriptions");
-    const newLength = parseInt(sessions);
-
+  // Update session descriptions when sessions count changes
+  useEffect(() => {
+    const currentDescriptions = form.watch("sessionDescriptions");
+    const newLength = parseInt(form.watch("sessions"));
     if (currentDescriptions.length !== newLength) {
       const newDescriptions = Array(newLength)
         .fill("")
@@ -160,6 +307,7 @@ export default function CreatePage() {
       title,
       category,
       description,
+      typeOfProject,
       sessions,
       spots,
       startDate,
@@ -170,13 +318,13 @@ export default function CreatePage() {
       prereqs,
     } = values;
 
-    const selling_price = SELLING_PRICE_COST_MAP[sessions].selling_price;
-    const cost_price = SELLING_PRICE_COST_MAP[sessions].cost_price;
+    const selling_price = getPricing(typeOfProject, sessions);
 
     const { data, error } = await supabase.from("projects").insert({
       title,
       description,
       categories: category.split(","),
+      type_of_project: typeOfProject,
       sessions_count: sessions,
       spots,
       start_date: dayjs(`${startDate} ${time}`, "YYYY-MM-DD HH:mm").toDate(),
@@ -187,7 +335,6 @@ export default function CreatePage() {
       })),
       tools,
       selling_price: selling_price,
-      cost_price: cost_price,
       prerequisites: prereqs,
       mentor_user: userId,
     });
@@ -196,6 +343,15 @@ export default function CreatePage() {
   };
 
   console.log("Errors:", form.formState.errors);
+
+  // Show loading state while fetching data
+  if (isLoadingPricing || isLoadingProjectTypes || isLoadingSessionOptions) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center">
+        <div className="text-center">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full grid grid-cols-[1fr_300px] items-center">
@@ -296,6 +452,36 @@ export default function CreatePage() {
             <div className="flex gap-4">
               <FormField
                 control={form.control}
+                name="typeOfProject"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel className="font-semibold text-lg">
+                      Project Type
+                    </FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select project type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {projectTypes.map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {type}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                    <div className="text-gray-400 text-sm mt-1">
+                      Select the type of project you're creating
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="sessions"
                 render={({ field }) => (
                   <FormItem className="flex-1">
@@ -308,28 +494,27 @@ export default function CreatePage() {
                         defaultValue={field.value}
                         className="flex gap-4"
                       >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="8" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            8 Sessions
-                          </FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="12" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            12 Sessions
-                          </FormLabel>
-                        </FormItem>
+                        {filteredSessionOptions.map((session) => (
+                          <FormItem key={session} className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value={session} />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              {session} Sessions
+                            </FormLabel>
+                          </FormItem>
+                        ))}
                       </RadioGroup>
                     </FormControl>
                     <FormMessage />
                     <div className="text-gray-400 text-sm mt-1">
-                      Choose between 8 or 12 sessions for your project
+                      Choose the number of sessions for your project
                     </div>
+                    {currentPrice > 0 && (
+                      <div className="text-green-600 font-semibold text-sm mt-2">
+                        Price: ${currentPrice.toFixed(2)}
+                      </div>
+                    )}
                   </FormItem>
                 )}
               />
