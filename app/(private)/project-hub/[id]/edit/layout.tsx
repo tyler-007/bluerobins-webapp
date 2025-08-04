@@ -7,7 +7,7 @@ async function fetchLayoutData(id: string) {
   const { data, error } = await supabase
     .from("projects")
     .select("*")
-    .eq("id", id)
+    .eq("id", parseInt(id))
     .single();
   return data;
 }
@@ -16,9 +16,12 @@ export default async function ProjectLayout({
   params,
 }: Readonly<{
   children: React.ReactNode;
-  params: any;
+  params: Promise<any>;
 }>) {
-  const layoutData = await fetchLayoutData(params.id);
+  const resolvedParams = await params;
+  console.log("Layout params:", resolvedParams);
+  console.log("Project ID from params:", resolvedParams.id, "Type:", typeof resolvedParams.id);
+  const layoutData = await fetchLayoutData(resolvedParams.id);
   console.log("Layout Data", layoutData);
   return <LayoutDataProvider value={layoutData}>{children}</LayoutDataProvider>;
 }

@@ -1,6 +1,7 @@
 import { ShapeStreamOptions } from "@electric-sql/client/*";
 
 export type ProjectProps = {
+  id: number; // Added for int8
   agenda: { description: string }[];
   categories: string[];
   selling_price: number;
