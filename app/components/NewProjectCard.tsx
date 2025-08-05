@@ -49,7 +49,6 @@ export default function NewProjectCard({
   const {
     agenda,
     categories: tags = [],
-    cost_price,
     selling_price,
     title,
     mentor_user,
@@ -69,7 +68,7 @@ export default function NewProjectCard({
   const mentor = mentorData[0];
 
   const spotsLeft = spots - filled_spots;
-  const price = isMentor ? cost_price : selling_price;
+  const price = selling_price;
   const time = dayjs(session_time).format("hh:mm A");
   const startDate = dayjs(start_date).format("MMM D, YYYY");
   // day={project.session_day}
