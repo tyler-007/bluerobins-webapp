@@ -466,7 +466,7 @@ export default function EditPage() {
       start_date: values.startDate,
       session_day: values.dayOfWeek,
       session_time: sessionTime,
-      // selling_price: selling_price, // Comment out temporarily to test
+      selling_price: selling_price,
     };
     
     console.log("Update data structure:", Object.keys(updateData));
