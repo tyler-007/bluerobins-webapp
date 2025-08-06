@@ -46,13 +46,13 @@ type ProjectType = {
 const PREDEFINED_CATEGORIES = [
   "AI & Data Science",
   "Health",
-  "App&Tools", 
+  "App&Tools",
   "Design",
   "Finance/Econ",
   "Hardware",
   "Competitions",
   "Sports",
-  "Others"
+  "Others",
 ];
 
 export default function CreatePage() {
@@ -63,7 +63,9 @@ export default function CreatePage() {
   const [pricingData, setPricingData] = useState<PricingData[]>([]);
   const [projectTypes, setProjectTypes] = useState<string[]>([]);
   const [sessionOptions, setSessionOptions] = useState<string[]>([]);
-  const [filteredSessionOptions, setFilteredSessionOptions] = useState<string[]>([]);
+  const [filteredSessionOptions, setFilteredSessionOptions] = useState<
+    string[]
+  >([]);
   const [currentPrice, setCurrentPrice] = useState<number>(0);
   const [isLoadingPricing, setIsLoadingPricing] = useState(true);
   const [isLoadingProjectTypes, setIsLoadingProjectTypes] = useState(true);
@@ -73,10 +75,15 @@ export default function CreatePage() {
   const [customCategory, setCustomCategory] = useState<string>("");
 
   // Dynamic form schema based on fetched project types and session options
-  const createFormSchema = (projectTypes: string[], sessionOptions: string[]) => {
+  const createFormSchema = (
+    projectTypes: string[],
+    sessionOptions: string[]
+  ) => {
     return z.object({
       title: z.string().min(1, "Project title is required"),
-      category: z.string().min(1, "Project category is required")
+      category: z
+        .string()
+        .min(1, "Project category is required")
         .refine((value) => {
           // Allow any non-empty string for categories
           // This allows both predefined categories and custom strings
@@ -126,10 +133,16 @@ export default function CreatePage() {
   type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(createFormSchema(
-      projectTypes.length > 0 ? projectTypes : ["Other"], 
-      filteredSessionOptions.length > 0 ? filteredSessionOptions : sessionOptions.length > 0 ? sessionOptions : ["8"]
-    )),
+    resolver: zodResolver(
+      createFormSchema(
+        projectTypes.length > 0 ? projectTypes : ["Other"],
+        filteredSessionOptions.length > 0
+          ? filteredSessionOptions
+          : sessionOptions.length > 0
+            ? sessionOptions
+            : ["8"]
+      )
+    ),
     defaultValues: {
       title: "",
       category: "",
@@ -186,9 +199,11 @@ export default function CreatePage() {
           console.error("Error fetching project types:", error);
           setProjectTypes([]);
         } else {
-          const types = Array.from(new Set(data?.map(item => item.type_of_project) || []));
+          const types = Array.from(
+            new Set(data?.map((item) => item.type_of_project) || [])
+          );
           setProjectTypes(types);
-          
+
           // Update form default values if project types are loaded
           if (types.length > 0 && form.getValues("typeOfProject") === "Other") {
             form.setValue("typeOfProject", types[0]);
@@ -217,13 +232,20 @@ export default function CreatePage() {
           console.error("Error fetching session options:", error);
           setSessionOptions([]);
         } else {
-          const sessions = Array.from(new Set(data?.map(item => item.number_of_sessions.toString()) || []));
+          const sessions = Array.from(
+            new Set(
+              data?.map((item) => item.number_of_sessions.toString()) || []
+            )
+          );
           setSessionOptions(sessions);
-          
+
           // Update form default values if session options are loaded
           if (sessions.length > 0 && form.getValues("sessions") === "8") {
             form.setValue("sessions", sessions[0]);
-            form.setValue("sessionDescriptions", Array(parseInt(sessions[0])).fill(""));
+            form.setValue(
+              "sessionDescriptions",
+              Array(parseInt(sessions[0])).fill("")
+            );
           }
         }
       } catch (error) {
@@ -237,10 +259,12 @@ export default function CreatePage() {
   }, [supabase, form]);
 
   // Get available sessions for a specific project type
-  const getAvailableSessionsForProjectType = (projectType: string): string[] => {
+  const getAvailableSessionsForProjectType = (
+    projectType: string
+  ): string[] => {
     const availableSessions = pricingData
-      .filter(p => p.type_of_project === projectType)
-      .map(p => p.number_of_sessions.toString());
+      .filter((p) => p.type_of_project === projectType)
+      .map((p) => p.number_of_sessions.toString());
     return Array.from(new Set(availableSessions));
   };
 
@@ -248,7 +272,9 @@ export default function CreatePage() {
   const getPricing = (typeOfProject: string, sessions: string) => {
     const sessionsNum = parseInt(sessions);
     const pricing = pricingData.find(
-      (p) => p.type_of_project === typeOfProject && p.number_of_sessions === sessionsNum
+      (p) =>
+        p.type_of_project === typeOfProject &&
+        p.number_of_sessions === sessionsNum
     );
     return pricing?.selling_price || 0;
   };
@@ -257,12 +283,16 @@ export default function CreatePage() {
   useEffect(() => {
     const selectedProjectType = form.watch("typeOfProject");
     if (selectedProjectType && pricingData.length > 0) {
-      const availableSessions = getAvailableSessionsForProjectType(selectedProjectType);
+      const availableSessions =
+        getAvailableSessionsForProjectType(selectedProjectType);
       setFilteredSessionOptions(availableSessions);
-      
+
       // Auto-select the first available session if current session is not available
       const currentSession = form.watch("sessions");
-      if (availableSessions.length > 0 && !availableSessions.includes(currentSession)) {
+      if (
+        availableSessions.length > 0 &&
+        !availableSessions.includes(currentSession)
+      ) {
         form.setValue("sessions", availableSessions[0]);
         const newPrice = getPricing(selectedProjectType, availableSessions[0]);
         setCurrentPrice(newPrice);
@@ -287,19 +317,24 @@ export default function CreatePage() {
   const handleCategorySelect = (category: string) => {
     if (selectedCategories.includes(category)) {
       // Remove category if already selected
-      const updatedCategories = selectedCategories.filter(c => c !== category);
+      const updatedCategories = selectedCategories.filter(
+        (c) => c !== category
+      );
       setSelectedCategories(updatedCategories);
-      
+
       // Update form field
-      const categoryString = updatedCategories.length > 0 
-        ? updatedCategories.join(", ") 
-        : (otherCategory ? `Others: ${otherCategory}` : "");
+      const categoryString =
+        updatedCategories.length > 0
+          ? updatedCategories.join(", ")
+          : otherCategory
+            ? `Others: ${otherCategory}`
+            : "";
       form.setValue("category", categoryString);
     } else if (selectedCategories.length < 3) {
       // Add category if under limit
       const updatedCategories = [...selectedCategories, category];
       setSelectedCategories(updatedCategories);
-      
+
       // Update form field
       const categoryString = updatedCategories.join(", ");
       form.setValue("category", categoryString);
@@ -309,24 +344,30 @@ export default function CreatePage() {
   // Handle other category input
   const handleOtherCategoryChange = (value: string) => {
     setOtherCategory(value);
-    
+
     // Update form field with other categories
-    const otherCategories = selectedCategories.filter(c => c !== "Others");
-    const categoryString = otherCategories.length > 0 
-      ? `${otherCategories.join(", ")}, Others: ${value}`
-      : `Others: ${value}`;
+    const otherCategories = selectedCategories.filter((c) => c !== "Others");
+    const categoryString =
+      otherCategories.length > 0
+        ? `${otherCategories.join(", ")}, Others: ${value}`
+        : `Others: ${value}`;
     form.setValue("category", categoryString);
   };
 
   // Remove category
   const removeCategory = (categoryToRemove: string) => {
-    const updatedCategories = selectedCategories.filter(c => c !== categoryToRemove);
+    const updatedCategories = selectedCategories.filter(
+      (c) => c !== categoryToRemove
+    );
     setSelectedCategories(updatedCategories);
-    
+
     // Update form field
-    const categoryString = updatedCategories.length > 0 
-      ? updatedCategories.join(", ") 
-      : (otherCategory ? `Others: ${otherCategory}` : "");
+    const categoryString =
+      updatedCategories.length > 0
+        ? updatedCategories.join(", ")
+        : otherCategory
+          ? `Others: ${otherCategory}`
+          : "";
     form.setValue("category", categoryString);
   };
 
@@ -337,7 +378,7 @@ export default function CreatePage() {
       const updatedCategories = [...selectedCategories, newCategory];
       setSelectedCategories(updatedCategories);
       setCustomCategory("");
-      
+
       // Update form field
       const categoryString = updatedCategories.join(", ");
       form.setValue("category", categoryString);
@@ -395,19 +436,19 @@ export default function CreatePage() {
         return;
       }
 
-      if (!values.time || !values.time.includes(':')) {
+      if (!values.time || !values.time.includes(":")) {
         console.error("Error: Invalid time format");
         alert("Error: Please select a valid time for your project.");
         return;
       }
 
       const selling_price = getPricing(values.typeOfProject, values.sessions);
-      
+
       // Convert category string to array format for database
       const categoryArray = values.category
         .split(", ")
-        .map(cat => cat.trim())
-        .filter(cat => cat.length > 0);
+        .map((cat) => cat.trim())
+        .filter((cat) => cat.length > 0);
 
       if (categoryArray.length === 0) {
         console.error("Error: No valid categories found");
@@ -417,8 +458,8 @@ export default function CreatePage() {
 
       // Convert time string to proper timestamp format
       const timeString = values.time;
-      const timeParts = timeString.split(':');
-      
+      const timeParts = timeString.split(":");
+
       if (timeParts.length !== 2) {
         console.error("Error: Invalid time format");
         alert("Error: Please select a valid time for your project.");
@@ -426,14 +467,26 @@ export default function CreatePage() {
       }
 
       const [hours, minutes] = timeParts.map(Number);
-      
-      if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+
+      if (
+        isNaN(hours) ||
+        isNaN(minutes) ||
+        hours < 0 ||
+        hours > 23 ||
+        minutes < 0 ||
+        minutes > 59
+      ) {
         console.error("Error: Invalid time values");
         alert("Error: Please select a valid time for your project.");
         return;
       }
 
-      const sessionTime = dayjs().hour(hours).minute(minutes).second(0).millisecond(0).toISOString();
+      const sessionTime = dayjs()
+        .hour(hours)
+        .minute(minutes)
+        .second(0)
+        .millisecond(0)
+        .toISOString();
 
       console.log("Creating project with data:", {
         title: values.title,
@@ -465,7 +518,9 @@ export default function CreatePage() {
       // Add optional columns only if they exist in the database schema
       // These will be added after running the database migration script
       if (values.sessionDescriptions && values.sessionDescriptions.length > 0) {
-        (insertData as any).agenda = values.sessionDescriptions.map((description) => ({ description }));
+        (insertData as any).agenda = values.sessionDescriptions.map(
+          (description) => ({ description })
+        );
       }
       if (values.tools && values.tools.length > 0) {
         (insertData as any).tools = values.tools;
@@ -476,7 +531,9 @@ export default function CreatePage() {
 
       console.log("Attempting to insert project with data:", insertData);
 
-      const { data, error } = await supabase.from("projects").insert(insertData);
+      const { data, error } = await supabase
+        .from("projects")
+        .insert(insertData);
 
       if (error) {
         console.error("Error creating project:", error);
@@ -484,16 +541,20 @@ export default function CreatePage() {
           message: error.message,
           details: error.details,
           hint: error.hint,
-          code: error.code
+          code: error.code,
         });
-        alert(`Error creating project: ${error.message}\n\nDetails: ${error.details || 'No additional details'}\nCode: ${error.code || 'No error code'}`);
+        alert(
+          `Error creating project: ${error.message}\n\nDetails: ${error.details || "No additional details"}\nCode: ${error.code || "No error code"}`
+        );
       } else {
         console.log("Project created successfully:", data);
         router.push("/project-hub");
       }
     } catch (error) {
       console.error("Unexpected error creating project:", error);
-      alert("An unexpected error occurred while creating the project. Please try again.");
+      alert(
+        "An unexpected error occurred while creating the project. Please try again."
+      );
     }
   };
 
@@ -520,7 +581,7 @@ export default function CreatePage() {
     filteredSessionOptions,
     pricingData: pricingData.length,
     userId,
-    formState: form.formState.isValid
+    formState: form.formState.isValid,
   });
 
   return (
@@ -588,26 +649,38 @@ export default function CreatePage() {
                     <div className="space-y-3">
                       {/* Category Selection */}
                       <div className="grid grid-cols-3 gap-2">
-                        {PREDEFINED_CATEGORIES.length > 0 && PREDEFINED_CATEGORIES.map((category, index) => (
-                          <Button
-                            key={`${category}-${index}`}
-                            type="button"
-                            variant={selectedCategories.includes(category) ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => handleCategorySelect(category)}
-                            disabled={selectedCategories.length >= 3 && !selectedCategories.includes(category)}
-                            className="justify-start text-xs"
-                          >
-                            {category}
-                          </Button>
-                        ))}
+                        {PREDEFINED_CATEGORIES.length > 0 &&
+                          PREDEFINED_CATEGORIES.map((category, index) => (
+                            <Button
+                              key={`${category}-${index}`}
+                              type="button"
+                              variant={
+                                selectedCategories.includes(category)
+                                  ? "default"
+                                  : "outline"
+                              }
+                              size="sm"
+                              onClick={() => handleCategorySelect(category)}
+                              disabled={
+                                selectedCategories.length >= 3 &&
+                                !selectedCategories.includes(category)
+                              }
+                              className="justify-start text-xs"
+                            >
+                              {category}
+                            </Button>
+                          ))}
                       </div>
-                      
+
                       {/* Selected Categories Display */}
                       {selectedCategories.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {selectedCategories.map((category) => (
-                            <Badge key={category} variant="secondary" className="flex items-center gap-1 text-xs bg-blue-100 text-blue-800 hover:bg-blue-200">
+                            <Badge
+                              key={category}
+                              variant="secondary"
+                              className="flex items-center gap-1 text-xs bg-blue-100 text-blue-800 hover:bg-blue-200"
+                            >
                               {category}
                               <button
                                 type="button"
@@ -627,7 +700,9 @@ export default function CreatePage() {
                           <Input
                             placeholder="Specify other category..."
                             value={otherCategory}
-                            onChange={(e) => handleOtherCategoryChange(e.target.value)}
+                            onChange={(e) =>
+                              handleOtherCategoryChange(e.target.value)
+                            }
                             className="max-w-xs"
                           />
                         </div>
@@ -641,7 +716,7 @@ export default function CreatePage() {
                             value={customCategory}
                             onChange={(e) => setCustomCategory(e.target.value)}
                             onKeyPress={(e) => {
-                              if (e.key === 'Enter') {
+                              if (e.key === "Enter") {
                                 e.preventDefault();
                                 handleCustomCategoryAdd();
                               }
@@ -665,7 +740,9 @@ export default function CreatePage() {
                   </FormControl>
                   <FormMessage />
                   <div className="text-gray-400 text-sm mt-1">
-                    Select up to 3 categories that best describe your project. You can choose from predefined categories or add custom ones.
+                    Select up to 3 categories that best describe your project.
+                    You can choose from predefined categories or add custom
+                    ones.
                   </div>
                 </FormItem>
               )}
@@ -705,16 +782,20 @@ export default function CreatePage() {
                       Project Type
                     </FormLabel>
                     <FormControl>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select project type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {projectTypes.length > 0 && projectTypes.map((type, index) => (
-                            <SelectItem key={`${type}-${index}`} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
+                          {projectTypes.length > 0 &&
+                            projectTypes.map((type, index) => (
+                              <SelectItem key={`${type}-${index}`} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -740,16 +821,20 @@ export default function CreatePage() {
                         defaultValue={field.value}
                         className="flex gap-4"
                       >
-                        {filteredSessionOptions.length > 0 && filteredSessionOptions.map((session, index) => (
-                          <FormItem key={`${session}-${index}`} className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem value={session} />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              {session} Sessions
-                            </FormLabel>
-                          </FormItem>
-                        ))}
+                        {filteredSessionOptions.length > 0 &&
+                          filteredSessionOptions.map((session, index) => (
+                            <FormItem
+                              key={`${session}-${index}`}
+                              className="flex items-center space-x-3 space-y-0"
+                            >
+                              <FormControl>
+                                <RadioGroupItem value={session} />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                {session} Sessions
+                              </FormLabel>
+                            </FormItem>
+                          ))}
                       </RadioGroup>
                     </FormControl>
                     <FormMessage />
