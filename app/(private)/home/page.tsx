@@ -29,6 +29,7 @@ export default async function HomePage() {
 
   const profileKey = isMentor ? "mentor_profiles" : "student_profiles";
   const currentTime = dayjs().format("YYYY-MM-DDTHH:mm:ssZ");
+
   const [
     profileResult,
     upcomingBookingsResult,
@@ -103,6 +104,8 @@ export default async function HomePage() {
       </div>
     );
   }
+
+  console.log("UPCOMIN:", upcomingBookingsResult);
 
   return (
     <div className="flex flex-row flex-1">
