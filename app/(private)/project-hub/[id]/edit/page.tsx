@@ -468,6 +468,7 @@ export default function EditPage() {
     // Convert time string to proper timestamp format
     const timeString = values.time;
     const [hours, minutes] = timeString.split(':').map(Number);
+    
     const sessionTime = dayjs(values.startDate)
       .hour(hours)
       .minute(minutes)
