@@ -41,8 +41,8 @@ const formSchema = z.object({
   sessionDescriptions: z
     .array(z.string().min(1, "Session description is required"))
     .refine(
-      (arr) => arr.length === 8 || arr.length === 12,
-      "Must have either 8 or 12 sessions"
+      (arr) => arr.length >= 1,
+      "Must have atleast 1 session"
     ),
   tools: z.array(resourceSchema),
   prereqs: z.array(prereqSchema),
@@ -106,6 +106,7 @@ export default function EditPage() {
 
   const onSubmit = async (values: FormValues) => {
     console.log("Values", values);
+    
     const supabase = createClient();
     const { data, error } = await supabase
       .from("projects")
@@ -132,10 +133,12 @@ export default function EditPage() {
       description: "Project details updated successfully!",
     });
 
-    redirect(`/project-hub`);
+    router.push(`/project-hub`);
   };
 
-  console.log("FORM:", form.formState.errors);
+  console.log("FORM ERRORS:", form.formState.errors);
+  console.log("FORM ERRORS KEYS:", Object.keys(form.formState.errors));
+  console.log("FORM ERRORS ENTRIES:", Object.entries(form.formState.errors));
 
   return (
     <div className="min-h-screen grid grid-cols-[1fr] w-full items-center">
@@ -173,6 +176,26 @@ export default function EditPage() {
             onSubmit={form.handleSubmit(onSubmit)}
             autoComplete="off"
           >
+            {/* Form Error Display */}
+            {Object.keys(form.formState.errors).length > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+                <h3 className="text-red-800 font-semibold mb-2">Please fix these errors:</h3>
+                <ul className="text-red-700 text-sm space-y-1">
+                  {Object.entries(form.formState.errors).map(([field, error]) => {
+                    if (error?.message) {
+                      return <li key={field}>• {error.message}</li>;
+                    }
+                    if (error?.type === 'too_small') {
+                      return <li key={field}>• {field}: {error.message || 'This field is required'}</li>;
+                    }
+                    if (error?.type === 'invalid_string') {
+                      return <li key={field}>• {field}: {error.message || 'Invalid format'}</li>;
+                    }
+                    return <li key={field}>• {field}: {error?.message || 'Invalid value'}</li>;
+                  })}
+                </ul>
+              </div>
+            )}
             {/* Session Descriptions */}
             <div className="rounded-2xl bg-white p-6 mb-6 shadow">
               <label className="font-semibold text-lg block mb-3">

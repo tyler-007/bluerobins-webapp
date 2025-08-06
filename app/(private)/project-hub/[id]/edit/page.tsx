@@ -28,7 +28,12 @@ import { useLayoutData } from "../../useLayoutData";
 import { defaultValues } from "@/app/(private)/home/types";
 import { Badge } from "@/components/ui/badge";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import { redirect, useRouter } from "next/navigation";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 // Type for pricing data from database
 type PricingData = {
@@ -366,6 +371,16 @@ export default function EditPage() {
     }
   }, [project, form]);
 
+  // Update day of week when start date changes
+  useEffect(() => {
+    const startDate = form.watch("startDate");
+    if (startDate) {
+      const currentTimezone = dayjs.tz.guess(); // Get user's timezone
+      const dayOfWeek = dayjs(startDate).tz(currentTimezone).format("dddd");
+      form.setValue("dayOfWeek", dayOfWeek);
+    }
+  }, [form.watch("startDate"), form]);
+
   // Handle category selection
   const handleCategorySelect = (category: string) => {
     if (selectedCategories.includes(category)) {
@@ -578,19 +593,7 @@ export default function EditPage() {
                 loading={form.formState.isSubmitting}
                 type="submit"
                 className="px-8"
-                onClick={() => {
-                  console.log("=== NEXT BUTTON CLICKED ===");
-                  console.log("Form state:", form.formState);
-                  console.log("Form values:", form.getValues());
-                  console.log("Form errors:", form.formState.errors);
-                  console.log("Form is valid:", form.formState.isValid);
-                  
-                  // Test manual submission
-                  setTimeout(() => {
-                    console.log("Testing manual form submission...");
-                    form.handleSubmit(onSubmit)();
-                  }, 100);
-                }}
+                
               >
                 Next
               </Button>
