@@ -70,9 +70,9 @@ export default function NewProjectCard({
   const spotsLeft = spots - filled_spots;
   const price = selling_price;
   const time = dayjs(session_time).format("hh:mm A");
-  const startDate = dayjs(start_date).format("MMM D, YYYY");
+  const startDate = dayjs(session_time).format("MMM D, YYYY");
   // day={project.session_day}
-  const endDate = dayjs(start_date)
+  const endDate = dayjs(session_time)
     .add(sessions_count, "week")
     .format("MMM D, YYYY");
 
