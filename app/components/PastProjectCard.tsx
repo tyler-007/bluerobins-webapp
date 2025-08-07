@@ -189,15 +189,15 @@ export default function PastProjectCard({
               title,
               description,
               tags,
-              mentor,
+              mentor: { name: mentor?.name || "Unknown", avatar: mentor?.avatar || "" },
               sessions: sessions_count,
               startDate: session_time ? dayjs(session_time).format("MMM D, YYYY") : "",
               endDate: session_time ? dayjs(session_time).add(sessions_count, "week").format("MMM D, YYYY") : "",
               time: session_time || "",
               day: session_time ? dayjs(session_time).format("dddd") : "",
-              agenda,
-              tools,
-              prerequisites,
+              agenda: agenda ? [{ description: agenda }] : [],
+              tools: tools ? tools.map(tool => ({ title: tool, url: "" })) : [],
+              prerequisites: prerequisites ? prerequisites.map(prereq => ({ title: prereq, url: "" })) : [],
             }}
           />
         </>
