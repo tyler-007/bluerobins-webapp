@@ -28,12 +28,8 @@ import { useLayoutData } from "../../useLayoutData";
 import { defaultValues } from "@/app/(private)/home/types";
 import { Badge } from "@/components/ui/badge";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import { redirect, useRouter } from "next/navigation";
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 // Type for pricing data from database
 type PricingData = {
@@ -83,9 +79,7 @@ export default function EditPage() {
   // Debug logging
   console.log("=== EDIT PAGE DEBUG ===");
   console.log("Project loaded:", project);
-  console.log("Project ID:", project?.id, "Type:", typeof project?.id);
-  console.log("Project categories:", project?.categories);
-  console.log("Project type_of_project:", project?.type_of_project);
+
   const [pricingData, setPricingData] = useState<PricingData[]>([]);
   const [projectTypes, setProjectTypes] = useState<string[]>([]);
   const [sessionOptions, setSessionOptions] = useState<string[]>([]);
@@ -120,10 +114,7 @@ export default function EditPage() {
       startDate: z
         .string()
         .min(1, "Start date is required")
-        .refine(
-          (date) => new Date(date) >= new Date(new Date().setHours(0, 0, 0, 0)),
-          "Start date cannot be in the past"
-        ),
+       ,
       dayOfWeek: z.string().min(1, "Day of week is required"),
       time: z.string().min(1, "Time is required"),
     });
@@ -140,8 +131,8 @@ export default function EditPage() {
       typeOfProject: project.type_of_project,
       sessions: project.sessions_count.toString(),
       spots: project.spots,
-      startDate: dayjs(project.start_date).format("YYYY-MM-DD"),
-      dayOfWeek: project.session_day,
+      startDate: dayjs(project.session_time).format("YYYY-MM-DD"),
+      dayOfWeek: dayjs(project.session_time).format("dddd"),
       time: dayjs(project.session_time).format("HH:mm"),
     };
     return payload;
@@ -198,18 +189,22 @@ export default function EditPage() {
         ? project.categories.join(", ") 
         : project.categories || "";
         
-             form.reset({
-         id: Number(project.id), // Convert to number for int8
-         title: project.title,
-         category: categoryString,
-         description: project.description || "",
-         typeOfProject: project.type_of_project || projectTypes[0],
-         sessions: project.sessions_count.toString(),
-         spots: project.spots,
-         startDate: dayjs(project.start_date).format("YYYY-MM-DD"),
-         dayOfWeek: project.session_day || "",
-         time: dayjs(project.session_time).format("HH:mm"),
-       });
+      form.reset({
+        id: Number(project.id), // Convert to number for int8
+        title: project.title,
+        category: categoryString,
+        description: project.description || "",
+        typeOfProject: project.type_of_project || projectTypes[0],
+        sessions: project.sessions_count.toString(),
+        spots: project.spots,
+        startDate: dayjs(project.session_time).format("YYYY-MM-DD"),
+        dayOfWeek: dayjs(project.session_time).format("dddd") || "",
+        time: dayjs(project.session_time).format("HH:mm"),
+      });
+      
+      // Ensure sessions field is set correctly
+      console.log("Setting sessions to:", project.sessions_count.toString());
+      form.setValue("sessions", project.sessions_count.toString());
     }
   }, [project, projectTypes, sessionOptions, form]);
 
@@ -321,18 +316,16 @@ export default function EditPage() {
       const availableSessions = getAvailableSessionsForProjectType(selectedProjectType);
       setFilteredSessionOptions(availableSessions);
 
-      // Auto-select the first available session if current session is not available
       const currentSession = form.watch("sessions");
-      if (availableSessions.length > 0 && !availableSessions.includes(currentSession)) {
-        form.setValue("sessions", availableSessions[0]);
-        const newPrice = getPricing(selectedProjectType, availableSessions[0]);
-        setCurrentPrice(newPrice);
-      } else if (availableSessions.includes(currentSession)) {
+      if (availableSessions.includes(currentSession)) {
         const newPrice = getPricing(selectedProjectType, currentSession);
         setCurrentPrice(newPrice);
+      } else if (project && project.sessions_count) {
+        // Keep the project's original session count even if not available for this project type
+        console.log("Session not available for project type, but keeping project's session count");
       }
     }
-  }, [form.watch("typeOfProject"), pricingData, form]);
+  }, [form.watch("typeOfProject"), pricingData, form, project]);
 
   // Initialize filtered session options when project data is loaded
   useEffect(() => {
@@ -340,8 +333,13 @@ export default function EditPage() {
       const projectType = project.type_of_project || "Other";
       const availableSessions = getAvailableSessionsForProjectType(projectType);
       setFilteredSessionOptions(availableSessions);
+      
+      // Ensure project's session count is preserved
+      if (project.sessions_count) {
+        form.setValue("sessions", project.sessions_count.toString());
+      }
     }
-  }, [project, pricingData]);
+  }, [project, pricingData, form]);
 
   // Effect to update price when sessions change
   useEffect(() => {
@@ -375,8 +373,7 @@ export default function EditPage() {
   useEffect(() => {
     const startDate = form.watch("startDate");
     if (startDate) {
-      const currentTimezone = dayjs.tz.guess(); // Get user's timezone
-      const dayOfWeek = dayjs(startDate).tz(currentTimezone).format("dddd");
+      const dayOfWeek = dayjs(startDate).format("dddd");
       form.setValue("dayOfWeek", dayOfWeek);
     }
   }, [form.watch("startDate"), form]);
@@ -484,20 +481,15 @@ export default function EditPage() {
       type_of_project: values.typeOfProject,
       sessions_count: parseInt(values.sessions),
       spots: values.spots,
-      start_date: values.startDate,
-      session_day: values.dayOfWeek,
+      start_date: sessionTime,
+      session_day: dayjs(sessionTime).format("dddd"),
       session_time: sessionTime,
-      selling_price: selling_price,
+      selling_price: selling_price
     };
     
-    console.log("Update data structure:", Object.keys(updateData));
-    
-    console.log("Update data being sent:", updateData);
-    console.log("Project ID for update:", values.id);
-    console.log("Original project ID:", project.id);
+ 
     
     // First, verify the project exists
-    console.log("Verifying project exists with ID:", values.id, "Type:", typeof values.id);
     const { data: existingProject, error: fetchError } = await supabase
       .from("projects")
       .select("id")
@@ -515,12 +507,7 @@ export default function EditPage() {
       return;
     }
     
-    console.log("Project exists, proceeding with update...");
-    console.log("Existing project data:", existingProject);
-    
-    console.log("Attempting to update project with data:", updateData);
-    console.log("Project ID for update:", values.id, "Type:", typeof values.id);
-    
+   
     const { data, error } = await supabase
       .from("projects")
       .update(updateData)
@@ -853,7 +840,7 @@ export default function EditPage() {
                       <Input
                         type="date"
                         {...field}
-                        min={new Date().toISOString().split("T")[0]}
+                        
                       />
                     </FormControl>
                     <FormMessage />

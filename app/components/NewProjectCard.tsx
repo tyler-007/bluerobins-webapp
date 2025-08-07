@@ -71,7 +71,7 @@ export default function NewProjectCard({
   const price = selling_price;
   const time = dayjs(session_time).format("hh:mm A");
   const startDate = dayjs(session_time).format("MMM D, YYYY");
-  // day={project.session_day}
+  const day = dayjs(session_time).format("dddd");
   const endDate = dayjs(session_time)
     .add(sessions_count, "week")
     .format("MMM D, YYYY");
