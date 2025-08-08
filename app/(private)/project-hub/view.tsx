@@ -86,7 +86,7 @@ export default function ProjectHubView(props: {
               (props.pastProjects ?? []).map((project: any) => (
                 <PastProjectCard
                   key={project.id}
-                  project={project}
+                  projectId={project.id}
                   userId={props.userId}
                   isMentor={isMentor}
                 />
