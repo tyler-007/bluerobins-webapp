@@ -28,30 +28,49 @@ export default async function HomePage() {
   const filterKey = isMentor ? "for" : "by";
 
   const profileKey = isMentor ? "mentor_profiles" : "student_profiles";
-  const start_time = isMentor
-    ? dayjs().subtract(3, "day").format("YYYY-MM-DDTHH:mm:ssZ")
-    : dayjs().format("YYYY-MM-DDTHH:mm:ssZ");
-  const [profileResult, bookingsResult, projectsResult] =
-    await Promise.allSettled([
-      supabase.from(profileKey).select("*").eq("id", user.id).single(),
-      supabase
-        .from("bookings")
-        .select("*")
-        .gte("start_time", start_time)
-        .order("start_time", { ascending: true })
-        .eq(filterKey, user.id),
-      isMentor
-        ? supabase.from("projects").select("id").eq("mentor_user", user.id)
-        : supabase
-            .from("projects")
-            .select("id")
-            .gte("session_time", dayjs().format("YYYY-MM-DDTHH:mm:ssZ")),
-    ]);
+  const currentTime = dayjs().format("YYYY-MM-DDTHH:mm:ssZ");
+  const [
+    profileResult,
+    upcomingBookingsResult,
+    pastBookingsResult,
+    projectsResult,
+  ] = await Promise.allSettled([
+    supabase.from(profileKey).select("*").eq("id", user.id).single(),
+    supabase
+      .from("bookings")
+      .select("*")
+      .gte("start_time", currentTime)
+      .order("start_time", { ascending: true })
+      .eq(filterKey, user.id),
+    supabase
+      .from("bookings")
+      .select("*")
+      .lt("start_time", currentTime)
+      .order("start_time", { ascending: false })
+      .eq(filterKey, user.id),
+    isMentor
+      ? supabase
+          .from("projects")
+          .select("id")
+          .eq("mentor_user", user.id)
+          .eq("deleted", false)
+      : supabase
+          .from("projects")
+          .select("id")
+          .gte("session_time", dayjs().format("YYYY-MM-DDTHH:mm:ssZ"))
+          .eq("deleted", false),
+  ]);
 
   const profile =
     profileResult.status === "fulfilled" ? profileResult.value.data : null;
-  const myBookings =
-    bookingsResult.status === "fulfilled" ? bookingsResult.value.data : [];
+  const upcomingBookings =
+    upcomingBookingsResult.status === "fulfilled"
+      ? upcomingBookingsResult.value.data
+      : [];
+  const pastBookings =
+    pastBookingsResult.status === "fulfilled"
+      ? pastBookingsResult.value.data
+      : [];
   const projects =
     projectsResult.status === "fulfilled" ? projectsResult.value.data : [];
 
@@ -102,8 +121,8 @@ export default async function HomePage() {
           {/* {!!myBookings?.length && <span>See All</span>} */}
         </div>
         <div className="flex flex-row flex-wrap gap-4">
-          {myBookings?.length ? (
-            myBookings.map((booking) => (
+          {upcomingBookings?.length ? (
+            upcomingBookings.map((booking) => (
               <ScheduleItem
                 key={booking.id}
                 bookingId={booking.id}
@@ -120,6 +139,32 @@ export default async function HomePage() {
           ) : (
             <div className="flex flex-1 items-center justify-center p-6 border-dashed border-blue-500 border-2 rounded-2xl">
               <span>No upcoming sessions</span>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-row gap-4 mt-7 items-center justify-between">
+          <span className="text-2xl font-bold">Past Sessions</span>
+          {/* {!!pastBookings?.length && <span>See All</span>} */}
+        </div>
+        <div className="flex flex-row flex-wrap gap-4">
+          {pastBookings?.length ? (
+            pastBookings.map((booking) => (
+              <ScheduleItem
+                key={booking.id}
+                bookingId={booking.id}
+                mentorId={booking.for}
+                eventId={booking.event_id}
+                eventLink={booking.event_link}
+                userType={userType}
+                studentId={booking.by}
+                title={booking.title}
+                description={booking.description}
+                start_time={booking.start_time}
+              />
+            ))
+          ) : (
+            <div className="flex flex-1 items-center justify-center p-6 border-dashed border-blue-500 border-2 rounded-2xl">
+              <span>No past sessions</span>
             </div>
           )}
         </div>

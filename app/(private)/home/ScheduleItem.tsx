@@ -36,13 +36,7 @@ const ScheduleItem = ({
   // const { data: user } = useUser();
   const showJoin = true;
   const isMentor = userType === "mentor";
-  console.log(
-    "eventId",
-    eventId,
-    start_time,
-    "age",
-    dayjs(start_time).format("h:mm A")
-  );
+
   return (
     <div className="flex flex-col flex-1 gap-1 bg-white max-w-max rounded-2xl border border-gray-200 p-6 pt-4 min-w-[330px]">
       <div className="flex flex-row gap-4 items-center justify-between">
@@ -69,6 +63,7 @@ const ScheduleItem = ({
       <div className="flex flex-row flex-1 gap-4 items-center justify-between mt-4">
         {isMentor && (
           <RescheduleDialog
+            studentId={studentId}
             start_time={start_time}
             eventId={eventId}
             bookingId={bookingId}
@@ -94,6 +89,7 @@ const ScheduleItem = ({
             </button>
           ) : isMentor ? (
             <RescheduleDialog
+              studentId={studentId}
               start_time={start_time}
               eventId={eventId}
               bookingId={bookingId}

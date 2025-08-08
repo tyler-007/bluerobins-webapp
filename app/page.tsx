@@ -88,13 +88,16 @@ export default function Login() {
       {/* Left column - Carousel */}
       <div className="flex flex-col justify-between w-1/2 bg-[#2953BE] p-8 relative">
         {/* Logo */}
-        <Image
-          src="/logo.png"
-          alt="BlueRobins Logo"
-          width={200}
-          height={100}
-          className="mb-8"
-        />
+        <a href="https://bluerobins.com">
+          <Image
+            src="/logo.png"
+            alt="BlueRobins Logo"
+            width={200}
+            height={100}
+            className="mb-8"
+          />
+        </a>
+
         {/* <div className="mb-8">
           <div className="bg-white rounded-md px-4 py-2 inline-block">
             <span className="text-[#2953BE] font-bold text-2xl">

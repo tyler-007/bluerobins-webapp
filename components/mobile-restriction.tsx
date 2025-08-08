@@ -2,15 +2,35 @@
 
 import { useEffect, useState } from "react";
 
+function isMobileOrTablet() {
+  // User agent check for mobile/tablet
+  const ua = navigator.userAgent;
+  const isMobile = /Mobi|Android/i.test(ua);
+  const isTablet = /Tablet|iPad/i.test(ua);
+
+  // Screen size check (covers tablets in desktop mode)
+  const isSmallScreen = window.innerWidth <= 1024;
+
+  return isMobile || isTablet || isSmallScreen;
+}
+
+function checkMobile() {
+  if (isMobileOrTablet()) {
+    // Restrict access or show message
+  }
+}
+
 export function MobileRestriction({ children }: { children: React.ReactNode }) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
-      const userAgent = window.navigator.userAgent.toLowerCase();
-      const mobileDevices =
-        /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
-      setIsMobile(mobileDevices.test(userAgent));
+      // const userAgent = window.navigator.userAgent.toLowerCase();
+      // const mobileDevices =
+      //   /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+      // setIsMobile(mobileDevices.test(userAgent));
+      const isMobile = isMobileOrTablet();
+      setIsMobile(isMobile);
     };
 
     checkMobile();

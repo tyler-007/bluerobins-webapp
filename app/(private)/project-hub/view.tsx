@@ -4,20 +4,23 @@ import logo from "../home/mascot.png";
 
 // import ProjectCard from "@/app/components/ProjectCard";
 import NewProjectCard from "@/app/components/NewProjectCard";
+import PastProjectCard from "@/app/components/PastProjectCard";
 import dayjs from "dayjs";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function ProjectHubView(props: {
-  projects: any;
+  allProjects: any;
+  upcomingProjects: any;
+  pastProjects: any;
   userId: string;
   isMentor: boolean;
   hideHeader?: boolean;
 }) {
   const isMentor = props.isMentor;
   const router = useRouter();
-
-  console.log("PROJECTS:", props.projects);
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
 
   return (
     <>
@@ -37,15 +40,59 @@ export default function ProjectHubView(props: {
             )}
           </div>
         )}
+        
+        {/* Tab Navigation - Only for Students */}
+        {!isMentor && (
+          <div className="flex border-b">
+            <button
+              className={`px-4 py-2 ${activeTab === 'upcoming' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
+              onClick={() => setActiveTab('upcoming')}
+            >
+              Upcoming Projects ({props.upcomingProjects?.length || 0})
+            </button>
+            <button
+              className={`px-4 py-2 ${activeTab === 'past' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500'}`}
+              onClick={() => setActiveTab('past')}
+            >
+              Past Projects ({props.pastProjects?.length || 0})
+            </button>
+          </div>
+        )}
+        
+        {/* Project Display */}
         <div className="flex flex-wrap gap-4">
-          {(props.projects ?? []).map((project: any) => (
-            <NewProjectCard
-              key={project.id}
-              package_id={project.id}
-              userId={props.userId}
-              isMentor={isMentor}
-            />
-          ))}
+          {isMentor ? (
+            // Mentor view: all projects with NewProjectCard
+            (props.allProjects ?? []).map((project: any) => (
+              <NewProjectCard
+                key={project.id}
+                package_id={project.id}
+                userId={props.userId}
+                isMentor={isMentor}
+              />
+            ))
+          ) : (
+            // Student view: tabbed interface
+            activeTab === 'upcoming' ? (
+              (props.upcomingProjects ?? []).map((project: any) => (
+                <NewProjectCard
+                  key={project.id}
+                  package_id={project.id}
+                  userId={props.userId}
+                  isMentor={isMentor}
+                />
+              ))
+            ) : (
+              (props.pastProjects ?? []).map((project: any) => (
+                <PastProjectCard
+                  key={project.id}
+                  project={project}
+                  userId={props.userId}
+                  isMentor={isMentor}
+                />
+              ))
+            )
+          )}
         </div>
       </div>
     </>
