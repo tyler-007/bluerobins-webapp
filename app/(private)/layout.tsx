@@ -2,6 +2,7 @@ import Sidebar from "@/components/siderbar";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { createContext, useContext } from "react";
+import { UpdateTimezone } from "@/app/components/UpdateTimezone";
 
 export default async function PrivateLayout({
   children,
@@ -38,6 +39,7 @@ export default async function PrivateLayout({
         unread_messages_count={unread_messages_count ?? 0}
       />
       <main className="flex flex-1 overflow-auto bg-gradient-primary">
+        <UpdateTimezone type={isStudent ? "student" : "mentor"} />
         {children}
       </main>
     </div>

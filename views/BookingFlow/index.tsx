@@ -264,7 +264,7 @@ export const BookingFlow = ({ mentor }: { mentor: any }) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <PaymentDialog
+      {/* <PaymentDialog
         open={showPaymentDialog}
         onOpenChange={setShowPaymentDialog}
         amount={calculateAmount()}
@@ -272,7 +272,7 @@ export const BookingFlow = ({ mentor }: { mentor: any }) => {
         onError={handlePaymentError}
         onCancel={handlePaymentCancel}
         summary={bookingSummary}
-      />
+      /> */}
     </>
   );
 };

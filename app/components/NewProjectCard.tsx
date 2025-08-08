@@ -49,7 +49,6 @@ export default function NewProjectCard({
   const {
     agenda,
     categories: tags = [],
-    cost_price,
     selling_price,
     title,
     mentor_user,
@@ -69,11 +68,11 @@ export default function NewProjectCard({
   const mentor = mentorData[0];
 
   const spotsLeft = spots - filled_spots;
-  const price = isMentor ? cost_price : selling_price;
+  const price = selling_price;
   const time = dayjs(session_time).format("hh:mm A");
-  const startDate = dayjs(start_date).format("MMM D, YYYY");
-  // day={project.session_day}
-  const endDate = dayjs(start_date)
+  const startDate = dayjs(session_time).format("MMM D, YYYY");
+  const day = dayjs(session_time).format("dddd");
+  const endDate = dayjs(session_time)
     .add(sessions_count, "week")
     .format("MMM D, YYYY");
 
@@ -284,17 +283,9 @@ export default function NewProjectCard({
         </>
       )}
       <PaymentDialog
-        summary={
-          <div className="flex flex-col gap-2">
-            <span className="text-lg">
-              You are about to pay
-              <br />
-              <b>${price}</b> for {title} <b>({sessions_count} sessions)</b>
-              <br />
-              with <b>{mentor?.name}</b>
-            </span>
-          </div>
-        }
+        title={title}
+        sessions={sessions_count}
+        mentor={mentor?.name}
         open={showPaymentDialog}
         onOpenChange={setShowPaymentDialog}
         amount={isTesting ? 0.1 : price}

@@ -24,7 +24,5 @@ export default async function MentorPage({
     .select("*")
     .eq("mentor_user", id);
 
-  console.log("MENTOR PROJECTS:", id, projects);
-
   return <View id={id} profile={profile} userId={user?.user?.id ?? ""} />;
 }
