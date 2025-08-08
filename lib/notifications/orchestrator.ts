@@ -544,15 +544,30 @@ export async function notify(request: NotificationRequest) {
       
       console.log(`[Orchestrator] Scheduling reminder for ${sendAt.toISOString()}`);
       
-      // Check if there's already a pending reminder for this user and channel
+      // Determine if the message is already read (recipient is viewing chat)
+      let alreadyRead = false;
+      try {
+        if (message_id) {
+          const { data: msgRow } = await supabase
+            .from('channel_messages')
+            .select('read_by')
+            .eq('id', message_id)
+            .single();
+          alreadyRead = msgRow?.read_by === request.userId;
+        }
+      } catch (e) {
+        console.warn('[Orchestrator] Could not check message read state:', e);
+      }
+      
+      // Check if there's already a pending reminder for this specific message
       const { data: existingReminder, error: existingError } = await supabase
         .from('scheduled_notifications')
-        .select('id')
+        .select('id, status')
         .eq('user_id', request.userId)
         .eq('related_entity_id', channel_id)
-        .eq('status', 'pending')
-        .eq('context->>eventType', 'unread_chat_reminder')
-        .single();
+        .eq('event_type', 'unread_chat_reminder') // ← Use dedicated column
+        .eq('context->>messageId', message_id) // ← Match by specific message_id
+        .maybeSingle();
 
       console.log(`[Orchestrator] Existing reminder check:`, { 
         existingReminder: !!existingReminder, 
@@ -560,7 +575,8 @@ export async function notify(request: NotificationRequest) {
       });
 
       if (!existingReminder) {
-        // Schedule the unread reminder
+        // Schedule the unread reminder (insert as 'deleted' if already read)
+        const scheduleStatus = alreadyRead ? 'deleted' : 'pending';
         const { data: insertData, error: insertError } = await supabase.from('scheduled_notifications').insert({
           user_id: request.userId,
           template_id: null,
@@ -568,7 +584,8 @@ export async function notify(request: NotificationRequest) {
           read: false,
           created_at: new Date().toISOString(),
           send_at: sendAt.toISOString(),
-          status: 'pending',
+          status: scheduleStatus,
+          event_type: 'unread_chat_reminder', // ← New dedicated column
           context: {
             eventType: 'unread_chat_reminder',
             channel: 'email',
@@ -577,7 +594,7 @@ export async function notify(request: NotificationRequest) {
             senderName,
             message: message.substring(0, 100), // First 100 chars for context
             userEmail: recipientProfile.email,
-                             userName: recipientProfile.name || 'User'
+            userName: recipientProfile.name || 'User'
           },
         }).select();
         
@@ -593,7 +610,16 @@ export async function notify(request: NotificationRequest) {
           sendAt: sendAt.toISOString() 
         });
       } else {
-        console.log(`[Orchestrator] Skipped scheduling - existing reminder found for user ${request.userId} in channel ${channel_id}`);
+        // If a reminder exists for this specific message and it's already read, mark it deleted
+        if (alreadyRead && existingReminder?.id) {
+          await supabase
+            .from('scheduled_notifications')
+            .update({ status: 'deleted' })
+            .eq('id', existingReminder.id);
+          console.log(`[Orchestrator] Existing reminder for message ${message_id} marked deleted for user ${request.userId} in channel ${channel_id}`);
+        } else {
+          console.log(`[Orchestrator] Skipped scheduling - existing reminder for message ${message_id} found for user ${request.userId} in channel ${channel_id}`);
+        }
       }
 
       return { success: true, scheduled: true };

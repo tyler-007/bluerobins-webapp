@@ -54,7 +54,8 @@ export async function processScheduledNotifications() {
     .from('scheduled_notifications')
     .select('*')
     .eq('status', 'pending')
-    .lt('send_at', nowISO);
+    .lt('send_at', nowISO)
+    .order('send_at', { ascending: true });
 
   if (error) {
     console.error('[Scheduler] Failed to fetch scheduled notifications:', error);

@@ -10,6 +10,23 @@ export async function POST(request: NextRequest) {
     
     const { message, from_user, channel_id, message_id, to_user } = body;
     
+    // If the recipient already read this message (real-time open), skip scheduling by marking deleted downstream
+    try {
+      if (message_id) {
+        const supabase = (await import('@/utils/supabase/admin')).createAdminClient();
+        const { data: msg } = await supabase
+          .from('channel_messages')
+          .select('read_by')
+          .eq('id', message_id)
+          .single();
+        if (msg?.read_by === to_user) {
+          console.log('[Schedule Chat API] Message already read by recipient; orchestrator will insert reminder as deleted');
+        }
+      }
+    } catch (e) {
+      console.warn('[Schedule Chat API] Pre-check read state failed:', e);
+    }
+
     console.log('[Schedule Chat API] Scheduling notification for message:', { message_id, channel_id, from_user, to_user });
     
     const result = await notify({
