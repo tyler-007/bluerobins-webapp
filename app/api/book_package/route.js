@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import dayjs from "dayjs";
-import { createCalendarEvent } from "@/lib/actions";
+import { createCalendarEvent, addAttendeesToEvent } from "@/lib/actions";
 export async function POST(request) {
   const supabase = await createClient();
   const req = await request.json();
@@ -65,15 +65,6 @@ export async function POST(request) {
 
   let bookingData = [];
 
-  // Get existing eventId for project
-  const existingEvent = await supabase
-    .from("bookings")
-    .select("event_id, event_link")
-    .eq("project_id", project_id)
-    .single();
-
-  console.log("EXISTING EVENT:", existingEvent);
-
   for (let index = 0; index < count; index++) {
     const description = `Session ${index + 1} of ${count}`;
     const start_time = dayjs(startDate)
@@ -82,6 +73,13 @@ export async function POST(request) {
     const end_time = dayjs(start_time)
       .add(1, "hour")
       .format("YYYY-MM-DDTHH:mm:ssZ");
+
+    const existingEvent = await supabase
+      .from("bookings")
+      .select("event_id, event_link")
+      .eq("project_id", project_id)
+      .eq("description", description)
+      .single();
 
     let eventId = existingEvent?.data?.event_id ?? "",
       meetLink = existingEvent?.data?.event_link ?? "";
@@ -95,8 +93,6 @@ export async function POST(request) {
         eventId,
         attendees,
       });
-      console.log("INFO:", info);
-      //add attendees to existing event
     } else {
       try {
         const info = await createCalendarEvent({
