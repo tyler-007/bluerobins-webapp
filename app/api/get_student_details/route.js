@@ -5,12 +5,12 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const studentId = searchParams.get("studentId");
   const adminBase = createAdminClient();
+  const students = searchParams.get("studentId").split(",");
 
   const { data, error } = await adminBase
     .from("student_profiles")
-    .select("*")
-    .eq("id", studentId)
-    .single();
+    .select("id, timezone, ...profiles(name, avatar)")
+    .in("id", students);
 
   return NextResponse.json(data);
 }

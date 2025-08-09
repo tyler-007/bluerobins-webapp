@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import ProjectCard from "@/app/components/NewProjectCard";
 import { TimeSlots } from "./TimeSlotItem";
 import Link from "next/link";
+import uniqBy from "lodash/uniqBy";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -80,6 +81,12 @@ export default async function HomePage() {
 
   const projectLimit = isMentor ? undefined : 6;
 
+  const upcomingBookingMembers = upcomingBookings?.reduce((acc, booking) => {
+    acc[booking.event_id] = acc[booking.event_id] ?? [];
+    acc[booking.event_id].push(booking.by);
+    return acc;
+  }, {});
+
   if (!profile?.verified && isMentor) {
     return (
       <div className="flex flex-col flex-1 min-h-screen  gap-4 items-center justify-center">
@@ -125,7 +132,7 @@ export default async function HomePage() {
         </div>
         <div className="flex flex-row flex-wrap gap-4">
           {upcomingBookings?.length ? (
-            upcomingBookings.map((booking) => (
+            uniqBy(upcomingBookings, "event_id").map((booking) => (
               <ScheduleItem
                 key={booking.id}
                 bookingId={booking.id}
@@ -134,6 +141,7 @@ export default async function HomePage() {
                 eventLink={booking.event_link}
                 userType={userType}
                 studentId={booking.by}
+                attendees={upcomingBookingMembers[booking.event_id]}
                 title={booking.title}
                 description={booking.description}
                 start_time={booking.start_time}
@@ -151,13 +159,14 @@ export default async function HomePage() {
         </div>
         <div className="flex flex-row flex-wrap gap-4">
           {pastBookings?.length ? (
-            pastBookings.map((booking) => (
+            uniqBy(pastBookings, "event_id").map((booking) => (
               <ScheduleItem
                 key={booking.id}
                 bookingId={booking.id}
                 mentorId={booking.for}
                 eventId={booking.event_id}
                 eventLink={booking.event_link}
+                attendees={upcomingBookingMembers[booking.event_id]}
                 userType={userType}
                 studentId={booking.by}
                 title={booking.title}

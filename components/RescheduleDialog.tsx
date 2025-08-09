@@ -40,11 +40,13 @@ interface RescheduleDialogProps {
 export const RescheduleDialog = ({
   studentId,
   start_time,
+  students,
   eventId,
   bookingId,
 }: {
   studentId: string;
   start_time: string;
+  students: string[];
   eventId: string;
   bookingId: string;
 }) => {
@@ -81,8 +83,7 @@ export const RescheduleDialog = ({
       if (error) {
         console.error("Error updating booking:", error);
       }
-      console.log("Booking updated:", bookingId, data);
-      console.log("Update response:", res);
+
       setOpen(false); // Close the dialog after successful update
       window.location.reload();
     } catch (error) {
@@ -98,12 +99,14 @@ export const RescheduleDialog = ({
   const currentTimezone = dayjs.tz.guess();
   const timezoneAbbr = dayjs().tz(currentTimezone).format("z");
 
+  const studentString = students?.length > 0 ? students.join(",") : "";
   const { data: studentDetails } = useQuery({
-    queryKey: ["studentDetails", studentId],
+    queryKey: ["studentDetails", studentString],
     queryFn: () =>
-      fetch(`/api/get_student_details?studentId=${studentId}`).then((res) =>
+      fetch(`/api/get_student_details?studentId=${studentString}`).then((res) =>
         res.json()
       ),
+    enabled: !!studentString,
   });
 
   const selectedTime = dayjs(`${date} ${time}`, "YYYY-MM-DD HH:mm");
@@ -142,17 +145,34 @@ export const RescheduleDialog = ({
           </div>
         </div>
         <DialogFooter>
-          <div className="w-full flex justify-between items-center gap-8">
-            {studentDetails?.timezone && (
-              <span className="text-black -mt-1 text-xs ml-1">
-                Student Time: ({studentDetails.timezone})<br />
-                <span className="text-sm">
-                  {selectedTime
-                    .tz(studentDetails.timezone)
-                    .format("DD MMM, dddd, h:mm A")}
-                </span>
+          <div className="w-full flex justify-between items-end gap-8">
+            <div className="flex flex-col">
+              <span className="text-black text-sm ml-1 font-bold">
+                Student Times
               </span>
-            )}
+              {studentDetails?.map((student: any) =>
+                student.timezone ? (
+                  <span
+                    key={student.id}
+                    className="text-black mt-2 text-xs ml-1"
+                  >
+                    {student.name}: ({student.timezone})<br />
+                    <span className="text-xs font-bold">
+                      {selectedTime
+                        .tz(student.timezone)
+                        .format("DD MMM, dddd, h:mm A")}
+                    </span>
+                  </span>
+                ) : (
+                  <span
+                    key={student.id}
+                    className="text-black -mt-1 text-xs ml-1"
+                  >
+                    {student.name}: Timezone not set
+                  </span>
+                )
+              )}
+            </div>
             <Button
               className="ml-auto"
               loading={loading}

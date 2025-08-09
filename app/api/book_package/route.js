@@ -140,8 +140,6 @@ export async function POST(request) {
     bookingData.push(data);
   }
 
-  console.log("PROJECT_ID:", project_id);
-
   return NextResponse.json({
     status: true,
     message: "Slot booked successfully",
