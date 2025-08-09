@@ -78,7 +78,7 @@ export const RescheduleDialog = ({
         .update({
           start_time: startDateTime,
         })
-        .eq("id", bookingId);
+        .eq("event_id", eventId);
 
       if (error) {
         console.error("Error updating booking:", error);
