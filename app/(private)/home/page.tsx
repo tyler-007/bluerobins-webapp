@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import ProjectCard from "@/app/components/NewProjectCard";
 import { TimeSlots } from "./TimeSlotItem";
 import Link from "next/link";
+
 import SessionList from "./SessionList";
 
 const INITIAL_SESSIONS_COUNT = 4;
@@ -32,6 +33,7 @@ export default async function HomePageNew() {
 
   const profileKey = isMentor ? "mentor_profiles" : "student_profiles";
   const currentTime = dayjs().format("YYYY-MM-DDTHH:mm:ssZ");
+
   const [
     profileResult,
     upcomingBookingsResult,
@@ -74,12 +76,8 @@ export default async function HomePageNew() {
     pastBookingsResult.status === "fulfilled"
       ? pastBookingsResult.value.data
       : [];
-  const projects =
-    projectsResult.status === "fulfilled" ? projectsResult.value.data : [];
 
   const availability = profile?.availability;
-
-  const projectLimit = isMentor ? undefined : 6;
 
   if (!profile?.verified && isMentor) {
     return (
@@ -106,6 +104,8 @@ export default async function HomePageNew() {
     );
   }
 
+  console.log("UPCOMIN:", upcomingBookingsResult);
+
   return (
     <div className="flex flex-row flex-1">
       <div className="flex flex-1 flex-col gap-2 p-5 overflow-y-auto">
@@ -129,12 +129,13 @@ export default async function HomePageNew() {
         ) : (
           <div className="mt-7">
             <div className="bg-gray-50 rounded-lg p-8 text-center">
-              <h2 className="text-xl font-semibold mb-2">No Upcoming Sessions</h2>
+              <h2 className="text-xl font-semibold mb-2">
+                No Upcoming Sessions
+              </h2>
               <p className="text-gray-600">
-                {isMentor 
+                {isMentor
                   ? "Create a new project to start mentoring sessions"
-                  : "Book a session with a mentor to start learning"
-                }
+                  : "Book a session with a mentor to start learning"}
               </p>
               <Link href={isMentor ? "/project-hub/create" : "/project-hub"}>
                 <Button className="mt-4">
@@ -168,18 +169,26 @@ export default async function HomePageNew() {
         {isMentor ? (
           <div className="mt-7">
             <div className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-lg p-8 text-center border border-slate-200">
-              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-3 text-gray-800">Manage Your Projects</h2>
+              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-3 text-gray-800">
+                Manage Your Projects
+              </h2>
               <p className="text-lg mb-6 text-gray-600">
                 Create new learning experiences or manage your existing projects
               </p>
               <div className="flex gap-4 justify-center">
                 <Link href="/project-hub/create">
-                  <Button size="lg" className="bg-green-600 text-white hover:bg-green-700">
+                  <Button
+                    size="lg"
+                    className="bg-green-600 text-white hover:bg-green-700"
+                  >
                     Create New Project
                   </Button>
                 </Link>
                 <Link href="/project-hub">
-                  <Button size="lg" className="bg-blue-600 text-white hover:bg-blue-700">
+                  <Button
+                    size="lg"
+                    className="bg-blue-600 text-white hover:bg-blue-700"
+                  >
                     View All Projects
                   </Button>
                 </Link>
@@ -189,12 +198,18 @@ export default async function HomePageNew() {
         ) : (
           <div className="mt-7">
             <div className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-lg p-8 text-center border border-slate-200">
-              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-3 text-gray-800">Your Next Project Awaits – Explore & Buy</h2>
+              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-3 text-gray-800">
+                Your Next Project Awaits – Explore & Buy
+              </h2>
               <p className="text-lg mb-6 text-gray-600">
-                Discover exciting learning opportunities and connect with expert mentors
+                Discover exciting learning opportunities and connect with expert
+                mentors
               </p>
               <Link href="/project-hub">
-                <Button size="lg" className="bg-blue-600 text-white hover:bg-blue-700">
+                <Button
+                  size="lg"
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                >
                   Explore Project Hub
                 </Button>
               </Link>

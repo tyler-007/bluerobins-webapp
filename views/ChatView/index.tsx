@@ -67,6 +67,7 @@ export const ChatView = ({
       <SheetTrigger className={cn("text-blue-500", triggerClassName)}>
         <Button
           variant="outline"
+          size="sm"
           className={cn("text-blue-500", triggerClassName)}
         >
           {triggerText}

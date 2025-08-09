@@ -28,6 +28,12 @@ type EventUpdateInput = {
   host?: string;
 };
 
+type AddAttendeesInput = {
+  eventId: string;
+  attendees: { email: string }[];
+  host?: string;
+};
+
 // Add utility function for delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -351,6 +357,152 @@ export async function updateEvent(
     });
 
     console.log("Event updated successfully:", response.data.id);
+
+    return {
+      success: true,
+      eventId: response.data.id,
+      meetLink: meetLink,
+    };
+  } catch (error) {
+    // Provide more detailed error information
+    let errorMessage = "Unknown error occurred";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+
+      // Check for specific Google API errors
+      const googleError = (error as any).response?.data?.error;
+      if (googleError) {
+        errorMessage = `Google API Error: ${googleError.message || googleError.status}`;
+
+        // Log detailed error for debugging
+        console.error(
+          "Detailed Google API Error:",
+          JSON.stringify(googleError, null, 2)
+        );
+      }
+    }
+
+    return {
+      success: false,
+      error: errorMessage,
+    };
+  }
+}
+
+export async function addAttendeesToEvent(
+  eventData: AddAttendeesInput
+): Promise<EventResult> {
+  try {
+    console.log("Adding attendees to event:", {
+      eventId: eventData.eventId,
+      attendeeCount: eventData.attendees.length,
+    });
+
+    // Parse the service account credentials from environment variable
+    const credentials = JSON.parse(
+      process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS || "{}"
+    );
+
+    if (!credentials.client_email || !credentials.private_key) {
+      throw new Error("Invalid service account credentials");
+    }
+
+    // The host will be either specified host, delegated email, or service account email
+    const hostEmail =
+      eventData.host || credentials.delegated_email || credentials.client_email;
+    console.log("Using host email:", hostEmail);
+
+    // Create a JWT client using the service account impersonating the host
+    const jwtClient = new JWT({
+      email: credentials.client_email,
+      key: credentials.private_key,
+      scopes: ["https://www.googleapis.com/auth/calendar"],
+      subject: hostEmail, // Impersonate the host
+    });
+
+    console.log("About to authorize jwtClient");
+    try {
+      // Authorize the client
+      const auth = await jwtClient.authorize();
+      console.log("JWT Authorization successful");
+    } catch (authError: any) {
+      console.error("JWT Authorization failed:", {
+        error: authError.message,
+        code: authError.code,
+        status: authError.status,
+        details: authError.response?.data,
+      });
+      throw authError;
+    }
+
+    // Create a Google Calendar API client
+    console.log("About to initialize calendar");
+    const calendar = google.calendar({ version: "v3", auth: jwtClient });
+
+    // First, get the current event to preserve its details and existing attendees
+    const currentEvent = await retryWithBackoff(async () => {
+      const response = await calendar.events.get({
+        calendarId: "primary",
+        eventId: eventData.eventId,
+      });
+      return response.data;
+    });
+
+    // Extract the Meet link if it exists
+    let meetLink = "";
+    if (currentEvent.conferenceData?.conferenceId) {
+      meetLink =
+        currentEvent.conferenceData.entryPoints?.find(
+          (ep: any) => ep.entryPointType === "video"
+        )?.uri || "";
+    }
+
+    // Filter out any invalid attendees (empty emails)
+    const validNewAttendees = eventData.attendees.filter(
+      (attendee) =>
+        attendee.email &&
+        attendee.email.trim() !== "" &&
+        attendee.email.includes("@")
+    );
+
+    // Get existing attendees to avoid duplicates
+    const existingAttendees = currentEvent.attendees || [];
+    const existingEmails = new Set(
+      existingAttendees.map((attendee: any) => attendee.email.toLowerCase())
+    );
+
+    // Filter out attendees that already exist
+    const uniqueNewAttendees = validNewAttendees.filter(
+      (attendee) => !existingEmails.has(attendee.email.toLowerCase())
+    );
+
+    if (uniqueNewAttendees.length === 0) {
+      console.log("No new attendees to add - all attendees already exist");
+      return {
+        success: true,
+        eventId: currentEvent.id || eventData.eventId,
+        meetLink: meetLink,
+      };
+    }
+
+    // Combine existing and new attendees
+    const allAttendees = [...existingAttendees, ...uniqueNewAttendees];
+
+    console.log(`Adding ${uniqueNewAttendees.length} new attendees to event`);
+
+    // Update the event with new attendees
+    const response = await retryWithBackoff(async () => {
+      return await calendar.events.patch({
+        calendarId: "primary",
+        eventId: eventData.eventId,
+        requestBody: {
+          attendees: allAttendees,
+        },
+        sendUpdates: "all",
+      });
+    });
+
+    console.log("Attendees added successfully:", response.data.id);
 
     return {
       success: true,

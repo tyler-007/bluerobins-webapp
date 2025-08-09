@@ -12,6 +12,7 @@ const ScheduleItem = ({
   eventId,
   mentorId,
   studentId,
+  attendees,
   userType,
   eventLink,
   start_time,
@@ -23,6 +24,7 @@ const ScheduleItem = ({
   eventId: string;
   mentorId: string;
   studentId: string;
+  attendees: string[];
   userType: string;
   eventLink?: string;
   bookingId: string;
@@ -49,20 +51,30 @@ const ScheduleItem = ({
       {description && (
         <span className="text-sm text-gray-500">{description}</span>
       )}
-      {profile?.name && (
+      {attendees?.length > 1 ? (
         <span className="text-sm text-gray-500">
-          with {profile?.name ?? "Mentor"}
+          with {attendees.length} students
         </span>
+      ) : (
+        profile?.name && (
+          <div className="flex items-center gap-2 justify-between">
+            <span className="text-sm text-gray-500">
+              with {profile?.name ?? "Mentor"}
+            </span>
+            <ChatView
+              name={`s_${studentId}:m_${mentorId}`}
+              senderId={senderId}
+              receiverId={receiverId}
+              triggerClassName="w-min"
+            />
+          </div>
+        )
       )}
-      <ChatView
-        name={`s_${studentId}:m_${mentorId}`}
-        senderId={senderId}
-        receiverId={receiverId}
-        triggerClassName="w-min"
-      />
+
       <div className="flex flex-row flex-1 gap-4 items-center justify-between mt-4">
         {isMentor && (
           <RescheduleDialog
+            students={attendees}
             studentId={studentId}
             start_time={start_time}
             eventId={eventId}
@@ -89,6 +101,7 @@ const ScheduleItem = ({
             </button>
           ) : isMentor ? (
             <RescheduleDialog
+              students={attendees}
               studentId={studentId}
               start_time={start_time}
               eventId={eventId}

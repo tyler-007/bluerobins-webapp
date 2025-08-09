@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import ScheduleItem from "./ScheduleItem";
+import uniqBy from "lodash/uniqBy";
 
 interface SessionListProps {
   sessions: any[];
@@ -12,21 +13,36 @@ interface SessionListProps {
   title: string;
 }
 
-export default function SessionList({ sessions, initialCount, userType, title }: SessionListProps) {
+export default function SessionList({
+  sessions,
+  initialCount,
+  userType,
+  title,
+}: SessionListProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (!sessions?.length) {
-    return null;  // Return nothing so parent can handle empty state
+    return null; // Return nothing so parent can handle empty state
   }
 
-  const displayedSessions = isExpanded ? sessions : sessions.slice(0, initialCount);
+  const uniqueSessions = uniqBy(sessions, "event_id");
+
+  const displayedSessions = isExpanded
+    ? uniqueSessions
+    : uniqueSessions.slice(0, initialCount);
+
+  const attendees = sessions?.reduce((acc, session) => {
+    acc[session.event_id] = acc[session.event_id] ?? [];
+    acc[session.event_id].push(session.by);
+    return acc;
+  }, {});
 
   return (
     <>
       <div className="mt-7">
         <div className="flex flex-row gap-4 items-center">
           <span className="text-2xl font-bold">{title}</span>
-          {sessions.length > initialCount && (
+          {uniqueSessions.length > initialCount && (
             <Button
               variant="outline"
               onClick={() => setIsExpanded(!isExpanded)}
@@ -40,7 +56,7 @@ export default function SessionList({ sessions, initialCount, userType, title }:
               ) : (
                 <>
                   <ChevronDown className="w-4 h-4" />
-                  View More ({sessions.length - initialCount})
+                  View More ({uniqueSessions.length - initialCount})
                 </>
               )}
             </Button>
@@ -50,6 +66,7 @@ export default function SessionList({ sessions, initialCount, userType, title }:
       <div className="flex flex-row flex-wrap gap-4">
         {displayedSessions.map((session) => (
           <ScheduleItem
+            attendees={attendees[session.event_id] ?? []}
             key={session.id}
             bookingId={session.id}
             mentorId={session.for}
@@ -62,7 +79,7 @@ export default function SessionList({ sessions, initialCount, userType, title }:
             start_time={session.start_time}
           />
         ))}
-        {isExpanded && sessions.length > initialCount && (
+        {isExpanded && uniqueSessions.length > initialCount && (
           <Button
             variant="outline"
             onClick={() => setIsExpanded(false)}
