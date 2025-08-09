@@ -1,6 +1,6 @@
 import Image from "next/image";
 import logo from "./mascot.png";
-import { User } from "lucide-react";
+import { User, ChevronDown, ChevronUp } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import dayjs from "dayjs";
@@ -11,9 +11,12 @@ import { Button } from "@/components/ui/button";
 import ProjectCard from "@/app/components/NewProjectCard";
 import { TimeSlots } from "./TimeSlotItem";
 import Link from "next/link";
-import uniqBy from "lodash/uniqBy";
 
-export default async function HomePage() {
+import SessionList from "./SessionList";
+
+const INITIAL_SESSIONS_COUNT = 4;
+
+export default async function HomePageNew() {
   const supabase = await createClient();
 
   const {
@@ -73,19 +76,8 @@ export default async function HomePage() {
     pastBookingsResult.status === "fulfilled"
       ? pastBookingsResult.value.data
       : [];
-  const projects =
-    projectsResult.status === "fulfilled" ? projectsResult.value.data : [];
 
-  // const availability = bookingConfig?.availability;
   const availability = profile?.availability;
-
-  const projectLimit = isMentor ? undefined : 6;
-
-  const upcomingBookingMembers = upcomingBookings?.reduce((acc, booking) => {
-    acc[booking.event_id] = acc[booking.event_id] ?? [];
-    acc[booking.event_id].push(booking.by);
-    return acc;
-  }, {});
 
   if (!profile?.verified && isMentor) {
     return (
@@ -94,7 +86,7 @@ export default async function HomePage() {
           Thanks for signing up as a mentor!
         </h3>
         <p className="text-xl text-gray-500 text-center">
-          We’re reviewing your details and will notify you once <br />
+          We're reviewing your details and will notify you once <br />
           your profile is verified and your portal access is activated.
         </p>
 
@@ -126,98 +118,110 @@ export default async function HomePage() {
             </span>
           </h1>
         </div>
-        <div className="flex flex-row gap-4 mt-7 items-center justify-between">
-          <span className="text-2xl font-bold">Upcoming Sessions</span>
-          {/* {!!myBookings?.length && <span>See All</span>} */}
-        </div>
-        <div className="flex flex-row flex-wrap gap-4">
-          {upcomingBookings?.length ? (
-            uniqBy(upcomingBookings, "event_id").map((booking) => (
-              <ScheduleItem
-                key={booking.id}
-                bookingId={booking.id}
-                mentorId={booking.for}
-                eventId={booking.event_id}
-                eventLink={booking.event_link}
-                userType={userType}
-                studentId={booking.by}
-                attendees={upcomingBookingMembers[booking.event_id]}
-                title={booking.title}
-                description={booking.description}
-                start_time={booking.start_time}
-              />
-            ))
-          ) : (
-            <div className="flex flex-1 items-center justify-center p-6 border-dashed border-blue-500 border-2 rounded-2xl">
-              <span>No upcoming sessions</span>
-            </div>
-          )}
-        </div>
-        <div className="flex flex-row gap-4 mt-7 items-center justify-between">
-          <span className="text-2xl font-bold">Past Sessions</span>
-          {/* {!!pastBookings?.length && <span>See All</span>} */}
-        </div>
-        <div className="flex flex-row flex-wrap gap-4">
-          {pastBookings?.length ? (
-            uniqBy(pastBookings, "event_id").map((booking) => (
-              <ScheduleItem
-                key={booking.id}
-                bookingId={booking.id}
-                mentorId={booking.for}
-                eventId={booking.event_id}
-                eventLink={booking.event_link}
-                attendees={upcomingBookingMembers[booking.event_id]}
-                userType={userType}
-                studentId={booking.by}
-                title={booking.title}
-                description={booking.description}
-                start_time={booking.start_time}
-              />
-            ))
-          ) : (
-            <div className="flex flex-1 items-center justify-center p-6 border-dashed border-blue-500 border-2 rounded-2xl">
-              <span>No past sessions</span>
-            </div>
-          )}
-        </div>
-
-        <>
-          <div className="flex flex-row gap-4 mt-7 items-center justify-between">
-            <span className="text-2xl font-bold">
-              {isMentor ? "Project Hubs" : "Recommended Projects"}
-            </span>
-            {isMentor ? (
-              <a href="/project-hub/create">
-                <Button loadOnClick variant="outline">
-                  Create New Project
-                </Button>
-              </a>
-            ) : (
-              <Link href="/project-hub/">
-                <Button loadOnClick variant="outline">
-                  View All
+        {/* Upcoming Sessions Section */}
+        {upcomingBookings && upcomingBookings.length > 0 ? (
+          <SessionList
+            sessions={upcomingBookings}
+            initialCount={INITIAL_SESSIONS_COUNT}
+            userType={userType}
+            title="Upcoming Sessions"
+          />
+        ) : (
+          <div className="mt-7">
+            <div className="bg-gray-50 rounded-lg p-8 text-center">
+              <h2 className="text-xl font-semibold mb-2">
+                No Upcoming Sessions
+              </h2>
+              <p className="text-gray-600">
+                {isMentor
+                  ? "Create a new project to start mentoring sessions"
+                  : "Book a session with a mentor to start learning"}
+              </p>
+              <Link href={isMentor ? "/project-hub/create" : "/project-hub"}>
+                <Button className="mt-4">
+                  {isMentor ? "Create Project" : "Find Projects"}
                 </Button>
               </Link>
-            )}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-4">
-            {(projects ?? [])
-              .slice(0, projectLimit)
-              ?.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  hideFilled
-                  userId={user.id}
-                  isMentor={isMentor}
-                  package_id={project.id}
-                />
-              ))}
+        )}
+
+        {/* Past Sessions Section */}
+        {pastBookings && pastBookings.length > 0 ? (
+          <SessionList
+            sessions={pastBookings}
+            initialCount={INITIAL_SESSIONS_COUNT}
+            userType={userType}
+            title="Past Sessions"
+          />
+        ) : (
+          <div className="mt-7">
+            <div className="bg-gray-50 rounded-lg p-8 text-center">
+              <h2 className="text-xl font-semibold mb-2">No Past Sessions</h2>
+              <p className="text-gray-600">
+                Your completed sessions will appear here
+              </p>
+            </div>
           </div>
-        </>
+        )}
+
+        {/* Project Hub Banner Section */}
+        {isMentor ? (
+          <div className="mt-7">
+            <div className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-lg p-8 text-center border border-slate-200">
+              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-3 text-gray-800">
+                Manage Your Projects
+              </h2>
+              <p className="text-lg mb-6 text-gray-600">
+                Create new learning experiences or manage your existing projects
+              </p>
+              <div className="flex gap-4 justify-center">
+                <Link href="/project-hub/create">
+                  <Button
+                    size="lg"
+                    className="bg-green-600 text-white hover:bg-green-700"
+                  >
+                    Create New Project
+                  </Button>
+                </Link>
+                <Link href="/project-hub">
+                  <Button
+                    size="lg"
+                    className="bg-blue-600 text-white hover:bg-blue-700"
+                  >
+                    View All Projects
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-7">
+            <div className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-lg p-8 text-center border border-slate-200">
+              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-3 text-gray-800">
+                Your Next Project Awaits – Explore & Buy
+              </h2>
+              <p className="text-lg mb-6 text-gray-600">
+                Discover exciting learning opportunities and connect with expert
+                mentors
+              </p>
+              <Link href="/project-hub">
+                <Button
+                  size="lg"
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  Explore Project Hub
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Right Sidebar */}
       {!isMentor && <StudentOnboarding profile={profile} userId={user.id} />}
       {isMentor && (
-        <div className="flex w-[300px] flex-col bg-light border-l-2 border-gray-200 p-5 gap-5  ">
+        <div className="flex w-[300px] flex-col bg-light border-l-2 border-gray-200 p-5 gap-5">
           <div className="bg-white rounded-2xl p-6 border border-gray-200">
             <div className="flex flex-row gap-4 items-center">
               {profile?.photo_url ? (

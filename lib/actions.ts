@@ -186,13 +186,14 @@ ${recorderInstructions}
           conferenceSolutionKey: { type: "hangoutsMeet" },
         },
       },
-      guestsCanModify: true,
-      guestsCanInviteOthers: true,
+      guestsCanModify: false,
+      guestsCanInviteOthers: false,
       reminders: {
         useDefault: false,
         overrides: [
           { method: "email", minutes: 24 * 60 },
           { method: "email", minutes: 15 },
+          { method: "email", minutes: 60 },
         ],
       },
     };
