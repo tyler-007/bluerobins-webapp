@@ -7,25 +7,37 @@ export async function POST(request: NextRequest) {
     const { channel_id, reader, message_ids } = body as {
       channel_id: string;
       reader: string;
-      message_ids: string[];
+      message_ids?: string[];
     };
 
-    if (!channel_id || !reader || !Array.isArray(message_ids) || message_ids.length === 0) {
+    if (!channel_id || !reader) {
       return NextResponse.json(
-        { success: false, error: 'channel_id, reader and non-empty message_ids are required' },
+        { success: false, error: 'channel_id and reader are required' },
         { status: 400 }
       );
     }
 
     const supabase = createAdminClient();
+    let updatedMessages;
+    let readError;
 
-    // Mark specific messages as read for this reader (ignore own messages)
-    const { data: updatedMessages, error: readError } = await supabase
-      .from('channel_messages')
-      .update({ read_by: reader })
-      .in('id', message_ids)
-      .neq('from_user', reader)
-      .select('id');
+    if (Array.isArray(message_ids) && message_ids.length > 0) {
+      // Mark specific messages
+      ({ data: updatedMessages, error: readError } = await supabase
+        .from('channel_messages')
+        .update({ read_by: reader })
+        .in('id', message_ids)
+        .neq('from_user', reader)
+        .select('id'));
+    } else {
+      // Fallback: Mark all in channel (old GET logic)
+      ({ data: updatedMessages, error: readError } = await supabase
+        .from('channel_messages')
+        .update({ read_by: reader })
+        .eq('channel_id', channel_id)
+        .neq('from_user', reader)
+        .select('id'));
+    }
 
     if (readError) {
       return NextResponse.json(
@@ -34,16 +46,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-          // If we marked anything as read, delete pending unread reminders for this channel/user
-      if ((updatedMessages?.length || 0) > 0) {
-        await supabase
-          .from('scheduled_notifications')
-          .update({ status: 'deleted' })
-          .eq('user_id', reader)
-          .eq('related_entity_id', channel_id)
-          .eq('event_type', 'unread_chat_reminder') // ← Use dedicated column
-          .eq('status', 'pending');
-      }
+    // Remove pending unread reminders if we marked anything
+    if ((updatedMessages?.length || 0) > 0) {
+      await supabase
+        .from('scheduled_notifications')
+        .update({ status: 'deleted' })
+        .eq('user_id', reader)
+        .eq('related_entity_id', channel_id)
+        .eq('event_type', 'unread_chat_reminder')
+        .eq('status', 'pending');
+    }
 
     return NextResponse.json({
       success: true,
@@ -56,5 +68,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-
