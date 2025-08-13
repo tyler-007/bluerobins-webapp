@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { PayPalPayment } from "@/components/PayPalPayment";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { CouponItem } from "./CouponItem";
+import { useRef, useState } from "react";
+import { CouponItem, CouponItemRef } from "./CouponItem";
 
 interface PaymentDialogProps {
   title: string;
@@ -39,8 +39,9 @@ export const PaymentDialog = ({
 }: PaymentDialogProps) => {
   const [showThankYou, setShowThankYou] = useState(false);
   const [finalAmount, setFinalAmount] = useState(amount);
-
+  const couponRef = useRef<CouponItemRef>(null);
   const _onSuccess = (order: any) => {
+    order.coupon = couponRef.current?.couponCode;
     setShowThankYou(true);
     onSuccess(order);
   };
@@ -74,6 +75,7 @@ export const PaymentDialog = ({
               </span>
             </div>
             <CouponItem
+              ref={couponRef}
               finalAmount={finalAmount}
               amount={amount}
               updateFinalAmount={setFinalAmount}

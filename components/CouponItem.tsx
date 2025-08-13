@@ -1,22 +1,45 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
 import { CircleX } from "lucide-react";
 
-export const CouponItem = ({
-  finalAmount,
-  amount,
-  updateFinalAmount,
-}: {
-  finalAmount: number;
-  amount: number;
-  updateFinalAmount: (amount: number) => void;
-}) => {
+export type CouponItemRef = {
+  couponCode: string;
+  setCouponCode: (code: string) => void;
+  clearCoupon: () => void;
+};
+
+export const CouponItem = forwardRef<
+  CouponItemRef,
+  {
+    finalAmount: number;
+    amount: number;
+    updateFinalAmount: (amount: number) => void;
+  }
+>(({ finalAmount, amount, updateFinalAmount }, ref) => {
   const [couponCode, setCouponCode] = useState("");
   const [errorText, setErrorText] = useState("");
   const [codeApplied, setCodeApplied] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      couponCode,
+      setCouponCode: (code: string) => {
+        setErrorText("");
+        setCouponCode(code);
+      },
+      clearCoupon: () => {
+        setCouponCode("");
+        setErrorText("");
+        setCodeApplied("");
+        updateFinalAmount(amount);
+      },
+    }),
+    [couponCode, amount, updateFinalAmount]
+  );
 
   const onApplyCode = useCallback(async () => {
     setIsLoading(true);
@@ -89,4 +112,4 @@ export const CouponItem = ({
       )}
     </div>
   );
-};
+});
