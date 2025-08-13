@@ -134,6 +134,29 @@ export async function POST(request) {
       })
       .select();
     bookingData.push(data);
+
+    // Trigger notification scheduling for this session booking
+    try {
+      const notifyRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/notifications/trigger`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventType: 'session_booked',
+          context: {
+            userId: by_user,
+            sessionTime: start_time,
+            bookingId: data?.[0]?.id,
+            courseDetails: { title, description },
+            phoneNumber: studentDetails.data?.phone_number,
+            email: studentDetails.data?.email,
+          }
+        })
+      });
+      const notifyJson = await notifyRes.json();
+      console.log('[BookPackage] Notification trigger result:', notifyJson);
+    } catch (notifyErr) {
+      console.error('[BookPackage] Failed to trigger notification:', notifyErr);
+    }
   }
 
   return NextResponse.json({
