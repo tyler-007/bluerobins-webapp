@@ -46,7 +46,21 @@ export const formSchema = z.object({
         enabled: z.boolean(),
       })
     )
-    .optional(),
+    .optional()
+    .refine(
+      (availability) => {
+        if (!availability) return true;
+        return availability.every((day) => {
+          if (day.enabled) {
+            return day.start_time && day.end_time;
+          }
+          return true;
+        });
+      },
+      {
+        message: "Start and end times are required for enabled days",
+      }
+    ),
   expertise: z
     .array(z.string().min(1))
     .min(1, { message: "Mentoring areas are required" }),

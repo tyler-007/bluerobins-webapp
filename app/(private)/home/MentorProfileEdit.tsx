@@ -44,8 +44,8 @@ const getValues = (profile: any, defaultValues: FormValues, props: any) => {
         const slots = profile.availability[day];
         const base = {
           day,
-          start_time: "",
-          end_time: "",
+          start_time: "09:00", // Add default value
+          end_time: "17:00",   // Add default value
           enabled: !!slots?.length,
         } as any;
         if ((slots as any[])?.[0]?.start)
@@ -141,7 +141,7 @@ export default function MentorProfileEdit({
 
       const availability = data?.availability?.reduce((acc: any, curr: any) => {
         acc[curr.day] = [];
-        if (curr.enabled)
+        if (curr.enabled && curr.start_time && curr.end_time) // Add validation
           acc[curr.day].push({
             end: curr.end_time,
             start: curr.start_time,
@@ -172,12 +172,15 @@ export default function MentorProfileEdit({
 
       console.log("UPDATED MENTOR PROFILE:", updatedMentorProfile, error);
 
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-      });
+          toast({
+      title: "Success",
+      description: "Profile updated successfully",
+    });
 
-      setOpen(false);
+    setOpen(false);
+    
+    // Refresh the page to show updated availability immediately
+    router.refresh();
     } catch (error) {
       console.log("ERROR:", error);
       toast({
