@@ -21,6 +21,16 @@ export const metadata = {
   metadataBase: new URL(defaultUrl),
   title: "BlueRobins",
   description: "BlueRobins",
+  openGraph: {
+    title: "BlueRobins",
+    description: "BlueRobins",
+    images: ['/og-image.png'],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/og-image.png'],
+  },
 };
 
 const nunitoSans = Nunito({
