@@ -21,7 +21,7 @@ export default async function SearchPage() {
     // For mentors: fetch all projects in one query
     const { data: allProjects, error } = await supabase
       .from("projects")
-      .select("*, mentor:profiles!projects_mentor_user_fkey(name, avatar)")
+      .select("*, mentor:profiles(name, avatar)")
       .eq("deleted", false)
       .eq("mentor_user", user.id);
 
@@ -41,7 +41,7 @@ export default async function SearchPage() {
     // Fetch upcoming projects
     let upcomingQuery = supabase
       .from("projects")
-      .select("*, mentor:profiles!projects_mentor_user_fkey(name, avatar)")
+      .select("*, mentor:profiles(name, avatar)")
       .eq("deleted", false)
       .gte("session_time", new Date().toISOString());
 
@@ -53,7 +53,7 @@ export default async function SearchPage() {
     // Fetch past projects
     let pastQuery = supabase
       .from("projects")
-      .select("*, mentor:profiles!projects_mentor_user_fkey(name, avatar)")
+      .select("*, mentor:profiles(name, avatar)")
       .eq("deleted", false)
       .lt("session_time", new Date().toISOString());
     
