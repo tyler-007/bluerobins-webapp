@@ -9,7 +9,7 @@ export async function GET(request) {
 
   const { data, error } = await adminBase
     .from("student_profiles")
-    .select("id, timezone, ...profiles(name, avatar)")
+    .select("id, timezone, ...profiles!projects_mentor_user_fkey(name, avatar)")
     .in("id", students);
 
   return NextResponse.json(data);

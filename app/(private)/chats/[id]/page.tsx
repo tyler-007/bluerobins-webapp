@@ -7,7 +7,7 @@ export default async function ChatPage({ params }: any) {
 
   const { data: channelMembers } = await supabase
     .from("channel_members")
-    .select("*, ...profiles(name, avatar)")
+    .select("*, ...profiles!projects_mentor_user_fkey(name, avatar)")
     .eq("channel_id", id);
 
   const { data: user } = await supabase.auth.getUser();

@@ -18,7 +18,7 @@ export default async function SearchPage() {
 
   const { data: new_mentors } = await supabase
     .from("mentor_profiles")
-    .select("*, ...profiles(*)");
+    .select("*, ...profiles!projects_mentor_user_fkey(*)");
   const allMentors = [...(new_mentors ?? [])];
 
   return <View mentors={allMentors} />;
