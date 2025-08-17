@@ -3,6 +3,7 @@
 import {
   Calendar,
   Clock,
+  Copy,
   DollarSign,
   Edit3,
   Hash,
@@ -131,7 +132,45 @@ export default function NewProjectCard({
 
   const onEdit = () => {
     setNavigating(true);
-    router.push(`/project-hub/${package_id}/edit`);
+    // Navigate to create page in edit mode with pre-filled data
+    const queryParams = new URLSearchParams({
+      edit: 'true',
+      id: package_id.toString(),
+      title: title || '',
+      description: description || '',
+      categories: tags.join(','),
+      sessions: sessions_count?.toString() || '',
+      spots: spots?.toString() || '',
+      dayOfWeek: session_day || '',
+      time: dayjs(session_time).format('HH:mm'),
+      startDate: start_date ? dayjs(start_date).format('YYYY-MM-DD') : '',
+      typeOfProject: projectDetails?.type_of_project || '',
+      agenda: JSON.stringify(agenda || []),
+      tools: JSON.stringify(tools || []),
+      prerequisites: JSON.stringify(prerequisites || [])
+    });
+    router.push(`/project-hub/create?${queryParams.toString()}`);
+  };
+
+  const onDuplicate = () => {
+    setNavigating(true);
+    // Navigate to create page in duplicate mode with pre-filled data
+    const queryParams = new URLSearchParams({
+      duplicate: package_id.toString(),
+      title: title || '',
+      description: description || '',
+      categories: tags.join(','),
+      sessions: sessions_count?.toString() || '',
+      spots: spots?.toString() || '',
+      dayOfWeek: session_day || '',
+      time: dayjs(session_time).format('HH:mm'),
+      startDate: start_date ? dayjs(start_date).format('YYYY-MM-DD') : '',
+      typeOfProject: projectDetails?.type_of_project || '',
+      agenda: JSON.stringify(agenda || []),
+      tools: JSON.stringify(tools || []),
+      prerequisites: JSON.stringify(prerequisites || [])
+    });
+    router.push(`/project-hub/create?${queryParams.toString()}`);
   };
 
   if (!projectDetails) {
@@ -144,22 +183,18 @@ export default function NewProjectCard({
     return null;
   }
 
-  return (
-    <div className="relative bg-white rounded-xl shadow-sm border border-gray-200 p-6 pb-2 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between ">
-      <div className="flex flex-col flex-1">
-        <div className="flex">
-          <h2 className="text-2xl font-bold mb-1 flex-1">{title}</h2>
-          {isMentor && (
-            <Button
-              onClick={onEdit}
-              variant="ghost"
-              className="text-blue-500 flex -mt-1"
-            >
-              <Edit3 className="w-3 h-3 mr-1" />
-              <span className="text-sm">Edit</span>
-            </Button>
-          )}
-        </div>
+     return (
+     <div className="relative bg-white rounded-xl shadow-sm border border-gray-200 p-6 pb-2 w-[30%] min-w-[320px] max-w-sm flex flex-col justify-between ">
+       {/* Enrolled Students Badge - Only for Mentors */}
+       {isMentor && (
+         <div className="absolute right-4 -top-[10px] rounded-xl border border-blue-200 bg-blue-50 text-blue-700 px-3 py-1 text-sm font-medium">
+           {spots - spotsLeft} / {spots} Enrolled
+         </div>
+       )}
+       <div className="flex flex-col flex-1">
+                 <div className="flex">
+           <h2 className="text-2xl font-bold mb-1 flex-1">{title}</h2>
+         </div>
 
         <div className="flex flex-wrap gap-2 mb-2">
           {tags.map((tag) => (
@@ -221,24 +256,26 @@ export default function NewProjectCard({
       </div>
       {isMentor && (
         <>
-          <div className="flex items-center bg-[#f0f7fa] p-3 pt-2 rounded-lg gap-2">
-            <Users className="w-4 h-4" />
-            <span className="text-black text-base font-normal flex-1">
-              {spots - spotsLeft} / {spots} Enrolled
-            </span>
-            {/* <Button variant="default" size="sm" className="text-sm rounded-md">
-          Invite
-        </Button> */}
+          <div className="flex gap-2 p-3 pt-2">
+            <Button
+              onClick={onEdit}
+              variant="outline"
+              size="sm"
+              className="flex-1"
+            >
+              <Edit3 className="w-3 h-3 mr-1" />
+              Edit
+            </Button>
+            <Button
+              onClick={onDuplicate}
+              variant="outline"
+              size="sm"
+              className="flex-1"
+            >
+              <Copy className="w-3 h-3 mr-1" />
+              Duplicate
+            </Button>
           </div>
-          {/* <div className="flex justify-between"> */}
-          {/* <PricingInfoDialog
-            sessionCount={sessions_count}
-            triggerText="View Pricing Info"
-            buttonProps={{
-              className: "text-blue-500",
-            }}
-          /> */}
-          {/* </div> */}
         </>
       )}
       {!isMentor && (
