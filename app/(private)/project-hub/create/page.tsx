@@ -263,12 +263,8 @@ export default function CreatePage() {
   // Apply initial data to form when it changes
   useEffect(() => {
     if (getInitialData && !isLoading) {
-      console.log('🎯 Applying initial data to form:', getInitialData);
-      
       // Set form values efficiently without validation
       Object.entries(getInitialData).forEach(([key, value]) => {
-        console.log(`Setting ${key}:`, value);
-        
         if (key === 'sessionDescriptions') {
           form.setValue('sessionDescriptions', value as string[], { shouldValidate: false });
         } else if (key === 'tools') {
@@ -279,12 +275,6 @@ export default function CreatePage() {
           form.setValue(key as any, value, { shouldValidate: false });
         }
       });
-      
-      // Debug: Check what was actually set
-      setTimeout(() => {
-        console.log('✅ Form values after setting:', form.getValues());
-        console.log('📅 StartDate specifically:', form.getValues('startDate'));
-      }, 100);
 
       // Update selected categories
       if (getInitialData.category) {
@@ -499,6 +489,37 @@ export default function CreatePage() {
     }
   }, [customCategory, selectedCategories, form]);
 
+  // Delete project function
+  const onDelete = useCallback(async () => {
+    if (!projectId) {
+      alert("Error: Project ID not found.");
+      return;
+    }
+
+    const confirmed = confirm("Are you sure you want to delete this project? This action cannot be undone.");
+    if (!confirmed) return;
+
+         try {
+       const { error } = await supabase
+         .from("projects")
+         .update({ deleted: true })
+         .eq("id", projectId);
+
+             if (error) {
+         console.error("Error deleting project:", error);
+         alert(`Error deleting project: ${error.message}`);
+       } else {
+         console.log("Project deleted successfully");
+         alert("Project deleted successfully");
+         router.replace("/project-hub");
+         router.refresh();
+       }
+    } catch (error) {
+      console.error("Unexpected error deleting project:", error);
+      alert("An unexpected error occurred while deleting the project. Please try again.");
+    }
+  }, [projectId, supabase, router]);
+
   // Form submission
   const onSubmit = useCallback(async (values: FormValues) => {
     try {
@@ -638,7 +659,7 @@ export default function CreatePage() {
             <ArrowLeft className="w-6 h-6" />
           </Button>
                       <h1 className="text-2xl font-bold flex-1">{getPageTitle()}</h1>
-          <div className="flex justify-end gap-4 pt-4">
+                    <div className="flex justify-end gap-4 pt-4">
             <Button
               variant="outline"
               type="button"
@@ -646,13 +667,24 @@ export default function CreatePage() {
             >
               Cancel
             </Button>
+            {isEditing && (
+              <Button
+                variant="outline"
+                type="button"
+                onClick={onDelete}
+                disabled={form.formState.isSubmitting}
+                className="border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+              >
+                Delete Project
+              </Button>
+            )}
             <Button
               loading={form.formState.isSubmitting}
               type="submit"
               className="px-8"
               onClick={form.handleSubmit(onSubmit)}
             >
-                              {getSubmitButtonText()}
+              {getSubmitButtonText()}
             </Button>
           </div>
         </div>
