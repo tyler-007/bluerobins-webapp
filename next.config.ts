@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
       "zjcrwkaeulxkaprlmrbz.supabase.co",
       "rfjjvnjkqjszvgewklac.supabase.co",
       "dev.bluerobins.com",
+      "https://bluerobins-webapp-cj8zvf1fq-aayush-jains-projects.vercel.app"
     ],
   },
 };
