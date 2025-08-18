@@ -56,23 +56,26 @@ export class WebhookService {
     }
   }
 
-  private async handleDelete(projectId: string, oldRecord: Record<string, any>): Promise<WebhookResult> {
+  private async handleDelete(
+    projectId: string,
+    oldRecord?: Record<string, any>
+  ): Promise<WebhookResult> {
     try {
       console.log(`🗑️ Handling DELETE for project ${projectId}`);
-
+  
       // Use Weaviate service for vector storage
       const success = await weaviateService.deleteProject(projectId);
-
+  
       if (success) {
         return {
           status: "success",
           project_id: projectId,
-          action: "deleted"
+          action: "deleted",
         };
       } else {
         return {
           status: "error",
-          message: `Failed to delete project ${projectId}`
+          message: `Failed to delete project ${projectId}`,
         };
       }
     } catch (error) {
