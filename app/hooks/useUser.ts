@@ -11,6 +11,6 @@ export const useUser = () => {
       const { data, error } = await supabase.auth.getUser();
       return data.user;
     },
-    cacheTime: 1000 * 60 * 60, // cache for 1 hour
+    gcTime: 1000 * 60 * 60, // ✅ use gcTime instead of cacheTime in v5
   });
 };
