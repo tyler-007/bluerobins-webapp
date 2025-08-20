@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import Avatar from "@/components/shared/Avatar";
 
 export const OtherMentorChatItem = ({ mentor }: { mentor: any }) => {
-  const { data: user } = useUser();
+  const { data: user } = useUser() as { data: { id: string } | null };
   const userId = user?.id;
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
