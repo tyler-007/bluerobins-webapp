@@ -13,7 +13,7 @@ export const extractPlanSignatures = async (description: string, agenda?: any): 
     CONFIG.deployments.reason,
     system_prompt,
     user_prompt,
-    { max_completion_tokens: 2500, reasoning_effort: "low", temperature: (CONFIG as any).temperatures?.signature ?? CONFIG.temperature }
+    { max_completion_tokens: 4000, reasoning_effort: "low", temperature: (CONFIG as any).temperatures?.signature ?? CONFIG.temperature }
   );
 
   try {
@@ -58,7 +58,7 @@ export const enrichProjectDescription = async (description: string, agenda?: any
     CONFIG.deployments.reason,
     system_prompt,
     user_prompt,
-    { max_completion_tokens: 2500, reasoning_effort: "low", temperature: (CONFIG as any).temperatures?.session_enrich ?? CONFIG.temperature }
+    { max_completion_tokens: 4000, reasoning_effort: "low", temperature: (CONFIG as any).temperatures?.session_enrich ?? CONFIG.temperature }
   );
 
   if (!enriched) return description;
@@ -303,7 +303,7 @@ export const repairWithReasoning = async (badPlan: string, reason: string, total
     CONFIG.deployments.reason,
     system_prompt,
     user_prompt,
-    { max_completion_tokens: 2500, reasoning_effort: "low", temperature: (CONFIG as any).temperatures?.session_repair ?? CONFIG.temperature }
+    { max_completion_tokens: 4000, reasoning_effort: "low", temperature: (CONFIG as any).temperatures?.session_repair ?? CONFIG.temperature }
   );
 };
 
@@ -358,6 +358,6 @@ export const patchSignaturesWithReasoning = async (
     CONFIG.deployments.reason,
     system_prompt,
     user_prompt,
-    { max_completion_tokens: 2500, reasoning_effort: "low", temperature: (CONFIG as any).temperatures?.session_patch ?? CONFIG.temperature }
+    { max_completion_tokens: 4000, reasoning_effort: "low", temperature: (CONFIG as any).temperatures?.session_patch ?? CONFIG.temperature }
   );
 };

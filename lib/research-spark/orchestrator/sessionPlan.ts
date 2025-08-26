@@ -74,7 +74,7 @@ import {
         genDeployment,
         draftSystem,
         genPrompt,
-        { temperature: (CONFIG as any).temperatures?.session_draft ?? CONFIG.temperature, max_tokens: 2500 }
+        { temperature: (CONFIG as any).temperatures?.session_draft ?? CONFIG.temperature, max_tokens: 4000 }
       );
       if (!draft) throw new Error("Draft generation failed.");
       drafts.push(draft);
@@ -93,7 +93,7 @@ import {
       reasonDeployment,
       synthSystem,
       synthPrompt,
-      { reasoning_effort: "low", max_completion_tokens: 2500, temperature: (CONFIG as any).temperatures?.session_synth ?? CONFIG.temperature }
+      { reasoning_effort: "low", max_completion_tokens: 4000, temperature: (CONFIG as any).temperatures?.session_synth ?? CONFIG.temperature }
     );
     if (!finalPlan) throw new Error("Synthesis failed.");
   
