@@ -15,6 +15,6 @@ export const useProfile = (id: string) => {
         .single();
       return data;
     },
-    cacheTime: 1000 * 60 * 60, // cache for 1 hour
+    gcTime: 1000 * 60 * 60, // cache for 1 hour
   });
 };
